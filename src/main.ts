@@ -1,6 +1,6 @@
 import './style.css';
 
-type Screen = 'home' | 'path' | 'filters' | 'categories';
+type Screen = 'home' | 'path' | 'filters' | 'categories' | 'possibilities';
 
 const appRoot = document.querySelector<HTMLDivElement>('#app');
 if (!appRoot) throw new Error('App root not found');
@@ -83,21 +83,34 @@ function render() {
     return;
   }
 
+  if (screen === 'categories') {
+    app.innerHTML = `
+      <main class="shell">
+        <header><p class="eyebrow">Start a Business</p><h1>Choose a category</h1></header>
+        <section class="actions" aria-label="Business categories">
+          ${businessCategories.map((label) => `<button class="choice category" type="button" data-category="${label}">${label}<span aria-hidden="true">›</span></button>`).join('')}
+        </section>
+        ${mic()}
+        ${nav('filters')}
+      </main>`;
+    app.querySelectorAll<HTMLButtonElement>('.category').forEach((button) => {
+      button.addEventListener('click', () => {
+        localStorage.setItem('skill-aur-dhandha-selected-category', button.dataset.category || '');
+        go('possibilities');
+      });
+    });
+    wireNav('filters');
+    return;
+  }
+
+  const selectedCategory = localStorage.getItem('skill-aur-dhandha-selected-category') || 'Selected category';
   app.innerHTML = `
     <main class="shell">
-      <header><p class="eyebrow">Start a Business</p><h1>Choose a category</h1></header>
-      <section class="actions" aria-label="Business categories">
-        ${businessCategories.map((label) => `<button class="choice category" type="button" data-category="${label}">${label}<span aria-hidden="true">›</span></button>`).join('')}
-      </section>
+      <header><p class="eyebrow">${selectedCategory}</p><h1>Business possibilities</h1><p>Your category selection is saved. This confirms the S12 to S13 navigation boundary; evidence-backed possibility cards are the next bounded build step.</p></header>
       ${mic()}
-      ${nav('filters')}
+      ${nav('categories')}
     </main>`;
-  app.querySelectorAll<HTMLButtonElement>('.category').forEach((button) => {
-    button.addEventListener('click', () => {
-      localStorage.setItem('skill-aur-dhandha-selected-category', button.dataset.category || '');
-    });
-  });
-  wireNav('filters');
+  wireNav('categories');
 }
 
 render();
