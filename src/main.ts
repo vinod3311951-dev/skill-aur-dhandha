@@ -2,8 +2,9 @@ import './style.css';
 
 type Screen = 'home' | 'path';
 
-const app = document.querySelector<HTMLDivElement>('#app');
-if (!app) throw new Error('App root not found');
+const appRoot = document.querySelector<HTMLDivElement>('#app');
+if (!appRoot) throw new Error('App root not found');
+const app: HTMLDivElement = appRoot;
 
 const homeButtons = ['Find My Path', 'Find My Market', 'Paisa Check', 'Learn & Grow', 'Government Help'];
 let screen: Screen = 'home';
