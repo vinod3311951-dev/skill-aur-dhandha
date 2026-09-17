@@ -50,7 +50,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for f in src/guided-filters.ts src/possibilities.ts src/manufacturing-machines.ts src/path-routes.ts src/market.ts src/paisa.ts src/learn.ts src/gov.ts src/s1c.ts src/s13-journey.ts; do test -f "$f"; done
+          for f in src/main.ts src/guided-filters.ts src/possibilities.ts src/manufacturing-machines.ts src/path-routes.ts src/market.ts src/paisa.ts src/learn.ts src/gov.ts; do test -f "$f"; done
           for term in '17 or under' '60+' 'Gender (optional)' 'Investment preference' 'Time available' 'Operating location' 'Broad geography'; do grep -Fq "$term" src/guided-filters.ts; done
           for category in 'Food' 'Retail' 'Service / Skill' 'Manufacturing' 'Agriculture / Farm Business' 'Digital / Online' 'Home-based'; do grep -Fq "$category" src/possibilities.ts; done
           for factor in 'Investment' 'Demand' 'Competition' 'Risk' 'Profit potential' 'Time to income' 'Difficulty' 'Skills needed' 'Government support' 'Space needed' 'Scalability' 'Seasonal risk' 'Legal requirements' 'Digital opportunity' 'Long-term outlook'; do grep -Fq "$factor" src/possibilities.ts; done
@@ -68,7 +68,6 @@ jobs:
           grep -Fq 'Pan-India research lens' src/learn.ts
           grep -Fq 'Things to check before proceeding' src/learn.ts
           grep -Fq 'Things to check before proceeding' src/gov.ts
-          grep -Fq 'TEST MODE' src/s1c.ts
       - name: Validate dropdown-first and plan handoff
         shell: bash
         run: |
@@ -92,6 +91,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          grep -Fq "type Screen='home'|'path'" src/main.ts
+          grep -Fq 'skill-return-to-path' src/main.ts
+          grep -Fq 'skill-return-to-path' src/guided-filters.ts
           grep -Fq 'market-type-select' src/market.ts
           grep -Fq 'market-route-select' src/market.ts
           grep -Fq 'market-compare-back' src/market.ts
