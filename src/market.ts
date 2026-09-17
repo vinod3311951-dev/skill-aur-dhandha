@@ -1,5 +1,6 @@
 const marketChoices=['Farm Produce','Product','My Skill/Service','Business Customers','Where Can I Sell?','Understand My Market'] as const;
 let selectedMarket='';
+let selectedRoute='';
 
 const mic=()=>`<button class="mic" type="button" aria-label="Voice input"><span aria-hidden="true">●</span> Any Indian language</button>`;
 const marketNav=(backId:string)=>`<nav class="nav" aria-label="Navigation"><button id="${backId}" type="button">← Back</button><button id="market-home" type="button">Home</button></nav>`;
@@ -11,6 +12,17 @@ const routes:Record<string,string[]>={
  'Business Customers':['Distributor','Institutional route','Processor'],
  'Where Can I Sell?':['Local market','Retailer','Distributor','Digital commerce','Institutional route'],
  'Understand My Market':['Local market','Retailer','Distributor','Digital commerce','Institutional route']
+};
+
+const routeChecks:Record<string,string[]>={
+ 'Local market':['Check which nearby market type actually handles your offering.','Compare transport, handling, timing and payment terms before relying on the route.','Validate demand with a small real-world test rather than assuming local demand.'],
+ 'FPO':['Check whether an appropriate Farmer Producer Organisation operates in your area and commodity.','Verify membership, aggregation, quality and logistics requirements directly with the organisation.','Use an official source to identify schemes or registered FPO information where available.'],
+ 'e-NAM':['Check whether your commodity and relevant mandi are supported.','Review quality, lot, logistics, registration and trading requirements on the official portal.','Treat portal availability as a route to investigate, not a guaranteed sale or price.'],
+ 'Retailer':['Check product fit, pack size, shelf life or service requirements.','Ask about order size, returns, credit/payment cycle and delivery expectations.','Compare more than one retailer before estimating demand or margin.'],
+ 'Processor':['Check whether processors in the relevant value chain accept your commodity or input.','Confirm grade, quantity, delivery schedule, rejection rules and payment terms.','Do not assume a processor relationship until independently verified.'],
+ 'Distributor':['Check territory, minimum order, margin, returns and credit terms.','Verify who bears logistics, damaged stock and unsold inventory risk.','Compare direct selling with distributor economics before deciding.'],
+ 'Digital commerce':['Check category eligibility, catalogue, fulfilment, fees and return requirements.','Calculate packaging, logistics, returns and platform/network costs before estimating margin.','Use trusted network or platform information; visibility does not guarantee orders.'],
+ 'Institutional route':['Define the institution type and its procurement process first.','Check specifications, quantity, documentation, delivery and payment cycle.','Use official procurement or organisation channels where applicable; do not rely on informal claims.']
 };
 
 function renderMarket(){
@@ -27,7 +39,28 @@ function renderMarketDetails(){
 function renderRoutes(){
  const app=document.querySelector<HTMLDivElement>('#app'); if(!app)return;
  const list=routes[selectedMarket]||routes['Understand My Market'];
- app.innerHTML=`<main class="shell"><header><p class="eyebrow">Find My Market · ${selectedMarket}</p><h1>Relevant routes to explore</h1><p>S22 — these are route categories to investigate, not buyer recommendations, listings or guaranteed sales channels.</p></header><section class="actions">${list.map((x,i)=>`<button class="choice market-route" data-route="${i}" type="button">${x}<span>›</span></button>`).join('')}</section><article class="card" id="route-note"><p>Select a route to see what it means. Evidence and practical checks follow in the next stage.</p></article><article class="card"><p><strong>Platform boundary:</strong> no buyer/seller authentication, listing, transaction, commission or guaranteed outcome is provided.</p></article>${mic()}${marketNav('market-routes-back')}</main>`;
+ app.innerHTML=`<main class="shell"><header><p class="eyebrow">Find My Market · ${selectedMarket}</p><h1>Relevant routes to explore</h1><p>S22 — these are route categories to investigate, not buyer recommendations, listings or guaranteed sales channels.</p></header><section class="actions">${list.map((x,i)=>`<button class="choice market-route" data-route="${i}" type="button">${x}<span>›</span></button>`).join('')}</section><article class="card"><p>Select a route to continue to evidence and practical checks.</p></article><article class="card"><p><strong>Platform boundary:</strong> no buyer/seller authentication, listing, transaction, commission or guaranteed outcome is provided.</p></article>${mic()}${marketNav('market-routes-back')}</main>`;
+}
+
+function renderChecks(){
+ const app=document.querySelector<HTMLDivElement>('#app'); if(!app)return;
+ const checks=routeChecks[selectedRoute]||['Verify route requirements with a trusted source.','Test demand and economics before committing resources.','Confirm counterparties and terms independently.'];
+ app.innerHTML=`<main class="shell"><header><p class="eyebrow">Find My Market · ${selectedRoute}</p><h1>Evidence & practical checks</h1><p>S23 — use these checks before treating this route as practical for you.</p></header><section class="card"><ol>${checks.map(x=>`<li>${x}</li>`).join('')}</ol></section><article class="card"><p><strong>Evidence rule:</strong> route availability is not proof of local demand, profitability, a buyer, a price or eligibility. Verify current requirements with the relevant official or trusted destination.</p></article><button class="choice" id="market-trusted-path" type="button">Trusted / official path<span>›</span></button>${mic()}${marketNav('market-checks-back')}</main>`;
+}
+
+function renderTrustedPath(){
+ const app=document.querySelector<HTMLDivElement>('#app'); if(!app)return;
+ const official:selectedLink|null = officialLink(selectedRoute);
+ const external=official?`<a class="choice" href="${official.url}" target="_blank" rel="noopener noreferrer">${official.label}<span>↗</span></a>`:`<div class="card"><p>No single national official portal is appropriate for every ${selectedRoute.toLowerCase()} route. Verify the relevant organisation, local authority, procurement channel or platform directly before acting.</p></div>`;
+ app.innerHTML=`<main class="shell"><header><p class="eyebrow">Find My Market · ${selectedRoute}</p><h1>Trusted / official path</h1><p>S24 — continue outside Skill Aur Dhandha using an appropriate trusted or official destination.</p></header>${external}<article class="card"><p><strong>Important:</strong> Skill Aur Dhandha does not own the external service, authenticate buyers or sellers, process transactions, collect commissions, guarantee eligibility, sales, prices or outcomes. Check current terms on the destination before proceeding.</p></article>${mic()}${marketNav('market-trusted-back')}</main>`;
+}
+
+type selectedLink={label:string,url:string};
+function officialLink(route:string):selectedLink|null{
+ if(route==='e-NAM')return {label:'Open official e-NAM portal',url:'https://enam.gov.in/'};
+ if(route==='FPO')return {label:'Open SFAC FPO information',url:'https://www.sfacindia.com/FPOS.aspx'};
+ if(route==='Digital commerce')return {label:'Explore ONDC official network',url:'https://www.ondc.org/'};
+ return null;
 }
 
 function saveDetails(){
@@ -43,8 +76,11 @@ document.addEventListener('click',(event)=>{
  const choice=target.closest<HTMLButtonElement>('.market-choice');
  if(choice){const index=Number(choice.dataset.market);const selected=marketChoices[index];if(selected){selectedMarket=selected;localStorage.setItem('skill-aur-dhandha-market-type',selected);renderMarketDetails();}return;}
  const route=target.closest<HTMLButtonElement>('.market-route');
- if(route){const list=routes[selectedMarket]||routes['Understand My Market'];const name=list[Number(route.dataset.route)];const out=document.querySelector<HTMLElement>('#route-note');if(name&&out)out.innerHTML=`<h2>${name}</h2><p>This is a route category to investigate for ${selectedMarket.toLowerCase()}. It is not a specific buyer recommendation or guaranteed sales channel.</p>`;return;}
+ if(route){const list=routes[selectedMarket]||routes['Understand My Market'];const name=list[Number(route.dataset.route)];if(name){selectedRoute=name;localStorage.setItem('skill-aur-dhandha-market-route',name);renderChecks();}return;}
  if(target.closest('#market-details-save')){saveDetails();return;}
+ if(target.closest('#market-trusted-path')){renderTrustedPath();return;}
+ if(target.closest('#market-trusted-back')){renderChecks();return;}
+ if(target.closest('#market-checks-back')){renderRoutes();return;}
  if(target.closest('#market-routes-back')){renderMarketDetails();return;}
  if(target.closest('#market-details-back')){renderMarket();return;}
  if(target.closest('#market-back')||target.closest('#market-home')){location.reload();}
