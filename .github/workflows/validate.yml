@@ -50,11 +50,11 @@ jobs:
           test -f src/market.ts
           test -f src/paisa.ts
           grep -qi 'does not broker' src/path-routes.ts
-          grep -qi 'does not process applications' src/gov.ts
+          grep -qi 'does not process government applications' src/gov.ts
           grep -qi 'Aadhaar' src/gov.ts
           grep -qi 'PAN' src/gov.ts
           grep -qi 'payments' src/market.ts
           grep -qi 'commissions' src/market.ts
-          grep -qi 'Aadhaar' src/paisa.ts
-          grep -qi 'PAN' src/paisa.ts
+          grep -qi 'Aadhaar/PAN' src/paisa.ts
+          grep -qi 'payment information' src/paisa.ts
           echo 'Frozen privacy/platform boundaries present.'
