@@ -26,7 +26,7 @@ Choose → Refine with dropdowns → See 15–20 possibilities → Select one �
 - [x] Offline service worker and standalone manifest present.
 - [x] Green interactive-panel/mobile touch treatment.
 - [x] Automated regression gates cover frozen privacy, navigation, dropdown and plan handoff boundaries.
-- [ ] Verify every external official destination against current authoritative source before release.
+- [~] Official-source register is active and already records myScheme, Udyam, Income Tax, NSWS, NCS, SFAC/FPO and ONDC; remaining production destinations must be verified before release.
 - [ ] Complete source-grounded Pan-India research provenance layer.
 - [ ] Validate calculator edge cases and labels in Formal Audit 1.
 - [ ] Add conventional 192×192 and 512×512 PNG install icons in addition to the current SVG before release packaging.
