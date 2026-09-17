@@ -76,6 +76,9 @@ jobs:
           for factor in 'Investment' 'Demand' 'Competition' 'Risk' 'Profit potential' 'Time to income' 'Difficulty' 'Skills needed' 'Government support' 'Space needed' 'Scalability' 'Seasonal risk' 'Legal requirements' 'Digital opportunity' 'Long-term outlook'; do grep -Fq "$factor" src/possibilities.ts; done
           grep -Fq '5-Step Decision Journey' src/s13-journey.ts
           grep -Fq 'Step ${i+1} of ${steps.length}' src/s13-journey.ts
+          grep -Fq 'YOUR CALCULATION' src/s13-journey.ts
+          grep -Fq 'Break-even meals / month' src/s13-journey.ts
+          grep -Fq 'Modeled surplus / shortfall' src/s13-journey.ts
           grep -Fq '5-step practice roadmap' src/learn.ts
           grep -Fq 'Before paying for a course' src/learn.ts
           grep -Fq 'National Career Service' src/gov.ts
