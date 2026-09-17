@@ -31,7 +31,6 @@ jobs:
           grep -q '"display": "standalone"' dist/manifest.webmanifest
           grep -q '"start_url": "/"' dist/manifest.webmanifest
           grep -q 'caches.open' dist/sw.js
-          echo 'PWA shell validation passed.'
       - name: Validate frozen safety boundaries
         shell: bash
         run: |
@@ -45,9 +44,8 @@ jobs:
           grep -qi 'commissions' src/market.ts
           grep -qi 'Aadhaar' src/paisa.ts
           grep -qi 'PAN' src/paisa.ts
-          grep -Fq 'does not infer tax from an MSME/SME label' src/paisa.ts
-          grep -Fq 'no name, exact DOB, address, Aadhaar, PAN or bank details' src/guided-filters.ts
-          echo 'Frozen privacy/platform boundaries present.'
+          grep -Fq 'Do not infer tax from an MSME/SME label' src/paisa.ts
+          grep -Fq 'no name, exact DOB, address, Aadhaar, PAN or bank information' src/guided-filters.ts
       - name: Validate corrected blueprint coverage
         shell: bash
         run: |
@@ -71,7 +69,6 @@ jobs:
           grep -Fq 'Things to check before proceeding' src/learn.ts
           grep -Fq 'Things to check before proceeding' src/gov.ts
           grep -Fq 'TEST MODE' src/s1c.ts
-          echo 'Corrected blueprint coverage passed.'
       - name: Validate navigation and corrected workflows
         shell: bash
         run: |
@@ -91,4 +88,3 @@ jobs:
           grep -Fq 'learn-readiness-back' src/learn.ts
           grep -Fq 'gov-mode-select' src/gov.ts
           grep -Fq 'Compare before deciding' src/path-routes.ts
-          echo 'Navigation and corrected workflow guards passed.'
