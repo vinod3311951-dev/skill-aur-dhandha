@@ -130,6 +130,18 @@ jobs:
           grep -Fq 'learn-readiness-back' src/learn.ts
           grep -Fq 'gov-mode-select' src/gov.ts
           grep -Fq 'Compare before deciding' src/path-routes.ts
+      - name: Validate local utility settings
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq "type Lang='English'|'Hindi'|'Roman Hindi'" src/main.ts
+          grep -Fq 'skill-aur-dhandha-language' src/main.ts
+          grep -Fq 'language-select' src/main.ts
+          grep -Fq 'saved readiness preferences' src/main.ts
+          grep -Fq 'skill-aur-dhandha-reduced-motion' src/main.ts
+          grep -Fq 'motion-select' src/main.ts
+          grep -Fq 'clear-local-plans' src/main.ts
+          grep -Fq 'data-reduced-motion="true"' src/style.css
       - name: Validate local-only plan architecture
         shell: bash
         run: |
