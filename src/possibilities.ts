@@ -11,14 +11,8 @@ function renderPossibilities(category: string) {
   </main>`;
   document.querySelector('#s13-back')?.addEventListener('click', () => history.back());
   document.querySelector('#s13-home')?.addEventListener('click', () => { location.href = '/'; });
-  document.querySelector('#s13-evidence')?.addEventListener('click', () => {
-    history.pushState({ skillScreen: 'evidence' }, '', '#evidence');
-    location.reload();
-  });
-  document.querySelector('#s13-test')?.addEventListener('click', () => {
-    history.pushState({ skillScreen: 'simulator' }, '', '#simulator');
-    location.reload();
-  });
+  document.querySelector('#s13-evidence')?.addEventListener('click', () => document.dispatchEvent(new CustomEvent('skill-route', { detail: 'evidence' })));
+  document.querySelector('#s13-test')?.addEventListener('click', () => document.dispatchEvent(new CustomEvent('skill-route', { detail: 'simulator' })));
 }
 
 document.addEventListener('click', (event) => {
