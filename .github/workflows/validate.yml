@@ -57,6 +57,7 @@ jobs:
           grep -qi 'commissions' src/market.ts
           grep -qi 'Aadhaar/PAN' src/paisa.ts
           grep -qi 'payment information' src/paisa.ts
+          grep -Fq 'does not infer demand, profit or eligibility' src/guided-filters.ts
           echo 'Frozen privacy/platform boundaries present.'
       - name: Validate blueprint coverage
         shell: bash
@@ -70,6 +71,7 @@ jobs:
           grep -q 'Time available' src/guided-filters.ts
           grep -q 'Operating location' src/guided-filters.ts
           grep -q 'Broad geography' src/guided-filters.ts
+          grep -Fq 'Suggested ·' src/guided-filters.ts
           for category in 'Food' 'Retail' 'Service / Skill' 'Manufacturing' 'Agriculture / Farm Business' 'Digital / Online' 'Home-based'; do grep -Fq "$category" src/possibilities.ts; done
           for factor in 'Investment' 'Demand' 'Competition' 'Risk' 'Profit potential' 'Time to income' 'Difficulty' 'Skills needed' 'Government support' 'Space needed' 'Scalability' 'Seasonal risk' 'Legal requirements' 'Digital opportunity' 'Long-term outlook'; do grep -Fq "$factor" src/possibilities.ts; done
           grep -Fq '5-Step Decision Journey' src/s13-journey.ts
