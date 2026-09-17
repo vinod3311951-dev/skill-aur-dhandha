@@ -26,3 +26,18 @@ jobs:
         run: npm install --ignore-scripts
       - name: Build
         run: npm run build
+      - name: Validate PWA shell
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f dist/index.html
+          test -f dist/manifest.webmanifest
+          test -f dist/sw.js
+          test -f dist/icon.svg
+          grep -q 'manifest.webmanifest' dist/index.html
+          grep -q 'serviceWorker' dist/index.html
+          grep -q '"display": "standalone"' dist/manifest.webmanifest
+          grep -q '"start_url": "/"' dist/manifest.webmanifest
+          grep -q "caches.open" dist/sw.js
+          grep -q "self.addEventListener('fetch'" dist/sw.js
+          echo 'PWA shell validation passed.'
