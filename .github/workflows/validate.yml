@@ -154,6 +154,10 @@ jobs:
           test -f src/voice.ts
           test -f docs/VOICE-LANGUAGE-ARCHITECTURE.md
           grep -Fq '/src/voice.ts' index.html
+          test -f src/language-service.ts
+          grep -Fq '/src/language-service.ts' index.html
+          grep -Fq 'registerLanguageProvider' src/language-service.ts
+          grep -Fq 'no provider secrets are stored in the client' src/language-service.ts
           grep -Fq 'SpeechRecognition' src/voice.ts
           grep -Fq 'SpeechSynthesisUtterance' src/voice.ts
           grep -Fq 'supportedLocales' src/voice.ts
