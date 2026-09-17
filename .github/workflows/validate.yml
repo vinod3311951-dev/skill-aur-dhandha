@@ -76,3 +76,13 @@ jobs:
           grep -q 'TEST MODE' src/s1c.ts
           grep -q '₹0 charged' src/s1c.ts
           echo 'Blueprint coverage checks passed.'
+      - name: Validate navigation and compare workflows
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'marketRoot' src/market.ts
+          grep -q 'paisaRoot' src/paisa.ts
+          grep -q 'reportRoot' src/s1c.ts
+          grep -q 'Compare before deciding' src/path-routes.ts
+          grep -q 'Low-risk test' src/path-routes.ts
+          echo 'Navigation and comparison workflow checks passed.'
