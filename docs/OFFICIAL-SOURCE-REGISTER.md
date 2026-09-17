@@ -120,6 +120,36 @@ Purpose: persistent provenance for claims and outbound government routes. This r
 - Safe product claim: ONDC is a digital-commerce network initiative that supports participation across multiple domains; users must still check the relevant participant/network route, fees, fulfilment and terms.
 - Do not claim: that ONDC itself is a guaranteed marketplace, that every seller/service is eligible, or that joining guarantees orders.
 
+
+### India Post
+- Official destination: https://www.indiapost.gov.in/
+- Authority/context: Department of Posts, Ministry of Communications, Government of India.
+- Product use: optional signpost for local assistance only where a relevant government service is actually supported through the postal network.
+- Safe product claim: India Post is the official Department of Posts destination and publishes its current services and post-office information.
+- Important boundary: Skill Aur Dhandha must not imply that a post office can determine another department's eligibility, documents, fees, deadlines or benefit entitlement. The relevant scheme/department portal remains authoritative.
+
+### APEDA AgriXchange
+- Official destination: https://agriexchange.apeda.gov.in/
+- Authority/context: Agricultural and Processed Food Products Export Development Authority (APEDA), Ministry of Commerce & Industry, Government of India.
+- Product use: export-market research for value-added agriculture/processed-food opportunities including moringa powder, dry banana powder, spice powders and beetroot powder.
+- Safe product claim: AgriXchange publishes trade/market information, export statistics and product/country research resources for agricultural trade.
+- Important boundary: market data, exporter directories or trade information do not guarantee buyer interest, export eligibility, a listing, price, order, payment or profitability. Exact product and destination-country requirements must be checked before acting.
+
+### Ministry of New and Renewable Energy — Solar
+- Official destination: https://mnre.gov.in/en/solar/
+- Authority/context: Ministry of New and Renewable Energy, Government of India.
+- Product use: official research route for Solar Panel Installation & Servicing and related renewable-energy opportunity guidance.
+- Safe product claim: the MNRE solar section publishes current solar overview material plus schemes, policies/guidelines, manufacturing information and standards/specifications.
+- Important boundary: Skill Aur Dhandha does not infer subsidy eligibility, project approval, technical compliance, customer demand or profitability from the opportunity label.
+
+### Ministry of Power — EV Charging Infrastructure
+- Official authority: https://powermin.gov.in/
+- Current guideline recorded: Guidelines for Installation and Operation of Electric Vehicle Charging Infrastructure-2024, issued 17 September 2024.
+- Authority/context: Ministry of Power, Government of India.
+- Product use: official research authority for EV Charging Station Setup & Operations.
+- Safe product claim: current Ministry guidance covers installation/operation of EV charging infrastructure and applies across private, semi-public and public charging contexts, power utilities and relevant government agencies.
+- Important boundary: electricity connection, tariff, safety, land/site, DISCOM and local requirements can vary and can change. Skill Aur Dhandha does not guarantee approval, utilisation, tariff treatment, site viability or income.
+
 ## Production-route verification status
 
 The currently surfaced government/tax/training/agriculture/market destinations recorded in the production UI now have corresponding authoritative entries above. Formal Audit 1 must still re-check redirects and any destination added after this register update.
