@@ -41,3 +41,20 @@ jobs:
           grep -q "caches.open" dist/sw.js
           grep -q "self.addEventListener('fetch'" dist/sw.js
           echo 'PWA shell validation passed.'
+      - name: Validate frozen safety boundaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f src/path-routes.ts
+          test -f src/gov.ts
+          test -f src/market.ts
+          test -f src/paisa.ts
+          grep -qi 'does not broker' src/path-routes.ts
+          grep -qi 'does not process applications' src/gov.ts
+          grep -qi 'Aadhaar' src/gov.ts
+          grep -qi 'PAN' src/gov.ts
+          grep -qi 'payments' src/market.ts
+          grep -qi 'commissions' src/market.ts
+          grep -qi 'Aadhaar' src/paisa.ts
+          grep -qi 'PAN' src/paisa.ts
+          echo 'Frozen privacy/platform boundaries present.'
