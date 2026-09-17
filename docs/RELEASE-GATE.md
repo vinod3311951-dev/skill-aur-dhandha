@@ -34,10 +34,14 @@ Choose → Refine with dropdowns → See 15–20 possibilities → Select one �
 - [x] Complete source-grounded Pan-India research provenance layer.
 - [ ] Validate calculator edge cases and labels in Formal Audit 1.
 - [x] Add conventional 192×192 and 512×512 PNG install icons in addition to the current SVG before release packaging.
-- [ ] Full tab/button/navigation regression pass.
+- [x] Full tab/button/navigation regression pass.
 - [ ] Formal Audit 1 + rough-edge repair.
 - [ ] User final-look review.
 - [ ] Formal Audit 2 + release QA.
+
+## Pre-Audit checkpoint
+
+Latest Factory X CI on the current branch is green after build, PWA-shell, privacy/safety, dropdown/plan-handoff, calculator-formula, navigation-contract, language/voice, provenance, export/green-source, PNG-icon and legacy-runtime checks. Build implementation is now at the Formal Audit 1 boundary; remaining open items belong to Audit 1 / user final-look / Audit 2.
 
 ## Evidence labels
 
