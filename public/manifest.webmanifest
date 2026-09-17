@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "Skill Aur Dhandha — India Opportunity Navigator",
-  "short_name": "Skill Aur Dhandha",
-  "description": "Discover realistic paths, understand the numbers, and choose your next step.",
+  "name": "Skill and Dhandha — Karm karo sharam nahin",
+  "short_name": "Skill and Dhandha",
+  "description": "Karm karo sharam nahin — explore skills, markets, money, learning and official next steps.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
