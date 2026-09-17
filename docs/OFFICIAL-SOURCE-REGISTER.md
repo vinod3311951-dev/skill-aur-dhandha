@@ -91,6 +91,14 @@ Purpose: persistent provenance for claims and outbound government routes. This r
 - Safe product claim: food-business users can use FoSCoS to inspect and carry out current FSSAI licensing/registration processes relevant to their circumstances.
 - Important boundary: category, threshold, fee, documents and compliance obligations can change. Skill Aur Dhandha must not hard-code them without release-date verification and must not accept payments or application details.
 
+### Department of Agriculture & Farmers Welfare
+- Official destination: https://agriwelfare.gov.in/
+- Authority/context: Department of Agriculture & Farmers Welfare, Ministry of Agriculture & Farmers Welfare, Government of India. Department-hosted services and official agriculture systems use the agriwelfare.gov.in government domain for farmer-facing programmes and information.
+- Product use: Pan-India agriculture/farm-business research authority and Government Help route.
+- Safe product claim: users can use the Department's official destination to inspect current central agriculture programmes, farmer information and linked official services relevant to their circumstances.
+- Important boundary: agriculture support can vary by scheme, crop, season, state, land/farmer status and current programme rules. Skill Aur Dhandha must not infer eligibility, entitlement, quota, subsidy, procurement or benefit from the opportunity category alone.
+- Privacy boundary: some linked official services may request Aadhaar, land records or other identity information. Skill Aur Dhandha does not collect or proxy those details.
+
 ### Small Farmers' Agribusiness Consortium (SFAC) — FPO route
 - Official destination: https://www.sfacindia.com/FPOS.aspx
 - Authority/context: SFAC identifies itself as a society promoted by the Department of Agriculture and Farmers Welfare, Government of India. Its FPO material defines FPOs as producer organisations whose members are farmers and provides scheme guidance and state-wise FPO information.
@@ -112,10 +120,9 @@ Purpose: persistent provenance for claims and outbound government routes. This r
 - Safe product claim: ONDC is a digital-commerce network initiative that supports participation across multiple domains; users must still check the relevant participant/network route, fees, fulfilment and terms.
 - Do not claim: that ONDC itself is a guaranteed marketplace, that every seller/service is eligible, or that joining guarantees orders.
 
-## Pending authoritative verification before release
+## Production-route verification status
 
-- Ministry of Agriculture & Farmers Welfare — https://agriwelfare.gov.in/
-- Any additional external official or market-route destination surfaced by the production UI that is not yet recorded above.
+The currently surfaced government/tax/training/agriculture/market destinations recorded in the production UI now have corresponding authoritative entries above. Formal Audit 1 must still re-check redirects and any destination added after this register update.
 
 ## Release rule
 
