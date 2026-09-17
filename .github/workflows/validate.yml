@@ -151,6 +151,16 @@ jobs:
           grep -Fq 'Find my business gaps' src/business-analysis.ts
           grep -Fq '30 / 60 / 90-day improvement frame' src/business-analysis.ts
           grep -Fq 'current market share/size' src/business-analysis.ts
+      - name: Validate opportunity-to-analysis bridge
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq 'Analyse this business model' src/possibilities.ts
+          grep -Fq "new Event('open-business-analysis')" src/possibilities.ts
+          grep -Fq 'inferTypeFromPlan' src/business-analysis.ts
+          grep -Fq 'Current plan:' src/business-analysis.ts
+          grep -Fq "'skill-aur-dhandha-paisa'" src/main.ts
+          grep -Fq "'skill-aur-dhandha-business-analysis'" src/main.ts
       - name: Validate Business Analysis integrations
         shell: bash
         run: |
