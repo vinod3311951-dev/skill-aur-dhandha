@@ -2,7 +2,7 @@ import fs from 'node:fs';
 
 const read=p=>fs.readFileSync(p,'utf8');
 const checks=[
-  ['src/main.ts',['data-i="0"','data-i="1"','data-i="2"','data-i="3"','data-i="4"','app-language','app-settings','utility-back','skill-return-to-path']],
+  ['src/main.ts',['Find My Path','Find My Market','Paisa Check','Learn & Grow','Government Help','data-i="0"','app-language','app-settings','utility-back','skill-return-to-path']],
   ['src/path-routes.ts',['skill-return-to-path','open-media-entertainment','Compare before deciding']],
   ['src/guided-filters.ts',['skill-return-to-path']],
   ['src/possibilities.ts',['s13-back','s13-home','business-journey-back','business-compare-picker-back','business-compare-back','farm-market-routes','data-machine-explorer','open-paisa-business']],
