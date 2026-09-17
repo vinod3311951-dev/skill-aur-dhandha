@@ -33,7 +33,7 @@ Choose → Refine with dropdowns → See 15–20 possibilities → Select one �
 - [x] Export/value-added affiliate surfaces are separated from official routes and covered by a provenance/monetisation register.
 - [x] Complete source-grounded Pan-India research provenance layer.
 - [ ] Validate calculator edge cases and labels in Formal Audit 1.
-- [ ] Add conventional 192×192 and 512×512 PNG install icons in addition to the current SVG before release packaging.
+- [x] Add conventional 192×192 and 512×512 PNG install icons in addition to the current SVG before release packaging.
 - [ ] Full tab/button/navigation regression pass.
 - [ ] Formal Audit 1 + rough-edge repair.
 - [ ] User final-look review.
