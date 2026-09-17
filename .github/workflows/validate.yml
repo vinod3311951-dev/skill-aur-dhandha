@@ -73,9 +73,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -Fq 'market-mode-select' src/market.ts
+          grep -Fq 'market-type-select' src/market.ts
           grep -Fq 'market-route-select' src/market.ts
           grep -Fq 'market-compare-back' src/market.ts
+          grep -Fq 'market-checks-back' src/market.ts
           grep -Fq 'paisa-mode-select' src/paisa.ts
           grep -Fq 'paisa-business-calc' src/paisa.ts
           grep -Fq 'paisa-business-edit' src/paisa.ts
