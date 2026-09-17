@@ -92,6 +92,17 @@ jobs:
           grep -Fq 'business-compare-b' src/possibilities.ts
           grep -Fq 'my entry' src/possibilities.ts
           grep -Fq 'Choose from ${route.items.length} directions' src/path-routes.ts
+      - name: Validate calculator safety math
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq 'fixedMonthly=rent+marketing+distribution+transport+staff+utilities' src/paisa.ts
+          grep -Fq 'variablePerUnit=units>0?raw/units:null' src/paisa.ts
+          grep -Fq 'Math.ceil(fixedMonthly/unitContribution)' src/paisa.ts
+          grep -Fq 'Indicative operating break-even units' src/paisa.ts
+          grep -Fq 'Break-even method:' src/paisa.ts
+          grep -Fq 'Simple startup-cost recovery' src/paisa.ts
+          grep -Fq 'owner salary/labour' src/paisa.ts
       - name: Validate navigation and corrected workflows
         shell: bash
         run: |
@@ -137,9 +148,15 @@ jobs:
           grep -Fq 'myScheme' docs/OFFICIAL-SOURCE-REGISTER.md
           grep -Fq 'Udyam Registration' docs/OFFICIAL-SOURCE-REGISTER.md
           grep -Fq 'Income Tax Department e-Filing' docs/OFFICIAL-SOURCE-REGISTER.md
+          grep -Fq 'Goods and Services Tax (GST) Common Portal' docs/OFFICIAL-SOURCE-REGISTER.md
           grep -Fq 'National Single Window System' docs/OFFICIAL-SOURCE-REGISTER.md
           grep -Fq 'National Career Service' docs/OFFICIAL-SOURCE-REGISTER.md
+          grep -Fq 'e-Shram' docs/OFFICIAL-SOURCE-REGISTER.md
+          grep -Fq 'Skill India Digital — DGT ITI route' docs/OFFICIAL-SOURCE-REGISTER.md
+          grep -Fq 'FSSAI / FoSCoS' docs/OFFICIAL-SOURCE-REGISTER.md
+          grep -Fq 'Department of Agriculture & Farmers Welfare' docs/OFFICIAL-SOURCE-REGISTER.md
           grep -Fq "Small Farmers' Agribusiness Consortium" docs/OFFICIAL-SOURCE-REGISTER.md
+          grep -Fq 'National Agriculture Market (e-NAM)' docs/OFFICIAL-SOURCE-REGISTER.md
           grep -Fq 'Open Network for Digital Commerce' docs/OFFICIAL-SOURCE-REGISTER.md
           grep -Fq 'no private intermediary or affiliate route may masquerade as an official portal' docs/OFFICIAL-SOURCE-REGISTER.md
       - name: Reject legacy runtime modules
