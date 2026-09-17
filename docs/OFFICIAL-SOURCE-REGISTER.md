@@ -150,6 +150,32 @@ Purpose: persistent provenance for claims and outbound government routes. This r
 - Safe product claim: current Ministry guidance covers installation/operation of EV charging infrastructure and applies across private, semi-public and public charging contexts, power utilities and relevant government agencies.
 - Important boundary: electricity connection, tariff, safety, land/site, DISCOM and local requirements can vary and can change. Skill Aur Dhandha does not guarantee approval, utilisation, tariff treatment, site viability or income.
 
+
+### Amul / GCMMF — Parlour & Retail Formats
+- Official destination: https://amul.com/about-amul-franchise
+- Authority/context: Gujarat Co-operative Milk Marketing Federation (GCMMF) / Amul official website.
+- Product use: Amul Parlour / Fresh Dairy Agency Route.
+- Verified current fact: Amul publishes multiple retail formats including Amul Parlour, Scooping Parlour, Milk Booth, COE Parlour and Railway Parlour, and warns users to beware of fake dealership/franchise websites.
+- Safe product claim: Skill and Dhandha may route users to Amul's official franchise/retail information and tell them to verify the current format, location availability and commercial terms directly with Amul.
+- Important boundary: no allotment, territory, margin, investment figure or income is guaranteed by this app. Do not use unofficial Amul franchise/dealership websites or intermediaries.
+
+### Blue Dart — Official Company Contact / Location Route
+- Official destination: https://www.bluedart.com/
+- Official location/contact route: https://www.bluedart.com/location-finder
+- Authority/context: Blue Dart Express Limited official website.
+- Product use: Blue Dart Courier Business Route.
+- Verified current fact: Blue Dart publishes official serviced-location, office and customer-service information.
+- Safe product claim: Skill and Dhandha may direct a user to Blue Dart to ask whether any authorised business-associate, service-point, franchise or other commercial opportunity is currently available for their location.
+- Important boundary: as of this verification, Skill and Dhandha has not verified a public Blue Dart franchise/agency programme page. The app must not state or imply that a franchise is available, that a fee is valid, or that selection/income is guaranteed.
+
+### LPG Distributor Selection — OMC Route
+- Official destination: https://www.lpgvitarakchayan.in/
+- Authority/context: official LPG distributor-selection portal used for advertised distributorship locations by participating oil marketing companies.
+- Product use: LPG Gas Agency / Distributorship Route.
+- Verified current fact: the portal publishes notices for appointment of LPG distributors and applicant/selection information by state/location.
+- Safe product claim: users should apply only against a current advertised location/category and verify the current notice, eligibility, documentation, land/infrastructure and selection rules on the official route.
+- Important boundary: selection is advertisement-specific. Skill and Dhandha does not guarantee eligibility, draw/selection, dealership allotment, margin or income and does not endorse unofficial agents.
+
 ## Production-route verification status
 
 The currently surfaced government/tax/training/agriculture/market destinations recorded in the production UI now have corresponding authoritative entries above. Formal Audit 1 must still re-check redirects and any destination added after this register update.
