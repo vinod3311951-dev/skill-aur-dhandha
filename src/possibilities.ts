@@ -15,6 +15,7 @@ function renderPossibilities(category: string) {
   document.querySelector('#s13-test')?.addEventListener('click', () => document.dispatchEvent(new CustomEvent('skill-route', { detail: 'simulator' })));
 }
 
+document.addEventListener('skill-category-selected',(event)=>{const category=(event as CustomEvent<string>).detail;if(category)renderPossibilities(category);});
 document.addEventListener('click', (event) => {
   const target = event.target as HTMLElement | null;
   const button = target?.closest<HTMLButtonElement>('.category');
