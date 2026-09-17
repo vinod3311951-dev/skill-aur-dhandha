@@ -46,6 +46,14 @@ Purpose: persistent provenance for claims and outbound government routes. This r
 - Safe product claim: NCS provides job-search and career-related services/resources. The current portal states NCS services are free of cost and warns users about misleading/fraudulent communications claiming association with NCS.
 - Product boundary: Skill Aur Dhandha does not broker jobs, collect job-placement fees or guarantee employment.
 
+### e-Shram
+- Official destination: https://eshram.gov.in/
+- Authority/context: Ministry of Labour & Employment, Government of India. The Ministry states that it developed e-Shram to create the National Database of Unorganised Workers, including migrant, construction, gig and platform workers.
+- Product use: Government Help / worker-support discovery route.
+- Safe product claim: users can visit the official e-Shram destination to inspect current registration, profile and linked worker-service information.
+- Privacy boundary: e-Shram's own process may require identity/profile information. Skill Aur Dhandha does not collect or proxy those details; users enter any required data only on the official destination.
+- Do not claim: registration guarantees a benefit, job, pension or payment.
+
 ### Directorate General of Training (DGT)
 - Official destination: https://dgt.gov.in/en
 - Authority/context: DGT identifies itself under the Government of India, Ministry of Skill Development and Entrepreneurship and as the apex organisation for national development and coordination of vocational-training programmes. Its current site publishes ITI, apprenticeship, admission and training-system material.
@@ -61,12 +69,27 @@ Purpose: persistent provenance for claims and outbound government routes. This r
 - Safe product claim: use Ministry/MSME sources to research current central MSME programmes and official service destinations.
 - Important boundary: scheme availability, eligibility, deadlines and classifications can change. Udyam registration must route to the official Udyam portal rather than a private registration intermediary.
 
+### FSSAI / FoSCoS
+- Official FSSAI destination: https://www.fssai.gov.in/
+- Official FoSCoS destination: https://foscos.fssai.gov.in/
+- Authority/context: FSSAI's current Food Business services identify FoSCoS as the Food Safety Compliance System used for licensing and registration, and FSSAI links food businesses directly to FoSCoS for licence/registration services.
+- Product use: Food-business Needs & Requirements and Government Help compliance route.
+- Safe product claim: food-business users can use FoSCoS to inspect and carry out current FSSAI licensing/registration processes relevant to their circumstances.
+- Important boundary: category, threshold, fee, documents and compliance obligations can change. Skill Aur Dhandha must not hard-code them without release-date verification and must not accept payments or application details.
+
 ### Small Farmers' Agribusiness Consortium (SFAC) — FPO route
 - Official destination: https://www.sfacindia.com/FPOS.aspx
 - Authority/context: SFAC identifies itself as a society promoted by the Department of Agriculture and Farmers Welfare, Government of India. Its FPO material defines FPOs as producer organisations whose members are farmers and provides scheme guidance and state-wise FPO information.
 - Product use: Find My Market FPO research route.
 - Safe product claim: users can use SFAC material to understand the FPO ecosystem and locate published FPO information relevant to their state/commodity.
 - Do not claim: that a specific user can join a particular FPO, that an FPO will buy produce, or that membership/aggregation guarantees a sale or price.
+
+### National Agriculture Market (e-NAM)
+- Official destination: https://enam.gov.in/
+- Authority/context: e-NAM describes itself as a pan-India electronic trading portal networking existing APMC mandis to create a unified national market for agricultural commodities. It identifies SFAC as the lead implementing agency under the Ministry of Agriculture & Farmers' Welfare, Government of India.
+- Product use: Find My Market agricultural-market research route.
+- Safe product claim: users can inspect e-NAM for current participating-market, commodity, FPO and trading information.
+- Do not claim: universal access, a guaranteed buyer, guaranteed sale, guaranteed price or that every mandi/commodity is available to every user.
 
 ### Open Network for Digital Commerce (ONDC)
 - Official destination: https://www.ondc.org/
@@ -79,10 +102,7 @@ Purpose: persistent provenance for claims and outbound government routes. This r
 
 - GST portal — https://www.gst.gov.in/
 - Skill India Digital destination currently surfaced by the app — https://dgt.skillindiadigital.gov.in/
-- e-Shram — https://eshram.gov.in/
 - Ministry of Agriculture & Farmers Welfare — https://agriwelfare.gov.in/
-- FSSAI FoSCoS — https://foscos.fssai.gov.in/
-- e-NAM — https://enam.gov.in/
 - Any additional external official or market-route destination surfaced by the production UI that is not yet recorded above.
 
 ## Release rule
