@@ -21,6 +21,8 @@ jobs:
         run: npm install --ignore-scripts
       - name: Build
         run: npm run build
+      - name: Run bundle performance budget
+        run: npm run check:bundle
       - name: Validate PWA shell
         shell: bash
         run: |
@@ -139,6 +141,16 @@ jobs:
           grep -Fq 'learn-readiness-back' src/learn.ts
           grep -Fq 'gov-mode-select' src/gov.ts
           grep -Fq 'Compare before deciding' src/path-routes.ts
+      - name: Validate lazy Business Analysis route
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f src/business-analysis.ts
+          grep -Fq "'Business Analysis'" src/main.ts
+          grep -Fq "import('./business-analysis.ts')" src/main.ts
+          grep -Fq 'Find my business gaps' src/business-analysis.ts
+          grep -Fq '30 / 60 / 90-day improvement frame' src/business-analysis.ts
+          grep -Fq 'current market share/size' src/business-analysis.ts
       - name: Run navigation contract regression
         run: npm run check:navigation
       - name: Validate universal market research dimensions
