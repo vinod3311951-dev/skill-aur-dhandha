@@ -223,6 +223,19 @@ jobs:
           grep -Fq 'Pan-India' docs/PAN-INDIA-RESEARCH-PROVENANCE.md
           test -f docs/EXPORT-AFFILIATE-REGISTER.md
           grep -Fq 'Instamart' docs/EXPORT-AFFILIATE-REGISTER.md
+      - name: Validate agency earning routes
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq 'Amul Parlour / Fresh Dairy Agency Route' src/possibilities.ts
+          grep -Fq 'Blue Dart Courier Business Route' src/possibilities.ts
+          grep -Fq 'LPG Gas Agency / Distributorship Route' src/possibilities.ts
+          grep -Fq 'https://amul.com/about-amul-franchise' src/possibilities.ts
+          grep -Fq 'https://www.bluedart.com/' src/possibilities.ts
+          grep -Fq 'https://www.lpgvitarakchayan.in/' src/possibilities.ts
+          grep -Fq '### Amul / GCMMF — Parlour & Retail Formats' docs/OFFICIAL-SOURCE-REGISTER.md
+          grep -Fq '### Blue Dart — Official Company Contact / Location Route' docs/OFFICIAL-SOURCE-REGISTER.md
+          grep -Fq '### LPG Distributor Selection — OMC Route' docs/OFFICIAL-SOURCE-REGISTER.md
       - name: Validate export and green source coverage
         shell: bash
         run: |
