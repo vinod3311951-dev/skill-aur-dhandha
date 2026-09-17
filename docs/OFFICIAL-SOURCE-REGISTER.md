@@ -32,6 +32,13 @@ Purpose: persistent provenance for claims and outbound government routes. This r
 - Safe product claim: use the official Income Tax portal to verify current income-tax services/rules relevant to the user's circumstances.
 - Do not claim: a tax liability, regime choice or filing obligation from an MSME/SME label or from the opportunity category alone.
 
+### Goods and Services Tax (GST) Common Portal
+- Official destination: https://www.gst.gov.in/
+- Authority/context: CBIC's current Government of India GST site identifies gst.gov.in as the Goods and Services Tax Common Portal and directs taxpayer issues on that portal to GSTN support.
+- Product use: Tax & Compliance Check reference.
+- Safe product claim: use the GST Common Portal to verify and perform current GST services applicable to the user's own circumstances.
+- Important boundary: Skill Aur Dhandha does not infer GST registration, rate, return or tax liability from an opportunity category, MSME/SME label or turnover assumption alone. Current applicability must be verified against official rules and the user's actual facts.
+
 ### National Single Window System (NSWS)
 - Official destination: https://www.nsws.gov.in/
 - Authority/context: current site identifies the Department for Promotion of Industry and Internal Trade, Ministry of Commerce & Industry, Government of India. NSWS describes itself as a digital platform for identifying and applying for business approvals; its KYA module provides approval guidance across participating central departments and states.
@@ -60,6 +67,13 @@ Purpose: persistent provenance for claims and outbound government routes. This r
 - Product use: Learn & Grow research authority and trusted vocational-training next-step route.
 - Safe product claim: use DGT to inspect current official vocational-training programmes, standards, admissions and related training information.
 - Important boundary: course availability, admission dates, provider status and certification conditions are time-sensitive and must be checked on the current official destination rather than inferred by Skill Aur Dhandha.
+
+### Skill India Digital — DGT ITI route
+- Official destination: https://dgt.skillindiadigital.gov.in/
+- Authority/context: the current ITI landing page states the platform is owned by the Ministry of Skill Development & Entrepreneurship, Government of India. It provides ITI/CTS results, marksheet/certificate verification, ITI search, grievance/help and links to DGT/apprenticeship resources.
+- Product use: direct Learn & Grow / Government Help vocational-training destination currently surfaced by the app.
+- Safe product claim: users can use this official DGT Skill India Digital route for current ITI/CTS information and the services exposed on the portal.
+- Important boundary: do not imply that every course, institute, certificate or apprenticeship is available to every user; verify current programme/institute details on the portal.
 
 ### Ministry of Micro, Small & Medium Enterprises (MSME)
 - Official destination: https://msme.gov.in/
@@ -100,8 +114,6 @@ Purpose: persistent provenance for claims and outbound government routes. This r
 
 ## Pending authoritative verification before release
 
-- GST portal — https://www.gst.gov.in/
-- Skill India Digital destination currently surfaced by the app — https://dgt.skillindiadigital.gov.in/
 - Ministry of Agriculture & Farmers Welfare — https://agriwelfare.gov.in/
 - Any additional external official or market-route destination surfaced by the production UI that is not yet recorded above.
 
