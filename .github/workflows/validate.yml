@@ -193,6 +193,14 @@ jobs:
           grep -Fq 'National Agriculture Market (e-NAM)' docs/OFFICIAL-SOURCE-REGISTER.md
           grep -Fq 'Open Network for Digital Commerce' docs/OFFICIAL-SOURCE-REGISTER.md
           grep -Fq 'no private intermediary or affiliate route may masquerade as an official portal' docs/OFFICIAL-SOURCE-REGISTER.md
+          test -f docs/PAN-INDIA-RESEARCH-PROVENANCE.md
+          grep -Fq 'VERIFIED FACT' docs/PAN-INDIA-RESEARCH-PROVENANCE.md
+          grep -Fq 'YOUR CALCULATION' docs/PAN-INDIA-RESEARCH-PROVENANCE.md
+          grep -Fq 'ESTIMATE-SCENARIO' docs/PAN-INDIA-RESEARCH-PROVENANCE.md
+          grep -Fq 'GUIDANCE' docs/PAN-INDIA-RESEARCH-PROVENANCE.md
+          grep -Fq 'Pan-India' docs/PAN-INDIA-RESEARCH-PROVENANCE.md
+          test -f docs/EXPORT-AFFILIATE-REGISTER.md
+          grep -Fq 'Instamart' docs/EXPORT-AFFILIATE-REGISTER.md
       - name: Validate export and green source coverage
         shell: bash
         run: |
