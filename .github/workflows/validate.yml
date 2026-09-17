@@ -58,3 +58,21 @@ jobs:
           grep -qi 'Aadhaar/PAN' src/paisa.ts
           grep -qi 'payment information' src/paisa.ts
           echo 'Frozen privacy/platform boundaries present.'
+      - name: Validate blueprint coverage
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in src/guided-filters.ts src/possibilities.ts src/path-routes.ts src/market.ts src/paisa.ts src/learn.ts src/gov.ts src/s1c.ts; do test -f "$f"; done
+          grep -q '17 or under' src/guided-filters.ts
+          grep -q '60+' src/guided-filters.ts
+          grep -q 'Gender (optional)' src/guided-filters.ts
+          grep -q 'Investment preference' src/guided-filters.ts
+          grep -q 'Time available' src/guided-filters.ts
+          grep -q 'Operating location' src/guided-filters.ts
+          grep -q 'Broad geography' src/guided-filters.ts
+          for category in 'Food' 'Retail' 'Service / Skill' 'Manufacturing' 'Agriculture / Farm Business' 'Digital / Online' 'Home-based'; do grep -Fq "$category" src/possibilities.ts; done
+          grep -q 'National Career Service' src/gov.ts
+          grep -q 'Skill India Digital' src/learn.ts
+          grep -q 'TEST MODE' src/s1c.ts
+          grep -q '₹0 charged' src/s1c.ts
+          echo 'Blueprint coverage checks passed.'
