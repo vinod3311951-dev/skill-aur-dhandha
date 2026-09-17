@@ -30,6 +30,7 @@ jobs:
           grep -q 'serviceWorker' dist/index.html
           grep -q '"display": "standalone"' dist/manifest.webmanifest
           grep -q '"start_url": "/"' dist/manifest.webmanifest
+          grep -q '"theme_color": "#31704b"' dist/manifest.webmanifest
           grep -q 'caches.open' dist/sw.js
       - name: Validate frozen safety boundaries
         shell: bash
@@ -77,6 +78,7 @@ jobs:
           grep -Fq 'Compare two routes' src/market.ts
           grep -Fq 'market-compare-a' src/market.ts
           grep -Fq 'market-compare-b' src/market.ts
+          grep -Fq 'routeLens' src/market.ts
           grep -Fq 'data-business-band' src/paisa.ts
           grep -Fq 'Other / enter manually' src/paisa.ts
           grep -Fq 'open-paisa-business' src/paisa.ts
@@ -86,6 +88,7 @@ jobs:
           grep -Fq 'Compare with a similar opportunity' src/possibilities.ts
           grep -Fq 'business-compare-a' src/possibilities.ts
           grep -Fq 'business-compare-b' src/possibilities.ts
+          grep -Fq 'my entry' src/possibilities.ts
           grep -Fq 'Choose from ${route.items.length} directions' src/path-routes.ts
       - name: Validate navigation and corrected workflows
         shell: bash
@@ -94,6 +97,7 @@ jobs:
           grep -Fq "type Screen='home'|'path'" src/main.ts
           grep -Fq 'skill-return-to-path' src/main.ts
           grep -Fq 'skill-return-to-path' src/guided-filters.ts
+          grep -Fq 'skill-return-to-path' src/path-routes.ts
           grep -Fq 'market-type-select' src/market.ts
           grep -Fq 'market-route-select' src/market.ts
           grep -Fq 'market-compare-back' src/market.ts
@@ -110,3 +114,9 @@ jobs:
           grep -Fq 'learn-readiness-back' src/learn.ts
           grep -Fq 'gov-mode-select' src/gov.ts
           grep -Fq 'Compare before deciding' src/path-routes.ts
+      - name: Reject legacy runtime modules
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -Fq '/src/s1c.ts' index.html
+          ! grep -Fq '/src/s13-journey.ts' index.html
