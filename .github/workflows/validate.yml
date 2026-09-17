@@ -142,6 +142,24 @@ jobs:
           grep -Fq 'motion-select' src/main.ts
           grep -Fq 'clear-local-plans' src/main.ts
           grep -Fq 'data-reduced-motion="true"' src/style.css
+      - name: Validate Indian-language voice foundation
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f src/voice.ts
+          test -f docs/VOICE-LANGUAGE-ARCHITECTURE.md
+          grep -Fq '/src/voice.ts' index.html
+          grep -Fq 'SpeechRecognition' src/voice.ts
+          grep -Fq 'SpeechSynthesisUtterance' src/voice.ts
+          grep -Fq 'supportedLocales' src/voice.ts
+          grep -Fq "'hi-IN'" src/voice.ts
+          grep -Fq "'ta-IN'" src/voice.ts
+          grep -Fq "'te-IN'" src/voice.ts
+          grep -Fq "'bn-IN'" src/voice.ts
+          grep -Fq 'No always-on microphone' docs/VOICE-LANGUAGE-ARCHITECTURE.md
+          grep -Fq "response in the same language as text" docs/VOICE-LANGUAGE-ARCHITECTURE.md
+          grep -Fq 'Do not embed provider secrets in the PWA client' docs/VOICE-LANGUAGE-ARCHITECTURE.md
+          grep -Fq '22 scheduled languages' docs/VOICE-LANGUAGE-ARCHITECTURE.md
       - name: Validate local-only plan architecture
         shell: bash
         run: |
