@@ -92,6 +92,9 @@ jobs:
         run: |
           set -euo pipefail
           grep -Fq 'marketRoot' src/market.ts
+          grep -Fq 'Compare routes' src/market.ts
+          grep -Fq 'Compare route requirements' src/market.ts
+          grep -Fq 'Unknowns remain unknown' src/market.ts
           grep -Fq 'paisaRoot' src/paisa.ts
           grep -Fq 'reportRoot' src/s1c.ts
           grep -Fq 'Compare before deciding' src/path-routes.ts
