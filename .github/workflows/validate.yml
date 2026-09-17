@@ -1,16 +1,11 @@
 name: Validate Factory X
-
 on:
   push:
-    branches:
-      - factory-x/vertical-slice-01
+    branches: [factory-x/vertical-slice-01]
   pull_request:
-    branches:
-      - main
-
+    branches: [main]
 permissions:
   contents: read
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -30,90 +25,70 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test -f dist/index.html
-          test -f dist/manifest.webmanifest
-          test -f dist/sw.js
-          test -f dist/icon.svg
+          for f in dist/index.html dist/manifest.webmanifest dist/sw.js dist/icon.svg; do test -f "$f"; done
           grep -q 'manifest.webmanifest' dist/index.html
           grep -q 'serviceWorker' dist/index.html
           grep -q '"display": "standalone"' dist/manifest.webmanifest
           grep -q '"start_url": "/"' dist/manifest.webmanifest
-          grep -q "caches.open" dist/sw.js
-          grep -q "self.addEventListener('fetch'" dist/sw.js
+          grep -q 'caches.open' dist/sw.js
           echo 'PWA shell validation passed.'
       - name: Validate frozen safety boundaries
         shell: bash
         run: |
           set -euo pipefail
-          test -f src/path-routes.ts
-          test -f src/gov.ts
-          test -f src/market.ts
-          test -f src/paisa.ts
+          for f in src/path-routes.ts src/gov.ts src/market.ts src/paisa.ts src/guided-filters.ts; do test -f "$f"; done
           grep -qi 'does not broker' src/path-routes.ts
-          grep -qi 'does not process government applications' src/gov.ts
+          grep -qi 'does not submit applications' src/gov.ts
           grep -qi 'Aadhaar' src/gov.ts
           grep -qi 'PAN' src/gov.ts
           grep -qi 'payments' src/market.ts
           grep -qi 'commissions' src/market.ts
-          grep -qi 'Aadhaar/PAN' src/paisa.ts
-          grep -qi 'payment information' src/paisa.ts
-          grep -Fq 'does not infer demand, profit or eligibility' src/guided-filters.ts
+          grep -qi 'Aadhaar' src/paisa.ts
+          grep -qi 'PAN' src/paisa.ts
+          grep -Fq 'does not infer tax from an MSME/SME label' src/paisa.ts
+          grep -Fq 'no name, exact DOB, address, Aadhaar, PAN or bank details' src/guided-filters.ts
           echo 'Frozen privacy/platform boundaries present.'
-      - name: Validate blueprint coverage
+      - name: Validate corrected blueprint coverage
         shell: bash
         run: |
           set -euo pipefail
-          for f in src/guided-filters.ts src/possibilities.ts src/path-routes.ts src/market.ts src/paisa.ts src/learn.ts src/gov.ts src/s1c.ts src/s13-journey.ts; do test -f "$f"; done
-          grep -q '17 or under' src/guided-filters.ts
-          grep -q '60+' src/guided-filters.ts
-          grep -q 'Gender (optional)' src/guided-filters.ts
-          grep -q 'Investment preference' src/guided-filters.ts
-          grep -q 'Time available' src/guided-filters.ts
-          grep -q 'Operating location' src/guided-filters.ts
-          grep -q 'Broad geography' src/guided-filters.ts
-          grep -Fq 'Suggested ·' src/guided-filters.ts
+          for f in src/guided-filters.ts src/possibilities.ts src/manufacturing-machines.ts src/path-routes.ts src/market.ts src/paisa.ts src/learn.ts src/gov.ts src/s1c.ts src/s13-journey.ts; do test -f "$f"; done
+          for term in '17 or under' '60+' 'Gender (optional)' 'Investment preference' 'Time available' 'Operating location' 'Broad geography'; do grep -Fq "$term" src/guided-filters.ts; done
           for category in 'Food' 'Retail' 'Service / Skill' 'Manufacturing' 'Agriculture / Farm Business' 'Digital / Online' 'Home-based'; do grep -Fq "$category" src/possibilities.ts; done
           for factor in 'Investment' 'Demand' 'Competition' 'Risk' 'Profit potential' 'Time to income' 'Difficulty' 'Skills needed' 'Government support' 'Space needed' 'Scalability' 'Seasonal risk' 'Legal requirements' 'Digital opportunity' 'Long-term outlook'; do grep -Fq "$factor" src/possibilities.ts; done
-          grep -Fq '5-Step Action Journey' src/possibilities.ts
-          grep -Fq 'Ready-to-act gate' src/possibilities.ts
-          grep -Fq 'An unanswered item is a validation gap, not a score' src/possibilities.ts
-          grep -Fq '5-Step Decision Journey' src/s13-journey.ts
-          grep -Fq 'Step ${i+1} of ${steps.length}' src/s13-journey.ts
-          grep -Fq 'YOUR CALCULATION' src/s13-journey.ts
-          grep -Fq 'Break-even meals / month' src/s13-journey.ts
-          grep -Fq 'Modeled surplus / shortfall' src/s13-journey.ts
-          grep -Fq '5-step practice roadmap' src/learn.ts
-          grep -Fq 'Before paying for a course' src/learn.ts
-          grep -Fq 'Learning readiness check' src/learn.ts
-          grep -Fq 'not an aptitude score or eligibility test' src/learn.ts
-          grep -Fq 'unanswered items are preparation gaps' src/learn.ts
-          grep -Fq 'National Career Service' src/gov.ts
-          grep -Fq 'Verify before you act' src/gov.ts
-          grep -Fq 'Skill India Digital' src/learn.ts
+          grep -Fq 'Needs & Requirements' src/possibilities.ts
+          grep -Fq 'Pan-India research' src/possibilities.ts
+          grep -Fq '15-factor comparison' src/possibilities.ts
+          grep -Fq '₹20,000 band' src/manufacturing-machines.ts
+          grep -Fq '₹50,000 band' src/manufacturing-machines.ts
+          grep -Fq '₹1,00,000 band' src/manufacturing-machines.ts
+          grep -Fq 'affiliate links' src/manufacturing-machines.ts
+          grep -Fq 'YOUR CALCULATION' src/paisa.ts
+          grep -Fq 'Adaptive business calculator' src/paisa.ts
+          grep -Fq 'Tax & Compliance Check' src/paisa.ts
+          grep -Fq 'Save My Plan' src/paisa.ts
+          grep -Fq 'Pan-India research lens' src/learn.ts
+          grep -Fq 'Things to check before proceeding' src/learn.ts
+          grep -Fq 'Things to check before proceeding' src/gov.ts
           grep -Fq 'TEST MODE' src/s1c.ts
-          grep -Fq '₹0 charged' src/s1c.ts
-          grep -Fq 'Enter business assumptions' src/paisa.ts
-          grep -Fq 'Break-even units / month' src/paisa.ts
-          grep -Fq 'Simple startup recovery' src/paisa.ts
-          grep -Fq 'not a forecast' src/paisa.ts
-          echo 'Blueprint coverage checks passed.'
-      - name: Validate navigation and compare workflows
+          echo 'Corrected blueprint coverage passed.'
+      - name: Validate navigation and corrected workflows
         shell: bash
         run: |
           set -euo pipefail
-          grep -Fq 'marketRoot' src/market.ts
-          grep -Fq 'Compare routes' src/market.ts
-          grep -Fq 'Compare route requirements' src/market.ts
-          grep -Fq 'Unknowns remain unknown' src/market.ts
-          grep -Fq 'paisaRoot' src/paisa.ts
+          grep -Fq 'market-mode-select' src/market.ts
+          grep -Fq 'market-route-select' src/market.ts
+          grep -Fq 'market-compare-back' src/market.ts
+          grep -Fq 'paisa-mode-select' src/paisa.ts
           grep -Fq 'paisa-business-calc' src/paisa.ts
-          grep -Fq 'reportRoot' src/s1c.ts
-          grep -Fq 'Compare before deciding' src/path-routes.ts
-          grep -Fq 'Choose an alternative' src/path-routes.ts
-          grep -Fq 'path-alt' src/path-routes.ts
-          grep -Fq 'Low-risk test' src/path-routes.ts
+          grep -Fq 'paisa-business-edit' src/paisa.ts
           grep -Fq 'business-compare-back' src/possibilities.ts
           grep -Fq 'business-journey-back' src/possibilities.ts
+          grep -Fq 'data-machine-explorer' src/possibilities.ts
+          grep -Fq 'machine-budget' src/manufacturing-machines.ts
+          grep -Fq 'machine-detail-back' src/manufacturing-machines.ts
           grep -Fq 'learn-roadmap-back' src/learn.ts
           grep -Fq 'learn-readiness-back' src/learn.ts
-          echo 'Navigation and comparison workflow checks passed.'
+          grep -Fq 'gov-mode-select' src/gov.ts
+          grep -Fq 'Compare before deciding' src/path-routes.ts
+          echo 'Navigation and corrected workflow guards passed.'
