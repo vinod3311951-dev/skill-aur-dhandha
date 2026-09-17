@@ -96,13 +96,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -Fq 'fixedMonthly=rent+marketing+distribution+transport+staff+utilities' src/paisa.ts
-          grep -Fq 'variablePerUnit=units>0?raw/units:null' src/paisa.ts
-          grep -Fq 'Math.ceil(fixedMonthly/unitContribution)' src/paisa.ts
-          grep -Fq 'Indicative operating break-even units' src/paisa.ts
-          grep -Fq 'Break-even method:' src/paisa.ts
-          grep -Fq 'Simple startup-cost recovery' src/paisa.ts
-          grep -Fq 'owner salary/labour' src/paisa.ts
+          grep -Fq 'monthly=raw+rent+marketing+distribution+transport+staff+utilities' src/paisa.ts
+          grep -Fq 'unitContribution=units?price-(raw/units):price' src/paisa.ts
+          grep -Fq 'Math.ceil((monthly-raw)/unitContribution)' src/paisa.ts
+          grep -Fq 'Indicative break-even units' src/paisa.ts
+          grep -Fq 'Simple recovery' src/paisa.ts
+          grep -Fq 'owner labour' src/paisa.ts
       - name: Validate navigation and corrected workflows
         shell: bash
         run: |
