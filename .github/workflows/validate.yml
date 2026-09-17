@@ -47,6 +47,8 @@ jobs:
           grep -qi 'PAN' src/paisa.ts
           grep -Fq 'Do not infer tax from an MSME/SME label' src/paisa.ts
           grep -Fq 'no name, exact DOB, address, Aadhaar, PAN or bank information' src/guided-filters.ts
+          ! grep -Fq 'type="email"' src/*.ts
+          ! grep -Fq 'type="password"' src/*.ts
       - name: Validate corrected blueprint coverage
         shell: bash
         run: |
@@ -114,6 +116,15 @@ jobs:
           grep -Fq 'learn-readiness-back' src/learn.ts
           grep -Fq 'gov-mode-select' src/gov.ts
           grep -Fq 'Compare before deciding' src/path-routes.ts
+      - name: Validate local-only plan architecture
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq "localStorage.setItem('skill-aur-dhandha-opportunity-plan'" src/possibilities.ts
+          grep -Fq "localStorage.setItem('skill-aur-dhandha-business-calculation'" src/paisa.ts
+          grep -Fq 'Nothing is sent to a server' src/possibilities.ts
+          grep -Fq 'Calculating:' src/paisa.ts
+          grep -Fq 'Edit assumptions' src/paisa.ts
       - name: Reject legacy runtime modules
         shell: bash
         run: |
