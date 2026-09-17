@@ -25,12 +25,30 @@ Purpose: persistent provenance for claims and outbound government routes. This r
 - Important current portal context: the portal currently displays MSME classification criteria and registration requirements. Do not hard-code those thresholds/requirements into recommendation logic without a release-date re-check.
 - Privacy boundary: Skill Aur Dhandha does not collect Aadhaar, PAN or GSTIN; any data required by Udyam is entered only on the official government portal by the user.
 
+### Income Tax Department e-Filing
+- Official destination: https://www.incometax.gov.in/
+- Authority/context: the portal's About page identifies it as the official portal of the Income Tax Department, Ministry of Finance, Government of India, providing single-window access to income-tax-related services.
+- Product use: Tax & Compliance Check reference.
+- Safe product claim: use the official Income Tax portal to verify current income-tax services/rules relevant to the user's circumstances.
+- Do not claim: a tax liability, regime choice or filing obligation from an MSME/SME label or from the opportunity category alone.
+
+### National Single Window System (NSWS)
+- Official destination: https://www.nsws.gov.in/
+- Authority/context: current site identifies the Department for Promotion of Industry and Internal Trade, Ministry of Commerce & Industry, Government of India. NSWS describes itself as a digital platform for identifying and applying for business approvals; its KYA module provides approval guidance across participating central departments and states.
+- Product use: Government Help / business-approval discovery route.
+- Safe product claim: NSWS can help a business identify relevant approvals and access participating approval applications.
+- Important boundary: NSWS itself describes KYA as guidance and advises checking relevant government portals for other required approvals. Skill Aur Dhandha must therefore not present NSWS output as exhaustive legal clearance.
+
+### National Career Service (NCS)
+- Official destination: https://www.ncs.gov.in/
+- Authority/context: current site identifies National Career Service under the Directorate General of Employment, Ministry of Labour & Employment, Government of India.
+- Product use: trusted employment/career next-step route.
+- Safe product claim: NCS provides job-search and career-related services/resources. The current portal states NCS services are free of cost and warns users about misleading/fraudulent communications claiming association with NCS.
+- Product boundary: Skill Aur Dhandha does not broker jobs, collect job-placement fees or guarantee employment.
+
 ## Pending authoritative verification before release
 
 - GST portal — https://www.gst.gov.in/
-- Income Tax portal — https://www.incometax.gov.in/
-- National Single Window System — https://www.nsws.gov.in/
-- National Career Service — https://www.ncs.gov.in/
 - DGT / Skill India Digital route — https://dgt.skillindiadigital.gov.in/
 - e-Shram — https://eshram.gov.in/
 - Ministry of Agriculture & Farmers Welfare — https://agriwelfare.gov.in/
