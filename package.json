@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "check:navigation": "node scripts/validate-navigation.mjs"
+    "check:navigation": "node scripts/validate-navigation.mjs",
+    "check:bundle": "node scripts/check-bundle-budget.mjs"
   },
   "devDependencies": {
     "typescript": "^5.9.2",
