@@ -139,6 +139,18 @@ jobs:
           grep -Fq 'Compare before deciding' src/path-routes.ts
       - name: Run navigation contract regression
         run: npm run check:navigation
+      - name: Validate universal market research dimensions
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f src/research-lens.ts
+          grep -Fq '/src/research-lens.ts' index.html
+          grep -Fq 'Current market share / size' src/research-lens.ts
+          grep -Fq 'Future predicted share / size' src/research-lens.ts
+          grep -Fq 'CAGR' src/research-lens.ts
+          grep -Fq 'Growth perspective' src/research-lens.ts
+          grep -Fq 'Competition' src/research-lens.ts
+          grep -Fq 'Not verified / not published' src/research-lens.ts
       - name: Validate local utility settings
         shell: bash
         run: |
