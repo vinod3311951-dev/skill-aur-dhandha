@@ -90,6 +90,8 @@ jobs:
           grep -Fq 'paisaRoot' src/paisa.ts
           grep -Fq 'reportRoot' src/s1c.ts
           grep -Fq 'Compare before deciding' src/path-routes.ts
+          grep -Fq 'Choose an alternative' src/path-routes.ts
+          grep -Fq 'path-alt' src/path-routes.ts
           grep -Fq 'Low-risk test' src/path-routes.ts
           grep -Fq 'business-compare-back' src/possibilities.ts
           grep -Fq 'learn-roadmap-back' src/learn.ts
