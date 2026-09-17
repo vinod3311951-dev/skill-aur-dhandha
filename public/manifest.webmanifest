@@ -1,0 +1,12 @@
+{
+  "name": "Skill Aur Dhandha — India Opportunity Navigator",
+  "short_name": "Skill Aur Dhandha",
+  "description": "Discover realistic paths, understand the numbers, and choose your next step.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "lang": "en-IN",
+  "categories": ["business", "education", "finance"]
+}
