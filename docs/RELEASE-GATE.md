@@ -8,7 +8,7 @@ Choose → Refine with dropdowns → See 15–20 possibilities → Select one �
 
 ## Build-complete gates
 
-- [x] Mobile-first home shell with five primary routes.
+- [x] Mobile-first home shell with six primary routes, including Business Analysis.
 - [x] Persistent Back/Home navigation in deep journeys.
 - [x] Language, Settings and “Any Indian language” shell controls.
 - [x] Language preference is locally persisted without falsely presenting untranslated copy as translated production content.
@@ -35,6 +35,8 @@ Choose → Refine with dropdowns → See 15–20 possibilities → Select one �
 - [ ] Validate calculator edge cases and labels in Formal Audit 1.
 - [x] Add conventional 192×192 and 512×512 PNG install icons in addition to the current SVG before release packaging.
 - [x] Full tab/button/navigation regression pass.
+- [x] Business Analysis is lazy-loaded from the home shell and reuses the shared research/Paisa architecture.
+- [x] Bundle-performance budget gate is enforced in CI so new modules cannot silently bloat startup.
 - [ ] Formal Audit 1 + rough-edge repair.
 - [ ] User final-look review.
 - [ ] Formal Audit 2 + release QA.
