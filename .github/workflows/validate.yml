@@ -86,7 +86,7 @@ jobs:
           grep -Fq 'Compare with a similar opportunity' src/possibilities.ts
           grep -Fq 'business-compare-a' src/possibilities.ts
           grep -Fq 'business-compare-b' src/possibilities.ts
-          grep -Fq 'Choose from 15 directions' src/path-routes.ts
+          grep -Fq 'Choose from ${route.items.length} directions' src/path-routes.ts
       - name: Validate navigation and corrected workflows
         shell: bash
         run: |
