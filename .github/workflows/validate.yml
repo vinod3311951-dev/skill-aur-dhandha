@@ -72,7 +72,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -Fq '15 learning options' src/learn.ts
+          grep -Fq 'Choose from ${list.length} learning options' src/learn.ts
           grep -Fq 'Other / type my topic' src/learn.ts
           grep -Fq 'Compare two routes' src/market.ts
           grep -Fq 'market-compare-a' src/market.ts
