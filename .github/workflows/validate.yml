@@ -81,6 +81,9 @@ jobs:
           grep -Fq 'Modeled surplus / shortfall' src/s13-journey.ts
           grep -Fq '5-step practice roadmap' src/learn.ts
           grep -Fq 'Before paying for a course' src/learn.ts
+          grep -Fq 'Learning readiness check' src/learn.ts
+          grep -Fq 'not an aptitude score or eligibility test' src/learn.ts
+          grep -Fq 'unanswered items are preparation gaps' src/learn.ts
           grep -Fq 'National Career Service' src/gov.ts
           grep -Fq 'Verify before you act' src/gov.ts
           grep -Fq 'Skill India Digital' src/learn.ts
@@ -108,4 +111,5 @@ jobs:
           grep -Fq 'Low-risk test' src/path-routes.ts
           grep -Fq 'business-compare-back' src/possibilities.ts
           grep -Fq 'learn-roadmap-back' src/learn.ts
+          grep -Fq 'learn-readiness-back' src/learn.ts
           echo 'Navigation and comparison workflow checks passed.'
