@@ -9,10 +9,16 @@ function renderPossibilities(category: string) {
     <button class="mic" type="button" aria-label="Voice input"><span aria-hidden="true">●</span> Any Indian language</button>
     <nav class="nav" aria-label="Navigation"><button id="s13-back" type="button">← Back</button><button id="s13-home" type="button">Home</button></nav>
   </main>`;
-  document.querySelector('#s13-back')?.addEventListener('click', () => location.reload());
-  document.querySelector('#s13-home')?.addEventListener('click', () => location.reload());
-  document.querySelector('#s13-evidence')?.addEventListener('click', () => document.dispatchEvent(new CustomEvent('skill-route', { detail: 'evidence' })));
-  document.querySelector('#s13-test')?.addEventListener('click', () => document.dispatchEvent(new CustomEvent('skill-route', { detail: 'simulator' })));
+  document.querySelector('#s13-back')?.addEventListener('click', () => history.back());
+  document.querySelector('#s13-home')?.addEventListener('click', () => { location.href = '/'; });
+  document.querySelector('#s13-evidence')?.addEventListener('click', () => {
+    history.pushState({ skillScreen: 'evidence' }, '', '#evidence');
+    location.reload();
+  });
+  document.querySelector('#s13-test')?.addEventListener('click', () => {
+    history.pushState({ skillScreen: 'simulator' }, '', '#simulator');
+    location.reload();
+  });
 }
 
 document.addEventListener('click', (event) => {
