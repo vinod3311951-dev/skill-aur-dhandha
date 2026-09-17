@@ -11,6 +11,8 @@ Choose → Refine with dropdowns → See 15–20 possibilities → Select one �
 - [x] Mobile-first home shell with five primary routes.
 - [x] Persistent Back/Home navigation in deep journeys.
 - [x] Language, Settings and “Any Indian language” shell controls.
+- [x] Language preference is locally persisted without falsely presenting untranslated copy as translated production content.
+- [x] Settings includes a locally persisted reduced-motion preference and local plan/calculator clearing; no account or server-side settings store required.
 - [x] Privacy-minimizing Find My Path profile.
 - [x] Seven business categories with 15 opportunities each.
 - [x] Needs & Requirements journey and local Save My Plan handoff.
@@ -26,6 +28,7 @@ Choose → Refine with dropdowns → See 15–20 possibilities → Select one �
 - [x] Offline service worker and standalone manifest present.
 - [x] Green interactive-panel/mobile touch treatment.
 - [x] Automated regression gates cover frozen privacy, navigation, dropdown and plan handoff boundaries.
+- [x] Automated regression gates now protect functional local Language/Settings controls and saved reduced-motion behavior.
 - [x] Current production government/tax/training/agriculture/market destinations have corresponding authoritative entries in the official-source register; Audit 1 must re-check redirects and any later-added route.
 - [ ] Complete source-grounded Pan-India research provenance layer.
 - [ ] Validate calculator edge cases and labels in Formal Audit 1.
