@@ -46,6 +46,20 @@ Purpose: persistent provenance for claims and outbound government routes. This r
 - Safe product claim: NCS provides job-search and career-related services/resources. The current portal states NCS services are free of cost and warns users about misleading/fraudulent communications claiming association with NCS.
 - Product boundary: Skill Aur Dhandha does not broker jobs, collect job-placement fees or guarantee employment.
 
+### Small Farmers' Agribusiness Consortium (SFAC) — FPO route
+- Official destination: https://www.sfacindia.com/FPOS.aspx
+- Authority/context: SFAC identifies itself as a society promoted by the Department of Agriculture and Farmers Welfare, Government of India. Its FPO material defines FPOs as producer organisations whose members are farmers and provides scheme guidance and state-wise FPO information.
+- Product use: Find My Market FPO research route.
+- Safe product claim: users can use SFAC material to understand the FPO ecosystem and locate published FPO information relevant to their state/commodity.
+- Do not claim: that a specific user can join a particular FPO, that an FPO will buy produce, or that membership/aggregation guarantees a sale or price.
+
+### Open Network for Digital Commerce (ONDC)
+- Official destination: https://www.ondc.org/
+- Authority/context: ONDC describes itself as an initiative of the Government of India's Department for Promotion of Industry and Internal Trade (DPIIT), designed as population-scale digital infrastructure using open-network principles.
+- Product use: Find My Market digital-commerce research route.
+- Safe product claim: ONDC is a digital-commerce network initiative that supports participation across multiple domains; users must still check the relevant participant/network route, fees, fulfilment and terms.
+- Do not claim: that ONDC itself is a guaranteed marketplace, that every seller/service is eligible, or that joining guarantees orders.
+
 ## Pending authoritative verification before release
 
 - GST portal — https://www.gst.gov.in/
@@ -54,7 +68,8 @@ Purpose: persistent provenance for claims and outbound government routes. This r
 - Ministry of Agriculture & Farmers Welfare — https://agriwelfare.gov.in/
 - Ministry of MSME — https://msme.gov.in/
 - FSSAI FoSCoS — https://foscos.fssai.gov.in/
-- e-NAM and any other market-route destinations currently surfaced by the app.
+- e-NAM — https://enam.gov.in/
+- Any additional external official or market-route destination surfaced by the production UI that is not yet recorded above.
 
 ## Release rule
 
