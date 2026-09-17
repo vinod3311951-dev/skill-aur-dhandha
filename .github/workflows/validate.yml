@@ -99,6 +99,8 @@ jobs:
           grep -Fq 'business-compare-b' src/possibilities.ts
           grep -Fq 'my entry' src/possibilities.ts
           grep -Fq 'Choose from ${route.items.length} directions' src/path-routes.ts
+      - name: Run calculator edge-case tests
+        run: npm run test:calculator
       - name: Validate hardened calculator safety math
         shell: bash
         run: |
