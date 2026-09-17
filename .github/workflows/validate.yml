@@ -86,6 +86,10 @@ jobs:
           grep -Fq 'Skill India Digital' src/learn.ts
           grep -Fq 'TEST MODE' src/s1c.ts
           grep -Fq '₹0 charged' src/s1c.ts
+          grep -Fq 'Enter business assumptions' src/paisa.ts
+          grep -Fq 'Break-even units / month' src/paisa.ts
+          grep -Fq 'Simple startup recovery' src/paisa.ts
+          grep -Fq 'not a forecast' src/paisa.ts
           echo 'Blueprint coverage checks passed.'
       - name: Validate navigation and compare workflows
         shell: bash
@@ -96,6 +100,7 @@ jobs:
           grep -Fq 'Compare route requirements' src/market.ts
           grep -Fq 'Unknowns remain unknown' src/market.ts
           grep -Fq 'paisaRoot' src/paisa.ts
+          grep -Fq 'paisa-business-calc' src/paisa.ts
           grep -Fq 'reportRoot' src/s1c.ts
           grep -Fq 'Compare before deciding' src/path-routes.ts
           grep -Fq 'Choose an alternative' src/path-routes.ts
