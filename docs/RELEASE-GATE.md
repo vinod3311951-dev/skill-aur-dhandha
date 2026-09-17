@@ -30,7 +30,8 @@ Choose → Refine with dropdowns → See 15–20 possibilities → Select one �
 - [x] Automated regression gates cover frozen privacy, navigation, dropdown and plan handoff boundaries.
 - [x] Automated regression gates now protect functional local Language/Settings controls and saved reduced-motion behavior.
 - [x] Current production government/tax/training/agriculture/market destinations have corresponding authoritative entries in the official-source register; Audit 1 must re-check redirects and any later-added route.
-- [ ] Complete source-grounded Pan-India research provenance layer.
+- [x] Export/value-added affiliate surfaces are separated from official routes and covered by a provenance/monetisation register.
+- [x] Complete source-grounded Pan-India research provenance layer.
 - [ ] Validate calculator edge cases and labels in Formal Audit 1.
 - [ ] Add conventional 192×192 and 512×512 PNG install icons in addition to the current SVG before release packaging.
 - [ ] Full tab/button/navigation regression pass.
