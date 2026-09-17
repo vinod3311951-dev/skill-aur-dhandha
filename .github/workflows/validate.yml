@@ -151,6 +151,18 @@ jobs:
           grep -Fq 'Find my business gaps' src/business-analysis.ts
           grep -Fq '30 / 60 / 90-day improvement frame' src/business-analysis.ts
           grep -Fq 'current market share/size' src/business-analysis.ts
+      - name: Validate Business Analysis integrations
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq "document.addEventListener('open-market',renderMarket)" src/market.ts
+          grep -Fq "document.addEventListener('open-government-help',govStart)" src/gov.ts
+          grep -Fq "new Event('open-market')" src/business-analysis.ts
+          grep -Fq "new Event('open-government-help')" src/business-analysis.ts
+          grep -Fq 'Business-type lens' src/business-analysis.ts
+          grep -Fq 'Farmer / Agriculture' src/business-analysis.ts
+          grep -Fq 'Home-based' src/business-analysis.ts
+          grep -Fq 'Service / Skill' src/business-analysis.ts
       - name: Run navigation contract regression
         run: npm run check:navigation
       - name: Validate universal market research dimensions
