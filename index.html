@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#ffffff" />
     <meta name="description" content="Skill Aur Dhandha — India Opportunity Navigator" />
+    <link rel="manifest" href="/manifest.webmanifest" />
     <title>Skill Aur Dhandha</title>
   </head>
   <body>
@@ -15,5 +16,10 @@
     <script type="module" src="/src/paisa.ts"></script>
     <script type="module" src="/src/learn.ts"></script>
     <script type="module" src="/src/gov.ts"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+      }
+    </script>
   </body>
 </html>
