@@ -98,6 +98,10 @@ jobs:
           set -euo pipefail
           grep -Fq "type Screen='home'|'path'" src/main.ts
           grep -Fq 'skill-return-to-path' src/main.ts
+          grep -Fq 'app-language' src/main.ts
+          grep -Fq 'app-settings' src/main.ts
+          grep -Fq 'utility-back' src/main.ts
+          grep -Fq 'Any Indian language' src/main.ts
           grep -Fq 'skill-return-to-path' src/guided-filters.ts
           grep -Fq 'skill-return-to-path' src/path-routes.ts
           grep -Fq 'market-type-select' src/market.ts
@@ -125,6 +129,19 @@ jobs:
           grep -Fq 'Nothing is sent to a server' src/possibilities.ts
           grep -Fq 'Calculating:' src/paisa.ts
           grep -Fq 'Edit assumptions' src/paisa.ts
+      - name: Validate source provenance register
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f docs/OFFICIAL-SOURCE-REGISTER.md
+          grep -Fq 'myScheme' docs/OFFICIAL-SOURCE-REGISTER.md
+          grep -Fq 'Udyam Registration' docs/OFFICIAL-SOURCE-REGISTER.md
+          grep -Fq 'Income Tax Department e-Filing' docs/OFFICIAL-SOURCE-REGISTER.md
+          grep -Fq 'National Single Window System' docs/OFFICIAL-SOURCE-REGISTER.md
+          grep -Fq 'National Career Service' docs/OFFICIAL-SOURCE-REGISTER.md
+          grep -Fq "Small Farmers' Agribusiness Consortium" docs/OFFICIAL-SOURCE-REGISTER.md
+          grep -Fq 'Open Network for Digital Commerce' docs/OFFICIAL-SOURCE-REGISTER.md
+          grep -Fq 'no private intermediary or affiliate route may masquerade as an official portal' docs/OFFICIAL-SOURCE-REGISTER.md
       - name: Reject legacy runtime modules
         shell: bash
         run: |
