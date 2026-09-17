@@ -25,12 +25,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for f in dist/index.html dist/manifest.webmanifest dist/sw.js dist/icon.svg; do test -f "$f"; done
+          for f in dist/index.html dist/manifest.webmanifest dist/sw.js dist/icon.svg dist/icon-192.png dist/icon-512.png; do test -f "$f"; done
           grep -q 'manifest.webmanifest' dist/index.html
           grep -q 'serviceWorker' dist/index.html
           grep -q '"display": "standalone"' dist/manifest.webmanifest
           grep -q '"start_url": "/"' dist/manifest.webmanifest
           grep -q '"theme_color": "#31704b"' dist/manifest.webmanifest
+          grep -q '"sizes": "192x192"' dist/manifest.webmanifest
+          grep -q '"sizes": "512x512"' dist/manifest.webmanifest
           grep -q 'caches.open' dist/sw.js
       - name: Validate frozen safety boundaries
         shell: bash
