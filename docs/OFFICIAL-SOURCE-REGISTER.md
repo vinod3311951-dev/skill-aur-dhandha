@@ -46,6 +46,21 @@ Purpose: persistent provenance for claims and outbound government routes. This r
 - Safe product claim: NCS provides job-search and career-related services/resources. The current portal states NCS services are free of cost and warns users about misleading/fraudulent communications claiming association with NCS.
 - Product boundary: Skill Aur Dhandha does not broker jobs, collect job-placement fees or guarantee employment.
 
+### Directorate General of Training (DGT)
+- Official destination: https://dgt.gov.in/en
+- Authority/context: DGT identifies itself under the Government of India, Ministry of Skill Development and Entrepreneurship and as the apex organisation for national development and coordination of vocational-training programmes. Its current site publishes ITI, apprenticeship, admission and training-system material.
+- Product use: Learn & Grow research authority and trusted vocational-training next-step route.
+- Safe product claim: use DGT to inspect current official vocational-training programmes, standards, admissions and related training information.
+- Important boundary: course availability, admission dates, provider status and certification conditions are time-sensitive and must be checked on the current official destination rather than inferred by Skill Aur Dhandha.
+
+### Ministry of Micro, Small & Medium Enterprises (MSME)
+- Official destination: https://msme.gov.in/
+- Supporting official service destination: https://www.my.msme.gov.in/MyMsme/Reg/home.aspx
+- Authority/context: Ministry of Micro, Small & Medium Enterprises, Government of India. Current MyMSME material surfaces Ministry schemes/services and explicitly warns users that the official Udyam registration site is udyamregistration.gov.in.
+- Product use: Pan-India MSME research authority and Government Help route.
+- Safe product claim: use Ministry/MSME sources to research current central MSME programmes and official service destinations.
+- Important boundary: scheme availability, eligibility, deadlines and classifications can change. Udyam registration must route to the official Udyam portal rather than a private registration intermediary.
+
 ### Small Farmers' Agribusiness Consortium (SFAC) — FPO route
 - Official destination: https://www.sfacindia.com/FPOS.aspx
 - Authority/context: SFAC identifies itself as a society promoted by the Department of Agriculture and Farmers Welfare, Government of India. Its FPO material defines FPOs as producer organisations whose members are farmers and provides scheme guidance and state-wise FPO information.
@@ -63,10 +78,9 @@ Purpose: persistent provenance for claims and outbound government routes. This r
 ## Pending authoritative verification before release
 
 - GST portal — https://www.gst.gov.in/
-- DGT / Skill India Digital route — https://dgt.skillindiadigital.gov.in/
+- Skill India Digital destination currently surfaced by the app — https://dgt.skillindiadigital.gov.in/
 - e-Shram — https://eshram.gov.in/
 - Ministry of Agriculture & Farmers Welfare — https://agriwelfare.gov.in/
-- Ministry of MSME — https://msme.gov.in/
 - FSSAI FoSCoS — https://foscos.fssai.gov.in/
 - e-NAM — https://enam.gov.in/
 - Any additional external official or market-route destination surfaced by the production UI that is not yet recorded above.
