@@ -193,6 +193,20 @@ jobs:
           grep -Fq 'National Agriculture Market (e-NAM)' docs/OFFICIAL-SOURCE-REGISTER.md
           grep -Fq 'Open Network for Digital Commerce' docs/OFFICIAL-SOURCE-REGISTER.md
           grep -Fq 'no private intermediary or affiliate route may masquerade as an official portal' docs/OFFICIAL-SOURCE-REGISTER.md
+      - name: Validate export and green source coverage
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq '### India Post' docs/OFFICIAL-SOURCE-REGISTER.md
+          grep -Fq '### APEDA AgriXchange' docs/OFFICIAL-SOURCE-REGISTER.md
+          grep -Fq '### Ministry of New and Renewable Energy — Solar' docs/OFFICIAL-SOURCE-REGISTER.md
+          grep -Fq '### Ministry of Power — EV Charging Infrastructure' docs/OFFICIAL-SOURCE-REGISTER.md
+          grep -Fq '2024' docs/OFFICIAL-SOURCE-REGISTER.md
+          grep -Fq 'data-household-band' src/paisa.ts
+          grep -Fq 'paisa-reduction-wrap' src/paisa.ts
+          grep -Fq 'Other / enter manually' src/paisa.ts
+          grep -Fq 'Climate Finance Specialist / Green Project Finance Analyst' src/future-careers.ts
+          grep -Fq 'regulated investment or lending advice' src/future-careers.ts
       - name: Reject legacy runtime modules
         shell: bash
         run: |
