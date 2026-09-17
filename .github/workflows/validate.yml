@@ -69,6 +69,25 @@ jobs:
           grep -Fq 'Things to check before proceeding' src/learn.ts
           grep -Fq 'Things to check before proceeding' src/gov.ts
           grep -Fq 'TEST MODE' src/s1c.ts
+      - name: Validate dropdown-first and plan handoff
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq '15 learning options' src/learn.ts
+          grep -Fq 'Other / type my topic' src/learn.ts
+          grep -Fq 'Compare two routes' src/market.ts
+          grep -Fq 'market-compare-a' src/market.ts
+          grep -Fq 'market-compare-b' src/market.ts
+          grep -Fq 'data-business-band' src/paisa.ts
+          grep -Fq 'Other / enter manually' src/paisa.ts
+          grep -Fq 'open-paisa-business' src/paisa.ts
+          grep -Fq 'open-paisa-business' src/possibilities.ts
+          grep -Fq 'skill-aur-dhandha-opportunity-plan' src/possibilities.ts
+          grep -Fq 'Save My Plan on this device' src/possibilities.ts
+          grep -Fq 'Compare with a similar opportunity' src/possibilities.ts
+          grep -Fq 'business-compare-a' src/possibilities.ts
+          grep -Fq 'business-compare-b' src/possibilities.ts
+          grep -Fq 'Choose from 15 directions' src/path-routes.ts
       - name: Validate navigation and corrected workflows
         shell: bash
         run: |
