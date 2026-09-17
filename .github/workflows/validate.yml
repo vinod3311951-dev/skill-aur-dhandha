@@ -137,6 +137,8 @@ jobs:
           grep -Fq 'learn-readiness-back' src/learn.ts
           grep -Fq 'gov-mode-select' src/gov.ts
           grep -Fq 'Compare before deciding' src/path-routes.ts
+      - name: Run navigation contract regression
+        run: npm run check:navigation
       - name: Validate local utility settings
         shell: bash
         run: |
