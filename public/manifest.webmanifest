@@ -9,7 +9,7 @@
   "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "orientation": "portrait-primary",
   "background_color": "#ffffff",
-  "theme_color": "#ffffff",
+  "theme_color": "#31704b",
   "lang": "en-IN",
   "dir": "ltr",
   "categories": ["business", "education", "finance"],
