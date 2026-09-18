@@ -32,7 +32,7 @@ Choose → Refine with dropdowns → See 15–20 possibilities → Select one �
 - [x] Current production government/tax/training/agriculture/market destinations have corresponding authoritative entries in the official-source register; Audit 1 must re-check redirects and any later-added route.
 - [x] Export/value-added affiliate surfaces are separated from official routes and covered by a provenance/monetisation register.
 - [x] Complete source-grounded Pan-India research provenance layer.
-- [ ] Validate calculator edge cases and labels in Formal Audit 1.
+- [x] Validate calculator edge cases and labels with executable edge-case tests.
 - [x] Add conventional 192×192 and 512×512 PNG install icons in addition to the current SVG before release packaging.
 - [x] Full tab/button/navigation regression pass.
 - [x] Business Analysis is lazy-loaded from the home shell and reuses the shared research/Paisa architecture.
@@ -43,7 +43,7 @@ Choose → Refine with dropdowns → See 15–20 possibilities → Select one �
 
 ## Pre-Audit checkpoint
 
-Latest Factory X CI on the current branch is green after build, PWA-shell, privacy/safety, dropdown/plan-handoff, calculator-formula, navigation-contract, language/voice, provenance, export/green-source, PNG-icon and legacy-runtime checks. Build implementation is now at the Formal Audit 1 boundary; remaining open items belong to Audit 1 / user final-look / Audit 2.
+Latest Factory X CI is green after build, bundle-budget, Business Analysis diagnostics, executable calculator edge-case tests, PWA-shell, privacy/safety, navigation, language/voice, provenance, export/green-source and install-icon checks. Build remains in pre-user-review hardening; Formal Audit 1 is not marked complete until the user review cycle begins.
 
 ## Evidence labels
 
