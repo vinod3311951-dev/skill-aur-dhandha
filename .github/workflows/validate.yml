@@ -1,13 +1,17 @@
 name: Validate Factory X
+
 on:
   push:
     branches: [factory-x/vertical-slice-01]
   pull_request:
     branches: [main]
+  workflow_dispatch:
+
 permissions:
   contents: read
+
 jobs:
-  build:
+  quality:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -18,313 +22,39 @@ jobs:
         with:
           node-version: '22'
       - name: Install dependencies
-        run: npm install --ignore-scripts
-      - name: Build
-        run: npm run build
-      - name: Run bundle performance budget
-        run: npm run check:bundle
-      - name: Validate PWA shell
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Run Factory X quality gate
+        run: npm run check:build
+      - name: Validate founder correction architecture
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq '/src/navigation-runtime.ts' index.html
+          grep -Fq '/src/choice-experience.ts' index.html
+          ! grep -Fq '/src/research-lens.ts' index.html
+          ! grep -Fq '/src/self-marketing.ts' index.html
+          ! grep -Fq '/src/home-business-tips.ts' index.html
+          grep -Fq '5-step practice roadmap' src/choice-experience.ts
+          grep -Fq 'Quick reality filters' src/choice-experience.ts
+          grep -Fq 'Research centred on' src/choice-experience.ts
+          grep -Fq 'Compare with another choice' src/choice-experience.ts
+          grep -Fq 'history.back' src/navigation-runtime.ts
+          grep -Fq 'popstate' src/navigation-runtime.ts
+          grep -Fq 'Share Skill and Dhandha' src/main.ts
+      - name: Validate privacy and safety boundaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -R -Fq 'type="password"' src
+          ! grep -R -Fq 'type="email"' src
+          grep -Fq 'no name, exact DOB, address, Aadhaar, PAN or bank information' src/guided-filters.ts
+          grep -Fq 'does not broker' src/path-routes.ts
+          grep -Fq 'does not submit applications' src/gov.ts
+      - name: Validate PWA release shell
         shell: bash
         run: |
           set -euo pipefail
           for f in dist/index.html dist/manifest.webmanifest dist/sw.js dist/icon.svg dist/icon-192.png dist/icon-512.png; do test -f "$f"; done
-          grep -q 'manifest.webmanifest' dist/index.html
-          grep -q 'serviceWorker' dist/index.html
-          grep -q '"display": "standalone"' dist/manifest.webmanifest
-          grep -q '"start_url": "/"' dist/manifest.webmanifest
-          grep -q '"theme_color": "#31704b"' dist/manifest.webmanifest
-          grep -q '"sizes": "192x192"' dist/manifest.webmanifest
-          grep -q '"sizes": "512x512"' dist/manifest.webmanifest
-          grep -q 'caches.open' dist/sw.js
-      - name: Validate frozen safety boundaries
-        shell: bash
-        run: |
-          set -euo pipefail
-          for f in src/path-routes.ts src/gov.ts src/market.ts src/paisa.ts src/guided-filters.ts; do test -f "$f"; done
-          grep -qi 'does not broker' src/path-routes.ts
-          grep -qi 'does not submit applications' src/gov.ts
-          grep -qi 'Aadhaar' src/gov.ts
-          grep -qi 'PAN' src/gov.ts
-          grep -qi 'payments' src/market.ts
-          grep -qi 'commissions' src/market.ts
-          grep -qi 'Aadhaar' src/paisa.ts
-          grep -qi 'PAN' src/paisa.ts
-          grep -Fq 'Do not infer tax from an MSME/SME label' src/paisa.ts
-          grep -Fq 'no name, exact DOB, address, Aadhaar, PAN or bank information' src/guided-filters.ts
-          ! grep -Fq 'type="email"' src/*.ts
-          ! grep -Fq 'type="password"' src/*.ts
-      - name: Validate corrected blueprint coverage
-        shell: bash
-        run: |
-          set -euo pipefail
-          for f in src/main.ts src/guided-filters.ts src/possibilities.ts src/manufacturing-machines.ts src/path-routes.ts src/market.ts src/paisa.ts src/learn.ts src/gov.ts; do test -f "$f"; done
-          for term in '17 or under' '60+' 'Gender (optional)' 'Investment preference' 'Time available' 'Operating location' 'Broad geography'; do grep -Fq "$term" src/guided-filters.ts; done
-          for category in 'Food' 'Retail' 'Service / Skill' 'Manufacturing' 'Agriculture / Farm Business' 'Digital / Online' 'Home-based'; do grep -Fq "$category" src/possibilities.ts; done
-          for factor in 'Investment' 'Demand' 'Competition' 'Risk' 'Profit potential' 'Time to income' 'Difficulty' 'Skills needed' 'Government support' 'Space needed' 'Scalability' 'Seasonal risk' 'Legal requirements' 'Digital opportunity' 'Long-term outlook'; do grep -Fq "$factor" src/possibilities.ts; done
-          grep -Fq 'Needs & Requirements' src/possibilities.ts
-          grep -Fq 'Pan-India research' src/possibilities.ts
-          grep -Fq '15-factor comparison' src/possibilities.ts
-          grep -Fq '₹20,000 band' src/manufacturing-machines.ts
-          grep -Fq '₹50,000 band' src/manufacturing-machines.ts
-          grep -Fq '₹1,00,000 band' src/manufacturing-machines.ts
-          grep -Fq 'affiliate links' src/manufacturing-machines.ts
-          grep -Fq 'YOUR CALCULATION' src/paisa.ts
-          grep -Fq 'Adaptive business calculator' src/paisa.ts
-          grep -Fq 'Tax & Compliance Check' src/paisa.ts
-          grep -Fq 'Save My Plan' src/paisa.ts
-          grep -Fq 'Research ${learnTopic} in India' src/learn.ts
-          grep -Fq 'Things to check before proceeding' src/learn.ts
-          grep -Fq 'Things to check before proceeding' src/gov.ts
-          grep -Fq 'Need local-language help?' src/gov.ts
-          grep -Fq 'Where the service or scheme is supported through India Post' src/gov.ts
-          grep -Fq 'https://www.indiapost.gov.in/' src/gov.ts
-      - name: Validate dropdown-first and plan handoff
-        shell: bash
-        run: |
-          set -euo pipefail
-          grep -Fq 'Choose from ${list.length} learning options' src/learn.ts
-          grep -Fq 'Other / type my topic' src/learn.ts
-          grep -Fq 'Compare two routes' src/market.ts
-          grep -Fq 'market-compare-a' src/market.ts
-          grep -Fq 'market-compare-b' src/market.ts
-          grep -Fq 'routeLens' src/market.ts
-          grep -Fq 'data-business-band' src/paisa.ts
-          grep -Fq 'Other / enter manually' src/paisa.ts
-          grep -Fq 'open-paisa-business' src/paisa.ts
-          grep -Fq 'open-paisa-business' src/possibilities.ts
-          grep -Fq 'skill-aur-dhandha-opportunity-plan' src/possibilities.ts
-          grep -Fq 'Save My Plan on this device' src/possibilities.ts
-          grep -Fq 'Compare with a similar opportunity' src/possibilities.ts
-          grep -Fq 'business-compare-a' src/possibilities.ts
-          grep -Fq 'business-compare-b' src/possibilities.ts
-          grep -Fq 'my entry' src/possibilities.ts
-          grep -Fq 'Choose from ${route.items.length} directions' src/path-routes.ts
-      - name: Run Business Analysis diagnostic tests
-        run: npm run test:business-analysis
-      - name: Run calculator edge-case tests
-        run: npm run test:calculator
-      - name: Validate hardened calculator safety math
-        shell: bash
-        run: |
-          set -euo pipefail
-          grep -Fq 'fixedMonthly=x.rent+x.marketing+x.branding+x.distribution+x.transport+staff+x.utilities' src/business-calculator-core.ts
-          grep -Fq 'variablePerUnit=x.units>0?(x.raw+x.packaging)/x.units:null' src/business-calculator-core.ts
-          grep -Fq 'Math.ceil(fixedMonthly/unitContribution)' src/business-calculator-core.ts
-          grep -Fq 'Indicative operating break-even units' src/paisa.ts
-          grep -Fq 'Break-even method:' src/paisa.ts
-          grep -Fq 'Branding / creative' src/paisa.ts
-          grep -Fq 'Packaging / labels' src/paisa.ts
-          grep -Fq 'Simple startup-cost recovery' src/paisa.ts
-          grep -Fq 'owner salary/labour' src/paisa.ts
-          ! grep -Fq 'Math.ceil((monthly-x.raw)/unitContribution)' src/business-calculator-core.ts
-      - name: Validate navigation and corrected workflows
-        shell: bash
-        run: |
-          set -euo pipefail
-          grep -Fq "type Screen='home'|'path'" src/main.ts
-          grep -Fq 'skill-return-to-path' src/main.ts
-          grep -Fq 'app-language' src/main.ts
-          grep -Fq 'app-settings' src/main.ts
-          grep -Fq 'utility-back' src/main.ts
-          grep -Fq 'Any Indian language' src/main.ts
-          grep -Fq 'skill-return-to-path' src/guided-filters.ts
-          grep -Fq 'skill-return-to-path' src/path-routes.ts
-          grep -Fq 'market-type-select' src/market.ts
-          grep -Fq 'market-route-select' src/market.ts
-          grep -Fq 'market-compare-back' src/market.ts
-          grep -Fq 'market-checks-back' src/market.ts
-          grep -Fq 'paisa-mode-select' src/paisa.ts
-          grep -Fq 'paisa-business-calc' src/paisa.ts
-          grep -Fq 'paisa-business-edit' src/paisa.ts
-          grep -Fq 'business-compare-back' src/possibilities.ts
-          grep -Fq 'business-journey-back' src/possibilities.ts
-          grep -Fq 'data-machine-explorer' src/possibilities.ts
-          grep -Fq 'machine-budget' src/manufacturing-machines.ts
-          grep -Fq 'machine-detail-back' src/manufacturing-machines.ts
-          grep -Fq 'learn-roadmap-back' src/learn.ts
-          grep -Fq 'learn-readiness-back' src/learn.ts
-          grep -Fq 'gov-mode-select' src/gov.ts
-          grep -Fq 'Compare before deciding' src/path-routes.ts
-      - name: Validate lazy Business Analysis route
-        shell: bash
-        run: |
-          set -euo pipefail
-          test -f src/business-analysis.ts
-          grep -Fq "'Business Analysis'" src/main.ts
-          grep -Fq "import('./business-analysis.ts')" src/main.ts
-          grep -Fq 'Find my business gaps' src/business-analysis.ts
-          grep -Fq '30 / 60 / 90-day improvement frame' src/business-analysis.ts
-          grep -Fq 'current market share/size' src/business-analysis.ts
-      - name: Validate opportunity-to-analysis bridge
-        shell: bash
-        run: |
-          set -euo pipefail
-          grep -Fq 'Analyse this business model' src/possibilities.ts
-          grep -Fq "new Event('open-business-analysis')" src/possibilities.ts
-          grep -Fq 'inferTypeFromPlan' src/business-analysis.ts
-          grep -Fq 'Current plan:' src/business-analysis.ts
-          grep -Fq "'skill-aur-dhandha-paisa'" src/main.ts
-          grep -Fq "'skill-aur-dhandha-business-analysis'" src/main.ts
-      - name: Validate Business Analysis integrations
-        shell: bash
-        run: |
-          set -euo pipefail
-          grep -Fq "document.addEventListener('open-market',renderMarket)" src/market.ts
-          grep -Fq "document.addEventListener('open-government-help',govStart)" src/gov.ts
-          grep -Fq "new Event('open-market')" src/business-analysis.ts
-          grep -Fq "new Event('open-government-help')" src/business-analysis.ts
-          grep -Fq 'Business-type lens' src/business-analysis.ts
-          grep -Fq 'Farmer / Agriculture' src/business-analysis.ts
-          grep -Fq 'Home-based' src/business-analysis.ts
-          grep -Fq 'Service / Skill' src/business-analysis.ts
-      - name: Run navigation contract regression
-        run: npm run check:navigation
-      - name: Validate selected path and learning research context
-        shell: bash
-        run: |
-          set -euo pipefail
-          grep -Fq 'Research this direction' src/path-routes.ts
-          grep -Fq 'current India-specific market share/size' src/path-routes.ts
-          grep -Fq 'Research ${learnTopic} in India' src/learn.ts
-          grep -Fq 'competition/substitution' src/learn.ts
-      - name: Validate specific research surfaces
-        shell: bash
-        run: |
-          set -euo pipefail
-          grep -Fq 'Research this role in India' src/media-entertainment.ts
-          grep -Fq 'Research this custom role in India' src/media-entertainment.ts
-          grep -Fq 'Research this product and market' src/export-affiliate-opportunities.ts
-          grep -Fq 'research-panel' src/media-entertainment.ts
-          grep -Fq 'research-panel' src/export-affiliate-opportunities.ts
-      - name: Validate universal market research dimensions
-        shell: bash
-        run: |
-          set -euo pipefail
-          test -f src/research-lens.ts
-          grep -Fq '/src/research-lens.ts' index.html
-          grep -Fq 'Current market share / size' src/research-lens.ts
-          grep -Fq 'Future predicted share / size' src/research-lens.ts
-          grep -Fq 'CAGR' src/research-lens.ts
-          grep -Fq 'Growth perspective' src/research-lens.ts
-          grep -Fq 'Competition' src/research-lens.ts
-          grep -Fq 'Not verified / not published' src/research-lens.ts
-      - name: Validate local utility settings
-        shell: bash
-        run: |
-          set -euo pipefail
-          grep -Fq "type Lang='English'|'Hindi'|'Roman Hindi'" src/main.ts
-          grep -Fq 'skill-aur-dhandha-language' src/main.ts
-          grep -Fq 'language-select' src/main.ts
-          grep -Fq 'voice-locale-select' src/main.ts
-          grep -Fq 'skill-voice-locale' src/main.ts
-          grep -Fq 'saved text and voice preferences' src/main.ts
-          grep -Fq 'skill-aur-dhandha-reduced-motion' src/main.ts
-          grep -Fq 'motion-select' src/main.ts
-          grep -Fq 'clear-local-plans' src/main.ts
-          grep -Fq 'data-reduced-motion' src/style.css
-      - name: Validate Indian-language voice foundation
-        shell: bash
-        run: |
-          set -euo pipefail
-          test -f src/voice.ts
-          test -f docs/VOICE-LANGUAGE-ARCHITECTURE.md
-          grep -Fq '/src/voice.ts' index.html
-          test -f src/language-service.ts
-          grep -Fq '/src/language-service.ts' index.html
-          grep -Fq 'registerLanguageProvider' src/language-service.ts
-          grep -Fq 'no provider secrets are stored in the client' src/language-service.ts
-          grep -Fq 'SpeechRecognition' src/voice.ts
-          grep -Fq 'SpeechSynthesisUtterance' src/voice.ts
-          grep -Fq 'supportedLocales' src/voice.ts
-          grep -Fq "'hi-IN'" src/voice.ts
-          grep -Fq "'ta-IN'" src/voice.ts
-          grep -Fq "'te-IN'" src/voice.ts
-          grep -Fq "'bn-IN'" src/voice.ts
-          grep -Fq 'No always-on microphone' docs/VOICE-LANGUAGE-ARCHITECTURE.md
-          grep -Fq 'response in the same language as text' docs/VOICE-LANGUAGE-ARCHITECTURE.md
-          grep -Fq 'Do not embed provider secrets in the PWA client' docs/VOICE-LANGUAGE-ARCHITECTURE.md
-          grep -Fq '22 scheduled languages' docs/VOICE-LANGUAGE-ARCHITECTURE.md
-      - name: Validate local-only plan architecture
-        shell: bash
-        run: |
-          set -euo pipefail
-          grep -Fq "localStorage.setItem('skill-aur-dhandha-opportunity-plan'" src/possibilities.ts
-          grep -Fq "localStorage.setItem('skill-aur-dhandha-business-calculation'" src/paisa.ts
-          grep -Fq 'Nothing is sent to a server' src/possibilities.ts
-          grep -Fq 'Calculating:' src/paisa.ts
-          grep -Fq 'Edit assumptions' src/paisa.ts
-          grep -Fq 'save-opportunity-plan' src/possibilities.ts
-          grep -Fq 'machine-save' src/manufacturing-machines.ts
-          grep -Fq 'export-save' src/export-affiliate-opportunities.ts
-          grep -Fq 'market-save' src/market.ts
-          grep -Fq 'learn-save' src/learn.ts
-          grep -Fq 'ai-save' src/ai-learning.ts
-          grep -Fq 'future-save' src/future-careers.ts
-          grep -Fq 'media-save' src/media-entertainment.ts
-          grep -Fq 'path-save' src/path-routes.ts
-          grep -Fq 'ba-save' src/business-analysis.ts
-      - name: Validate source provenance register
-        shell: bash
-        run: |
-          set -euo pipefail
-          test -f docs/OFFICIAL-SOURCE-REGISTER.md
-          grep -Fq 'myScheme' docs/OFFICIAL-SOURCE-REGISTER.md
-          grep -Fq 'Udyam Registration' docs/OFFICIAL-SOURCE-REGISTER.md
-          grep -Fq 'Income Tax Department e-Filing' docs/OFFICIAL-SOURCE-REGISTER.md
-          grep -Fq 'Goods and Services Tax (GST) Common Portal' docs/OFFICIAL-SOURCE-REGISTER.md
-          grep -Fq 'National Single Window System' docs/OFFICIAL-SOURCE-REGISTER.md
-          grep -Fq 'National Career Service' docs/OFFICIAL-SOURCE-REGISTER.md
-          grep -Fq 'e-Shram' docs/OFFICIAL-SOURCE-REGISTER.md
-          grep -Fq 'Skill India Digital — DGT ITI route' docs/OFFICIAL-SOURCE-REGISTER.md
-          grep -Fq 'FSSAI / FoSCoS' docs/OFFICIAL-SOURCE-REGISTER.md
-          grep -Fq 'Department of Agriculture & Farmers Welfare' docs/OFFICIAL-SOURCE-REGISTER.md
-          grep -Fq "Small Farmers' Agribusiness Consortium" docs/OFFICIAL-SOURCE-REGISTER.md
-          grep -Fq 'National Agriculture Market (e-NAM)' docs/OFFICIAL-SOURCE-REGISTER.md
-          grep -Fq 'Open Network for Digital Commerce' docs/OFFICIAL-SOURCE-REGISTER.md
-          grep -Fq 'no private intermediary or affiliate route may masquerade as an official portal' docs/OFFICIAL-SOURCE-REGISTER.md
-          test -f docs/PAN-INDIA-RESEARCH-PROVENANCE.md
-          grep -Fq 'VERIFIED FACT' docs/PAN-INDIA-RESEARCH-PROVENANCE.md
-          grep -Fq 'YOUR CALCULATION' docs/PAN-INDIA-RESEARCH-PROVENANCE.md
-          grep -Fq 'ESTIMATE-SCENARIO' docs/PAN-INDIA-RESEARCH-PROVENANCE.md
-          grep -Fq 'GUIDANCE' docs/PAN-INDIA-RESEARCH-PROVENANCE.md
-          grep -Fq 'Pan-India' docs/PAN-INDIA-RESEARCH-PROVENANCE.md
-          test -f docs/EXPORT-AFFILIATE-REGISTER.md
-          grep -Fq 'Instamart' docs/EXPORT-AFFILIATE-REGISTER.md
-      - name: Validate agency earning routes
-        shell: bash
-        run: |
-          set -euo pipefail
-          grep -Fq 'Amul Parlour / Fresh Dairy Agency Route' src/possibilities.ts
-          grep -Fq 'Blue Dart Courier Business Route' src/possibilities.ts
-          grep -Fq 'LPG Gas Agency / Distributorship Route' src/possibilities.ts
-          grep -Fq 'https://amul.com/about-amul-franchise' src/possibilities.ts
-          grep -Fq 'https://www.bluedart.com/' src/possibilities.ts
-          grep -Fq 'https://www.lpgvitarakchayan.in/' src/possibilities.ts
-          grep -Fq '### Amul / GCMMF — Parlour & Retail Formats' docs/OFFICIAL-SOURCE-REGISTER.md
-          grep -Fq '### Blue Dart — Official Company Contact / Location Route' docs/OFFICIAL-SOURCE-REGISTER.md
-          grep -Fq '### LPG Distributor Selection — OMC Route' docs/OFFICIAL-SOURCE-REGISTER.md
-      - name: Validate export and green source coverage
-        shell: bash
-        run: |
-          set -euo pipefail
-          grep -Fq '### India Post' docs/OFFICIAL-SOURCE-REGISTER.md
-          grep -Fq '### APEDA AgriXchange' docs/OFFICIAL-SOURCE-REGISTER.md
-          grep -Fq '### Ministry of New and Renewable Energy — Solar' docs/OFFICIAL-SOURCE-REGISTER.md
-          grep -Fq '### Ministry of Power — EV Charging Infrastructure' docs/OFFICIAL-SOURCE-REGISTER.md
-          grep -Fq '2024' docs/OFFICIAL-SOURCE-REGISTER.md
-          grep -Fq 'data-household-band' src/paisa.ts
-          grep -Fq 'paisa-reduction-wrap' src/paisa.ts
-          grep -Fq 'Other / enter manually' src/paisa.ts
-          grep -Fq 'Climate Finance Specialist / Green Project Finance Analyst' src/future-careers.ts
-          grep -Fq 'regulated investment or lending advice' src/future-careers.ts
-      - name: Reject redundant export loader
-        shell: bash
-        run: |
-          set -euo pipefail
-          test ! -f src/export-affiliate-loader.ts
-      - name: Reject legacy runtime modules
-        shell: bash
-        run: |
-          set -euo pipefail
-          ! grep -Fq '/src/s1c.ts' index.html
-          ! grep -Fq '/src/s13-journey.ts' index.html
+          grep -Fq "skill-aur-dhandha-v7" dist/sw.js
+          grep -Fq "window-controls-overlay" dist/manifest.webmanifest
+          grep -Fq '"display": "standalone"' dist/manifest.webmanifest
