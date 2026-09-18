@@ -1,6 +1,6 @@
 const govModes=['Business Support','Jobs & Skills','Farmer Support','MSME Support','Financial Benefits','Registrations/Approvals','Not Sure'] as const;
 let govMode='Not Sure';
-const gmic=()=>`<button class="mic" type="button" aria-label="Voice input"><span aria-hidden="true">●</span> Any Indian language</button>`;
+const gmic=()=>`<button class="mic" type="button" aria-label="Voice input"><span aria-hidden="true">●</span> Voice input</button>`;
 const gnav=(id:string)=>`<nav class="nav" aria-label="Navigation"><button id="${id}" type="button">← Back</button><button id="gov-home" type="button">Home</button></nav>`;
 const govRoot=()=>{location.href='/';};
 type Route={name:string,url:string,note:string};
