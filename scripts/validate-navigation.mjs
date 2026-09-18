@@ -2,7 +2,7 @@ import fs from 'node:fs';
 
 const read=p=>fs.readFileSync(p,'utf8');
 const checks=[
-  ['src/choice-experience.ts',['5-step plan for','Research centred on','data-choice-compare-open','data-flow-next','data-flow-back','data-flow-home','data-flow-skip','open-paisa-business','open-market','open-learn','open-government-help']],
+  ['src/choice-experience.ts',['5-step plan for','What can I do now?','Research centred on','data-choice-compare-open','data-flow-next','data-flow-back','data-flow-home','data-flow-skip','open-paisa-business','open-market','open-learn','open-government-help']],
   ['src/main.ts',['Find My Path','Find My Market','Paisa Check','Learn & Grow','Government Help','data-i="0"','app-language','app-settings','utility-back','skill-return-to-path','voice-locale-select','skill-voice-locale']],
   ['src/path-routes.ts',['skill-return-to-path','open-media-entertainment','open-start-business','Compare before deciding','International / Abroad Jobs — Official Route','path-save']],
   ['src/guided-filters.ts',['skill-return-to-path','open-start-business','Skip / Not sure']],
