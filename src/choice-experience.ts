@@ -176,15 +176,9 @@
     budget:['Very low / use what I have','Under ₹20,000','₹20,000–₹50,000','₹50,000–₹1 lakh','Above ₹1 lakh','Skip'],
     mode:['Home','Local / field','Shop / workspace','Online / remote','Flexible','Skip']
   };
-  const profileField=(key,label,value)=>`<label>${label}<select data-choice-profile="${key}"><option value="">Skip / Not sure</option>${profileOptions[key].map(x=>`<option ${value===x?'selected':''}>${esc(x)}</option>`).join('')}</select></label>`;
-
   const factors=['Upfront cost','Recurring cost','Demand evidence','Competition','Time to readiness','Skill gap','Tools / space','Customer / employer route','Compliance','Seasonality','Digital opportunity','Scalability','Dependency risk','Proof needed','Long-term usefulness'];
 
-  function actionButton(action){
-    const map={paisa:['Calculate my assumptions → Paisa Check','open-paisa-business'],market:['Demand / competition → Find My Market','open-market'],learn:['Skill gap → Learn & Grow','open-learn'],government:['Compliance / support → Government Help','open-government-help']};
-    const x=map[action];if(!x)return '';
-    return `<button type="button" class="choice" data-choice-action="${x[1]}">${x[0]}<span>›</span></button>`;
-  }
+  let active=null;
 
   function selectedChoice(select){
     const option=select.selectedOptions[0];
@@ -194,102 +188,206 @@
     return text;
   }
 
-  function sync(){
-    if(!app)return;
-    const main=app.querySelector('main');if(!main)return;
-    const select=main.querySelector(primarySelectors);
-    const old=main.querySelector('[data-choice-experience]');
+  function actionButton(action){
+    const map={paisa:['Calculate my assumptions → Paisa Check','open-paisa-business'],market:['Demand / competition → Find My Market','open-market'],learn:['Skill gap → Learn & Grow','open-learn'],government:['Compliance / support → Government Help','open-government-help']};
+    const x=map[action];if(!x)return '';
+    return '<button type="button" class="choice" data-choice-action="'+x[1]+'">'+x[0]+'<span>›</span></button>';
+  }
+
+  function profileField(key,label,value){
+    return '<label>'+label+'<select data-choice-profile="'+key+'"><option value="">Skip / Not sure</option>'+profileOptions[key].map(x=>'<option '+(value===x?'selected':'')+'>'+esc(x)+'</option>').join('')+'</select></label>';
+  }
+
+  function stageList(flow){
+    if(flow.profile.fast)return ['plan','actions','research','next'];
+    const list=['profile','plan','actions'];
+    if(flow.showResearch)list.push('research');
+    list.push('compare','next');
+    return list;
+  }
+
+  function genericResearchPanels(main,hidden){
+    for(const panel of main.querySelectorAll('.research-panel'))panel.hidden=hidden;
     for(const button of main.querySelectorAll('button.choice')){
       if(/needs\s*&\s*requirements/i.test(button.textContent||''))button.hidden=true;
     }
-    if(!select){old?.remove();return;}
+  }
+
+  function compareOptions(select,choice){
+    return [...select.options].map(o=>(o.textContent||'').replace(/^Suggested · /,'').trim()).filter(x=>x&&x!==choice&&!/choose|select|skip|not sure|other \/ enter/i.test(x)).slice(0,40);
+  }
+
+  function begin(select){
+    if(!app)return;
+    const main=app.querySelector('main');if(!main)return;
     const choice=selectedChoice(select);
+    genericResearchPanels(main,true);
+    if(!choice){exitFlow(false);return;}
     const context=[main.querySelector('.eyebrow')?.textContent||'',main.querySelector('h1')?.textContent||''].join(' ');
-    const choiceKey=context+'|'+choice;
-    if(!choice){
-      old?.remove();
-      for(const p of main.querySelectorAll('.research-panel'))p.hidden=true;
-      return;
-    }
-    if(old?.getAttribute('data-choice-key')===choiceKey)return;
     const p=profile(choice,context);
-    const showResearch=separateResearch(choice,context);
-    const savedProfile=readProfile();
-    const profileNote=[
-      savedProfile.age&&savedProfile.age!=='Skip'?`Age: ${savedProfile.age}`:'',
-      savedProfile.time&&savedProfile.time!=='Skip'?`Time: ${savedProfile.time}`:'',
-      savedProfile.budget&&savedProfile.budget!=='Skip'?`Budget: ${savedProfile.budget}`:'',
-      savedProfile.mode&&savedProfile.mode!=='Skip'?`Mode: ${savedProfile.mode}`:''
-    ].filter(Boolean).join(' · ');
-    for(const panel of main.querySelectorAll('.research-panel'))if(!panel.hasAttribute('data-choice-experience'))panel.hidden=true;
-    const options=[...select.options].map(o=>(o.textContent||'').replace(/^Suggested · /,'').trim()).filter(x=>x&&x!==choice&&!/choose|select|skip|not sure|other \/ enter/i.test(x));
-    const compareOptions=options.slice(0,40);
-    const html=`<article class="card choice-experience" data-choice-experience data-choice-key="${esc(choiceKey)}">
-      <p class="eyebrow">YOUR SELECTED PATH · ${esc(choice)}</p>
-      <h2>${p.fast?'Fast route':'5-step practice roadmap'}</h2>
-      <ol>${p.roadmap.map(x=>`<li>${esc(x)}</li>`).join('')}</ol>
-      ${p.fast?'':`<section class="choice-profile"><h3>Quick reality filters</h3><p>Broad answers only; skip anything you do not want to answer.</p>${profileField('age','Age group',savedProfile.age||'')}${profileField('time','Time available',savedProfile.time||'')}${profileField('budget','Starting budget',savedProfile.budget||'')}${profileField('mode','Preferred operating mode',savedProfile.mode||'')}${profileNote?`<p><strong>Current filters:</strong> ${esc(profileNote)}</p>`:''}</section>`}
-      <h3>Useful next actions</h3>
-      <div class="actions">${p.actions.map(actionButton).join('')}</div>
-      <section class="choice-research">
-        <h3>${showResearch?'Research centred on '+esc(choice):'Evidence & official routes'}</h3>
-        ${showResearch?`<ul>${p.research.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:'<p>This path does not need a separate research page. Use the roadmap, your own calculations and the relevant official routes below.</p>'}
-        ${p.sources.map(s=>`<a class="choice" href="${s.url}" target="_blank" rel="noopener noreferrer">${esc(s.label)}<span>↗</span></a><p class="source-note"><strong>Source note:</strong> ${esc(s.note)}</p>`).join('')}
-      </section>
-      ${compareOptions.length?`<section class="choice-compare"><h3>Compare with another choice</h3><label>Second choice<select data-choice-compare>${compareOptions.map(x=>`<option>${esc(x)}</option>`).join('')}</select></label><button type="button" class="choice" data-choice-compare-open>Compare these two<span>›</span></button><div data-choice-compare-result></div></section>`:''}
-      <button type="button" class="choice" data-choice-save>Save this choice on this device<span>›</span></button>
-      <p data-choice-save-status role="status"></p>
-    </article>`;
-    if(old)old.outerHTML=html;
-    else{
-      const panel=select.closest('.dropdown-panel')||select.closest('.card');
-      panel?.insertAdjacentHTML('afterend',html);
+    active={
+      choice,
+      context,
+      p,
+      showResearch:separateResearch(choice,context),
+      selectId:select.id,
+      options:compareOptions(select,choice),
+      stage:0
+    };
+    history.pushState({...history.state,skillFlow:true,skillFlowStage:0},'');
+    renderStage();
+  }
+
+  function flowHost(){
+    if(!app)return null;
+    let host=app.querySelector('[data-choice-flow]');
+    if(host)return host;
+    const main=app.querySelector('main');if(!main)return null;
+    host=document.createElement('section');
+    host.setAttribute('data-choice-flow','true');
+    const panel=main.querySelector('.dropdown-panel')||main.querySelector('.card');
+    panel?.insertAdjacentElement('afterend',host);
+    return host;
+  }
+
+  function renderStage(){
+    if(!active||!app)return;
+    const host=flowHost();if(!host)return;
+    const stages=stageList(active);
+    active.stage=Math.max(0,Math.min(active.stage,stages.length-1));
+    const key=stages[active.stage];
+    const saved=readProfile();
+    const progress='Step '+(active.stage+1)+' of '+stages.length+' after your choice';
+    let body='';
+
+    if(key==='profile'){
+      body='<p class="eyebrow">'+progress+'</p><h2>Quick reality filters</h2><p>Broad answers only. Skip anything you do not want to answer.</p>'+
+        profileField('age','Age group',saved.age||'')+
+        profileField('time','Time available',saved.time||'')+
+        profileField('budget','Starting budget',saved.budget||'')+
+        profileField('mode','Preferred operating mode',saved.mode||'');
     }
+
+    if(key==='plan'){
+      body='<p class="eyebrow">'+progress+'</p><h2>5-step plan for '+esc(active.choice)+'</h2><ol>'+active.p.roadmap.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol>';
+    }
+
+    if(key==='actions'){
+      body='<p class="eyebrow">'+progress+'</p><h2>Useful actions for '+esc(active.choice)+'</h2><p>Open only what helps your decision. You can return with Back.</p><div class="actions">'+active.p.actions.map(actionButton).join('')+'</div>';
+    }
+
+    if(key==='research'){
+      body='<p class="eyebrow">'+progress+'</p><h2>Research centred on '+esc(active.choice)+'</h2>'+
+        '<ul>'+active.p.research.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>'+
+        active.p.sources.map(s=>'<a class="choice" href="'+s.url+'" target="_blank" rel="noopener noreferrer">'+esc(s.label)+'<span>↗</span></a><p class="source-note"><strong>Source note:</strong> '+esc(s.note)+'</p>').join('');
+    }
+
+    if(key==='compare'){
+      const options=active.options||[];
+      body='<p class="eyebrow">'+progress+'</p><h2>Compare '+esc(active.choice)+' with another choice</h2>'+
+        (options.length?'<label>Second choice<select data-choice-compare>'+options.map(x=>'<option>'+esc(x)+'</option>').join('')+'</select></label><button type="button" class="choice" data-choice-compare-open>Compare these two<span>›</span></button><div data-choice-compare-result></div>':'<p>No second option is available in this dropdown. Continue to the next step.</p>');
+    }
+
+    if(key==='next'){
+      const noResearch=!active.showResearch;
+      body='<p class="eyebrow">'+progress+'</p><h2>Next step for '+esc(active.choice)+'</h2>'+
+        (noResearch?'<p><strong>Evidence mode:</strong> this practical path does not need a separate market-research page. Use your roadmap, your own calculations and the relevant official routes below.</p>':'<p>Your roadmap, calculations/actions, research and comparison are now available for this choice.</p>')+
+        active.p.sources.map(s=>'<a class="choice" href="'+s.url+'" target="_blank" rel="noopener noreferrer">'+esc(s.label)+'<span>↗</span></a><p class="source-note"><strong>Source note:</strong> '+esc(s.note)+'</p>').join('')+
+        '<button type="button" class="choice" data-choice-save>Save this choice on this device<span>›</span></button><p data-choice-save-status role="status"></p>';
+    }
+
+    host.innerHTML='<article class="card choice-experience"><p><strong>Selected:</strong> '+esc(active.choice)+'</p>'+body+
+      '<nav class="flow-nav" aria-label="Choice journey"><button type="button" data-flow-back>← Back</button><button type="button" data-flow-next '+(active.stage===stages.length-1?'disabled':'')+'>Next →</button></nav></article>';
+
+    const main=app.querySelector('main');
+    if(main)genericResearchPanels(main,true);
+    host.scrollIntoView({block:'start',behavior:'auto'});
+  }
+
+  function saveProfile(){
+    if(!app)return;
+    const host=app.querySelector('[data-choice-flow]');if(!host)return;
+    const data={};
+    for(const s of host.querySelectorAll('[data-choice-profile]'))data[s.dataset.choiceProfile]=s.value;
+    localStorage.setItem('skill-aur-dhandha-choice-profile',JSON.stringify(data));
+  }
+
+  function gotoStage(index,push=true){
+    if(!active)return;
+    const stages=stageList(active);
+    active.stage=Math.max(0,Math.min(index,stages.length-1));
+    if(push)history.pushState({...history.state,skillFlow:true,skillFlowStage:active.stage},'');
+    renderStage();
+  }
+
+  function exitFlow(clear=true){
+    if(!app)return;
+    app.querySelector('[data-choice-flow]')?.remove();
+    if(clear)active=null;
   }
 
   document.addEventListener('change',e=>{
     const t=e.target;
-    if(t?.matches?.(primarySelectors)){queueMicrotask(sync);return;}
-    if(t?.matches?.('[data-choice-profile]')){
-      const box=t.closest('[data-choice-experience]');if(!box)return;
-      const data={};
-      for(const s of box.querySelectorAll('[data-choice-profile]'))data[s.dataset.choiceProfile]=s.value;
-      localStorage.setItem('skill-aur-dhandha-choice-profile',JSON.stringify(data));
-      box.removeAttribute('data-choice-key');
-      queueMicrotask(sync);
-    }
+    if(t?.matches?.(primarySelectors)){queueMicrotask(()=>begin(t));return;}
+    if(t?.matches?.('[data-choice-profile]'))saveProfile();
   });
 
   document.addEventListener('click',e=>{
     const t=e.target;
-    const action=t?.closest?.('[data-choice-action]')?.dataset.choiceAction;
-    if(action){document.dispatchEvent(new Event(action));return;}
-    if(t?.closest?.('[data-choice-save]')){
-      const main=app?.querySelector('main'),select=main?.querySelector(primarySelectors);if(!select)return;
-      const choice=selectedChoice(select);if(!choice)return;
-      localStorage.setItem('skill-aur-dhandha-last-choice',JSON.stringify({choice,screen:main?.querySelector('h1')?.textContent||'',savedAt:new Date().toISOString()}));
-      const status=main?.querySelector('[data-choice-save-status]');if(status)status.textContent='Choice saved locally on this device.';
+    if(!t?.closest)return;
+
+    if(t.closest('[data-flow-next]')){
+      saveProfile();
+      if(active)gotoStage(active.stage+1,true);
       return;
     }
-    if(t?.closest?.('[data-choice-compare-open]')){
-      const box=t.closest('[data-choice-experience]');if(!box)return;
-      const main=app?.querySelector('main'),primary=main?.querySelector(primarySelectors),secondary=box.querySelector('[data-choice-compare]');
-      const a=primary?selectedChoice(primary):'',b=secondary?.value||'';if(!a||!b)return;
-      const result=box.querySelector('[data-choice-compare-result]');
-      if(result)result.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Factor</th><th>${esc(a)}</th><th>${esc(b)}</th></tr></thead><tbody>${factors.map(f=>`<tr><th>${esc(f)}</th><td>Validate for ${esc(a)} using current local/official evidence.</td><td>Validate for ${esc(b)} using the same evidence standard.</td></tr>`).join('')}</tbody></table></div><p><strong>GUIDANCE:</strong> compare the same evidence for both choices; no automatic winner is declared.</p>`;
+    if(t.closest('[data-flow-back]')){
+      if(!active)return;
+      if(active.stage===0){history.back();return;}
+      history.back();
+      return;
+    }
+
+    const action=t.closest('[data-choice-action]')?.dataset.choiceAction;
+    if(action){document.dispatchEvent(new Event(action));return;}
+
+    if(t.closest('[data-choice-save]')){
+      if(!active)return;
+      localStorage.setItem('skill-aur-dhandha-last-choice',JSON.stringify({choice:active.choice,screen:active.context,savedAt:new Date().toISOString()}));
+      const status=app?.querySelector('[data-choice-save-status]');if(status)status.textContent='Choice saved locally on this device.';
+      return;
+    }
+
+    if(t.closest('[data-choice-compare-open]')){
+      if(!active)return;
+      const box=app?.querySelector('[data-choice-flow]'),secondary=box?.querySelector('[data-choice-compare]');
+      const b=secondary?.value||'';if(!b)return;
+      const result=box?.querySelector('[data-choice-compare-result]');
+      if(result)result.innerHTML='<div class="table-wrap"><table><thead><tr><th>Factor</th><th>'+esc(active.choice)+'</th><th>'+esc(b)+'</th></tr></thead><tbody>'+factors.map(f=>'<tr><th>'+esc(f)+'</th><td>Validate for '+esc(active.choice)+' using current local/official evidence.</td><td>Validate for '+esc(b)+' using the same evidence standard.</td></tr>').join('')+'</tbody></table></div><p><strong>GUIDANCE:</strong> compare the same evidence for both choices; no automatic winner is declared.</p>';
       return;
     }
   });
 
+  document.addEventListener('skill-flow-goto',e=>{
+    if(!active)return;
+    const stage=Number(e.detail);
+    if(Number.isFinite(stage)){active.stage=stage;renderStage();}
+  });
+
+  document.addEventListener('skill-flow-exit',()=>{
+    exitFlow(false);
+  });
+
+  window.addEventListener('pageshow',()=>{
+    const main=app?.querySelector('main');
+    if(main)genericResearchPanels(main,true);
+  });
+
   if(app){
-    queueMicrotask(sync);
-    document.addEventListener('click',()=>{
-      queueMicrotask(()=>{
-        const main=app.querySelector('main');
-        if(main?.querySelector(primarySelectors)&&!main.querySelector('[data-choice-experience]'))sync();
-      });
+    queueMicrotask(()=>{
+      const main=app.querySelector('main');
+      if(main)genericResearchPanels(main,true);
     });
-    window.addEventListener('pageshow',()=>queueMicrotask(sync));
   }
 
 export {};
