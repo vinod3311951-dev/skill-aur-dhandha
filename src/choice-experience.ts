@@ -232,6 +232,7 @@
       options:compareOptions(select,choice),
       stage:0
     };
+    main.dataset.choiceActive='true';
     renderStage();
   }
 
@@ -321,12 +322,13 @@
   function exitFlow(clear=true){
     if(!app)return;
     app.querySelector('[data-choice-flow]')?.remove();
+    const main=app.querySelector('main');if(main)delete main.dataset.choiceActive;
     if(clear)active=null;
   }
 
   document.addEventListener('change',e=>{
     const t=e.target;
-    if(t?.matches?.(primarySelectors)){queueMicrotask(()=>begin(t));return;}
+    if(t?.matches?.(primarySelectors)){queueMicrotask(()=>{if(t.isConnected&&t.matches(primarySelectors))begin(t);});return;}
     if(t?.matches?.('[data-choice-profile]'))saveProfile();
   });
 
@@ -389,13 +391,13 @@
 
   window.addEventListener('pageshow',()=>{
     const main=app?.querySelector('main');
-    if(main)genericResearchPanels(main,true);
+    if(main&&main.querySelector(primarySelectors))genericResearchPanels(main,true);
   });
 
   if(app){
     queueMicrotask(()=>{
       const main=app.querySelector('main');
-      if(main)genericResearchPanels(main,true);
+      if(main&&main.querySelector(primarySelectors))genericResearchPanels(main,true);
     });
   }
 
