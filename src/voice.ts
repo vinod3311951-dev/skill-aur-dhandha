@@ -5,7 +5,7 @@ type VoiceWindow=Window&typeof globalThis&{SpeechRecognition?:SpeechRecognitionC
 const LANG_KEY='skill-aur-dhandha-language';
 const VOICE_LOCALE_KEY='skill-aur-dhandha-voice-locale';
 const localeByPreference:Record<string,string>={English:'en-IN',Hindi:'hi-IN','Roman Hindi':'hi-IN'};
-const supportedLocales=['hi-IN','en-IN','bn-IN','te-IN','mr-IN','ta-IN','gu-IN','kn-IN','ml-IN','pa-IN','ur-IN','or-IN','as-IN'];
+const supportedLocales=['en-IN','as-IN','bn-IN','brx-IN','doi-IN','gu-IN','hi-IN','kn-IN','ks-IN','kok-IN','mai-IN','ml-IN','mni-IN','mr-IN','ne-IN','or-IN','pa-IN','sa-IN','sat-IN','sd-IN','ta-IN','te-IN','ur-IN'];
 const labels:Record<string,{listen:string;heard:string;unsupported:string;error:string}>={
   'hi-IN':{listen:'सुन रहा हूँ…',heard:'आपने कहा',unsupported:'इस ब्राउज़र में वॉइस इनपुट उपलब्ध नहीं है।',error:'आवाज़ समझ नहीं आई। फिर कोशिश करें।'},
   'en-IN':{listen:'Listening…',heard:'You said',unsupported:'Voice input is not available in this browser.',error:'I could not understand that. Please try again.'}
