@@ -204,12 +204,14 @@
     }
     if(!select){old?.remove();return;}
     const choice=selectedChoice(select);
+    const context=[main.querySelector('.eyebrow')?.textContent||'',main.querySelector('h1')?.textContent||''].join(' ');
+    const choiceKey=context+'|'+choice;
     if(!choice){
       old?.remove();
       for(const p of main.querySelectorAll('.research-panel'))p.hidden=true;
       return;
     }
-    const context=[main.querySelector('.eyebrow')?.textContent||'',main.querySelector('h1')?.textContent||''].join(' ');
+    if(old?.getAttribute('data-choice-key')===choiceKey)return;
     const p=profile(choice,context);
     const showResearch=separateResearch(choice,context);
     const savedProfile=readProfile();
@@ -222,7 +224,7 @@
     for(const panel of main.querySelectorAll('.research-panel'))if(!panel.hasAttribute('data-choice-experience'))panel.hidden=true;
     const options=[...select.options].map(o=>(o.textContent||'').replace(/^Suggested · /,'').trim()).filter(x=>x&&x!==choice&&!/choose|select|skip|not sure|other \/ enter/i.test(x));
     const compareOptions=options.slice(0,40);
-    const html=`<article class="card choice-experience" data-choice-experience>
+    const html=`<article class="card choice-experience" data-choice-experience data-choice-key="${esc(choiceKey)}">
       <p class="eyebrow">YOUR SELECTED PATH · ${esc(choice)}</p>
       <h2>${p.fast?'Fast route':'5-step practice roadmap'}</h2>
       <ol>${p.roadmap.map(x=>`<li>${esc(x)}</li>`).join('')}</ol>
@@ -253,6 +255,7 @@
       const data={};
       for(const s of box.querySelectorAll('[data-choice-profile]'))data[s.dataset.choiceProfile]=s.value;
       localStorage.setItem('skill-aur-dhandha-choice-profile',JSON.stringify(data));
+      box.removeAttribute('data-choice-key');
       queueMicrotask(sync);
     }
   });
@@ -280,8 +283,12 @@
 
   if(app){
     queueMicrotask(sync);
-    document.addEventListener('click',()=>queueMicrotask(sync));
-    document.addEventListener('change',()=>queueMicrotask(sync));
+    document.addEventListener('click',()=>{
+      queueMicrotask(()=>{
+        const main=app.querySelector('main');
+        if(main?.querySelector(primarySelectors)&&!main.querySelector('[data-choice-experience]'))sync();
+      });
+    });
     window.addEventListener('pageshow',()=>queueMicrotask(sync));
   }
 
