@@ -182,7 +182,7 @@
     const option=select.selectedOptions[0];
     if(!option)return '';
     const text=(option.textContent||'').replace(/^Suggested · /,'').trim();
-    if(!select.value||/choose|select|skip|not sure/i.test(text))return '';
+    if(!select.value||/choose|select|skip|not sure|other\s*\/\s*enter|custom/i.test(text))return '';
     return text;
   }
 
@@ -232,6 +232,17 @@
       options:compareOptions(select,choice),
       stage:0
     };
+    main.dataset.choiceActive='true';
+    renderStage();
+  }
+
+  function beginCustom(choice,context='Custom choice',options=[]){
+    if(!app||!choice)return;
+    const main=app.querySelector('main');if(!main)return;
+    const clean=String(choice).trim();if(!clean)return;
+    const p=profile(clean,context);
+    active={choice:clean,context,p,showResearch:separateResearch(clean,context),selectId:'custom',options,stage:0};
+    genericResearchPanels(main,true);
     main.dataset.choiceActive='true';
     renderStage();
   }
@@ -376,6 +387,8 @@
       return;
     }
   });
+
+  document.addEventListener('skill-custom-choice',e=>{const d=e.detail||{};beginCustom(d.choice||'',d.context||'Custom choice',Array.isArray(d.options)?d.options:[]);});
 
   document.addEventListener('skill-flow-forward',()=>{
     if(!active)return;
