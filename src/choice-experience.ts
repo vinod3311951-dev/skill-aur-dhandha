@@ -187,7 +187,7 @@
   }
 
   function actionButton(action){
-    const map={paisa:['Calculate my assumptions → Paisa Check','open-paisa-business'],market:['Demand / competition → Find My Market','open-market'],learn:['Skill gap → Learn & Grow','open-learn'],government:['Compliance / support → Government Help','open-government-help']};
+    const map={paisa:['Calculate costs → Paisa Check','open-paisa-business'],market:['Check market → Find My Market','open-market'],learn:['Learn / Courses → Learn & Grow','open-learn'],government:['Government Help → official routes','open-government-help']};
     const x=map[action];if(!x)return '';
     return '<button type="button" class="choice" data-choice-action="'+x[1]+'">'+x[0]+'<span>›</span></button>';
   }
