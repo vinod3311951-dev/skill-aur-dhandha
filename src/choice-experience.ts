@@ -195,6 +195,28 @@
   };
 
   let active=null;
+  const FLOW_RETURN_KEY='skill-aur-dhandha-choice-flow-return';
+
+  function saveFlowReturn(){
+    if(!active)return;
+    try{sessionStorage.setItem(FLOW_RETURN_KEY,JSON.stringify(active));}catch{}
+  }
+
+  function clearFlowReturn(){
+    try{sessionStorage.removeItem(FLOW_RETURN_KEY);}catch{}
+  }
+
+  function restoreFlowReturn(){
+    if(!app)return false;
+    let saved=null;
+    try{saved=JSON.parse(sessionStorage.getItem(FLOW_RETURN_KEY)||'null');}catch{}
+    if(!saved?.choice)return false;
+    active=saved;
+    app.innerHTML='<main class="shell" data-choice-active="true"><header><p class="eyebrow">Your practical plan</p><h1>'+esc(active.choice)+'</h1><p>Back to where you left off.</p></header><section data-choice-flow="true"></section></main>';
+    renderStage();
+    clearFlowReturn();
+    return true;
+  }
 
   function selectedChoice(select){
     const option=select.selectedOptions[0];
@@ -362,7 +384,7 @@
     if(!app)return;
     app.querySelector('[data-choice-flow]')?.remove();
     const main=app.querySelector('main');if(main)delete main.dataset.choiceActive;
-    if(clear)active=null;
+    if(clear){active=null;clearFlowReturn();}
   }
 
   document.addEventListener('change',e=>{
@@ -397,7 +419,7 @@
     }
 
     const action=t.closest('[data-choice-action]')?.dataset.choiceAction;
-    if(action){document.dispatchEvent(new Event(action));return;}
+    if(action){saveFlowReturn();document.dispatchEvent(new Event(action));return;}
 
     if(t.closest('[data-choice-save]')){
       if(!active)return;
@@ -415,6 +437,14 @@
       return;
     }
   });
+
+  const captureReturnIds=new Set(['market-back','paisa-business-back','learn-back','gov-back']);
+  document.addEventListener('click',e=>{
+    const target=e.target?.closest?.('button');if(!target||!captureReturnIds.has(target.id))return;
+    let hasReturn=false;try{hasReturn=!!sessionStorage.getItem(FLOW_RETURN_KEY);}catch{}
+    if(!hasReturn)return;
+    e.preventDefault();e.stopImmediatePropagation();restoreFlowReturn();
+  },true);
 
   document.addEventListener('skill-custom-choice',e=>{const d=e.detail||{};beginCustom(d.choice||'',d.context||'Custom choice',Array.isArray(d.options)?d.options:[]);});
 
