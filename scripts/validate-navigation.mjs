@@ -3,12 +3,12 @@ import fs from 'node:fs';
 const read=p=>fs.readFileSync(p,'utf8');
 const checks=[
   ['src/main.ts',['Find My Path','Find My Market','Paisa Check','Learn & Grow','Government Help','data-i="0"','app-language','app-settings','utility-back','skill-return-to-path']],
-  ['src/path-routes.ts',['skill-return-to-path','open-media-entertainment','Compare before deciding']],
-  ['src/guided-filters.ts',['skill-return-to-path']],
+  ['src/path-routes.ts',['skill-return-to-path','open-media-entertainment','open-start-business','Compare before deciding','International / Abroad Jobs — Official Route']],
+  ['src/guided-filters.ts',['skill-return-to-path','open-start-business','Skip / Not sure']],
   ['src/possibilities.ts',['s13-back','s13-home','business-journey-back','business-compare-picker-back','business-compare-back','farm-market-routes','data-machine-explorer','open-paisa-business']],
   ['src/manufacturing-machines.ts',['machine-budget','machine-detail-back']],
   ['src/market.ts',['market-back','market-home','market-routes-back','market-checks-back','market-compare-picker-back','market-compare-back']],
-  ['src/paisa.ts',['paisa-back','paisa-home','paisa-input-back','paisa-result-back','paisa-whatif-back','paisa-report-back','paisa-business-back','paisa-business-result-back']],
+  ['src/paisa.ts',['paisa-back','paisa-home','paisa-input-back','paisa-result-back','paisa-whatif-back','paisa-report-back','paisa-business-back','paisa-business-result-back','paisa-csv','paisa-business-export','paisa-business-print']],
   ['src/learn.ts',['learn-roadmap-back','learn-readiness-back','open-ai-learning','open-future-careers']],
   ['src/ai-learning.ts',['open-future-careers','open-learn']],
   ['src/future-careers.ts',['future-back','future-home','future-detail-back','open-learn']],
@@ -16,7 +16,7 @@ const checks=[
   ['src/gov.ts',['gov-mode-select','gov-home']],
   ['src/export-affiliate-opportunities.ts',['export-back','export-home','export-detail-back','open-export-affiliate-opportunities']],
   ['src/export-market-bridge.ts',['open-export-market-bridge','open-export-affiliate-opportunities']],
-  ['src/business-analysis.ts',['Business Analysis','Find my business gaps','ba-back','ba-home','ba-paisa']]
+  ['src/business-analysis.ts',['Business Analysis','Find my business gaps','ba-back','ba-home','ba-paisa','ba-print','ba-export','Choose current condition']]
 ];
 
 const failures=[];
