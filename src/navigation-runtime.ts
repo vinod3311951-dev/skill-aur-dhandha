@@ -1,6 +1,7 @@
 const app=document.querySelector<HTMLDivElement>('#app');
 
 const backSelector='nav.nav button[id$="-back"], nav.nav #utility-back';
+const navSelector='nav.nav';
 let suppress=false;
 let lastSignature='';
 
@@ -24,8 +25,23 @@ if(app){
   }
   queueMicrotask(()=>{lastSignature=signature();});
 
+  function ensureForward(){
+    for(const nav of app.querySelectorAll<HTMLElement>(navSelector)){
+      if(nav.querySelector('[data-history-forward]'))continue;
+      const button=document.createElement('button');
+      button.type='button';
+      button.dataset.historyForward='true';
+      button.textContent='Forward →';
+      button.setAttribute('aria-label','Go forward');
+      nav.append(button);
+    }
+  }
+
+  ensureForward();
+
   const observer=new MutationObserver(()=>{
     queueMicrotask(()=>{
+      ensureForward();
       const next=signature();
       if(!next||next===lastSignature)return;
       if(suppress){lastSignature=next;return;}
@@ -39,6 +55,13 @@ if(app){
   document.addEventListener('click',event=>{
     if(suppress)return;
     const target=event.target as HTMLElement|null;
+    const forward=target?.closest<HTMLButtonElement>('[data-history-forward]');
+    if(forward){
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      history.forward();
+      return;
+    }
     const back=target?.closest<HTMLButtonElement>(backSelector);
     if(!back)return;
     if(stateDepth()<=0)return;
