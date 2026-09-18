@@ -215,7 +215,9 @@ jobs:
           grep -Fq "type Lang='English'|'Hindi'|'Roman Hindi'" src/main.ts
           grep -Fq 'skill-aur-dhandha-language' src/main.ts
           grep -Fq 'language-select' src/main.ts
-          grep -Fq 'saved readiness preference' src/main.ts
+          grep -Fq 'voice-locale-select' src/main.ts
+          grep -Fq 'skill-voice-locale' src/main.ts
+          grep -Fq 'saved text and voice preferences' src/main.ts
           grep -Fq 'skill-aur-dhandha-reduced-motion' src/main.ts
           grep -Fq 'motion-select' src/main.ts
           grep -Fq 'clear-local-plans' src/main.ts
