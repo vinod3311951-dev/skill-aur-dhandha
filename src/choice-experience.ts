@@ -146,6 +146,15 @@
       ]};
   }
 
+  const readProfile=()=>{try{return JSON.parse(localStorage.getItem('skill-aur-dhandha-choice-profile')||'{}')}catch{return {}}};
+  const profileOptions={
+    age:['17 or under','18–24','25–34','35–49','50–59','60+','Skip'],
+    time:['A few hours a week','Part-time','Most days','Full-time','Skip'],
+    budget:['Very low / use what I have','Under ₹20,000','₹20,000–₹50,000','₹50,000–₹1 lakh','Above ₹1 lakh','Skip'],
+    mode:['Home','Local / field','Shop / workspace','Online / remote','Flexible','Skip']
+  };
+  const profileField=(key,label,value)=>`<label>${label}<select data-choice-profile="${key}"><option value="">Skip / Not sure</option>${profileOptions[key].map(x=>`<option ${value===x?'selected':''}>${esc(x)}</option>`).join('')}</select></label>`;
+
   const factors=['Upfront cost','Recurring cost','Demand evidence','Competition','Time to readiness','Skill gap','Tools / space','Customer / employer route','Compliance','Seasonality','Digital opportunity','Scalability','Dependency risk','Proof needed','Long-term usefulness'];
 
   function actionButton(action){
@@ -176,6 +185,13 @@
     }
     const context=[main.querySelector('.eyebrow')?.textContent||'',main.querySelector('h1')?.textContent||''].join(' ');
     const p=profile(choice,context);
+    const savedProfile=readProfile();
+    const profileNote=[
+      savedProfile.age&&savedProfile.age!=='Skip'?`Age: ${savedProfile.age}`:'',
+      savedProfile.time&&savedProfile.time!=='Skip'?`Time: ${savedProfile.time}`:'',
+      savedProfile.budget&&savedProfile.budget!=='Skip'?`Budget: ${savedProfile.budget}`:'',
+      savedProfile.mode&&savedProfile.mode!=='Skip'?`Mode: ${savedProfile.mode}`:''
+    ].filter(Boolean).join(' · ');
     for(const panel of main.querySelectorAll('.research-panel'))if(!panel.hasAttribute('data-choice-experience'))panel.hidden=true;
     for(const button of main.querySelectorAll('button.choice')){
       if(/needs\s*&\s*requirements/i.test(button.textContent||''))button.hidden=true;
@@ -186,6 +202,7 @@
       <p class="eyebrow">YOUR SELECTED PATH · ${esc(choice)}</p>
       <h2>${p.fast?'Fast route':'5-step practice roadmap'}</h2>
       <ol>${p.roadmap.map(x=>`<li>${esc(x)}</li>`).join('')}</ol>
+      ${p.fast?'':`<section class="choice-profile"><h3>Quick reality filters</h3><p>Broad answers only; skip anything you do not want to answer.</p>${profileField('age','Age group',savedProfile.age||'')}${profileField('time','Time available',savedProfile.time||'')}${profileField('budget','Starting budget',savedProfile.budget||'')}${profileField('mode','Preferred operating mode',savedProfile.mode||'')}${profileNote?`<p><strong>Current filters:</strong> ${esc(profileNote)}</p>`:''}</section>`}
       <h3>Useful next actions</h3>
       <div class="actions">${p.actions.map(actionButton).join('')}</div>
       <section class="choice-research">
@@ -206,7 +223,14 @@
 
   document.addEventListener('change',e=>{
     const t=e.target;
-    if(t?.matches?.(primarySelectors))queueMicrotask(sync);
+    if(t?.matches?.(primarySelectors)){queueMicrotask(sync);return;}
+    if(t?.matches?.('[data-choice-profile]')){
+      const box=t.closest('[data-choice-experience]');if(!box)return;
+      const data={};
+      for(const s of box.querySelectorAll('[data-choice-profile]'))data[s.dataset.choiceProfile]=s.value;
+      localStorage.setItem('skill-aur-dhandha-choice-profile',JSON.stringify(data));
+      queueMicrotask(sync);
+    }
   });
 
   document.addEventListener('click',e=>{
