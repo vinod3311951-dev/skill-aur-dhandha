@@ -9,7 +9,7 @@ const checks=[
   ['src/manufacturing-machines.ts',['machine-budget','machine-detail-back','machine-save']],
   ['src/market.ts',['market-back','market-home','market-routes-back','market-checks-back','market-compare-picker-back','market-compare-back','market-save']],
   ['src/paisa.ts',['paisa-back','paisa-home','paisa-input-back','paisa-result-back','paisa-whatif-back','paisa-report-back','paisa-business-back','paisa-business-result-back','paisa-csv','paisa-business-export','paisa-business-print']],
-  ['src/learn.ts',['learn-roadmap-back','learn-readiness-back','open-ai-learning','open-future-careers','learn-save']],
+  ['src/learn.ts',['learn-roadmap-back','learn-readiness-back','open-ai-learning','open-future-careers','learn-save','activeLearnTopic']],
   ['src/ai-learning.ts',['open-future-careers','open-learn','Needs & Requirements','ai-save','activeAiTrackIndex']],
   ['src/future-careers.ts',['future-back','future-home','future-detail-back','future-save','activeFutureIndex','open-learn']],
   ['src/media-entertainment.ts',['media-back','media-home','media-save','media-paisa','activeMediaIndex']],
