@@ -6,7 +6,7 @@ const checks=[
   ['src/path-routes.ts',['skill-return-to-path','open-media-entertainment','open-start-business','Compare before deciding','International / Abroad Jobs — Official Route','path-save']],
   ['src/guided-filters.ts',['skill-return-to-path','open-start-business','Skip / Not sure']],
   ['src/possibilities.ts',['s13-back','s13-home','business-journey-back','business-compare-picker-back','business-compare-back','farm-market-routes','data-machine-explorer','open-paisa-business']],
-  ['src/manufacturing-machines.ts',['machine-budget','machine-detail-back']],
+  ['src/manufacturing-machines.ts',['machine-budget','machine-detail-back','machine-save']],
   ['src/market.ts',['market-back','market-home','market-routes-back','market-checks-back','market-compare-picker-back','market-compare-back','market-save']],
   ['src/paisa.ts',['paisa-back','paisa-home','paisa-input-back','paisa-result-back','paisa-whatif-back','paisa-report-back','paisa-business-back','paisa-business-result-back','paisa-csv','paisa-business-export','paisa-business-print']],
   ['src/learn.ts',['learn-roadmap-back','learn-readiness-back','open-ai-learning','open-future-careers','learn-save']],
