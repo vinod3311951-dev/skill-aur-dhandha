@@ -176,6 +176,9 @@
     const main=app.querySelector('main');if(!main)return;
     const select=main.querySelector(primarySelectors);
     const old=main.querySelector('[data-choice-experience]');
+    for(const button of main.querySelectorAll('button.choice')){
+      if(/needs\s*&\s*requirements/i.test(button.textContent||''))button.hidden=true;
+    }
     if(!select){old?.remove();return;}
     const choice=selectedChoice(select);
     if(!choice){
@@ -193,9 +196,6 @@
       savedProfile.mode&&savedProfile.mode!=='Skip'?`Mode: ${savedProfile.mode}`:''
     ].filter(Boolean).join(' · ');
     for(const panel of main.querySelectorAll('.research-panel'))if(!panel.hasAttribute('data-choice-experience'))panel.hidden=true;
-    for(const button of main.querySelectorAll('button.choice')){
-      if(/needs\s*&\s*requirements/i.test(button.textContent||''))button.hidden=true;
-    }
     const options=[...select.options].map(o=>(o.textContent||'').replace(/^Suggested · /,'').trim()).filter(x=>x&&x!==choice&&!/choose|select|skip|not sure|other \/ enter/i.test(x));
     const compareOptions=options.slice(0,40);
     const html=`<article class="card choice-experience" data-choice-experience>
