@@ -21,11 +21,12 @@ for(const token of ['#path-route-choice','#opportunity-select','#media-role','#m
 for(const token of ['solar','ev charging','farm','food','manufactur','work|job|freelance']){
   if(!choice.toLowerCase().includes(token))failures.push('choice research resolver missing '+token);
 }
-for(const token of ['history.back','history.forward','popstate','stopImmediatePropagation','skillDepth','data-history-forward']){
+for(const token of ['data-simple-forward','skill-flow-forward']){
   if(!nav.includes(token))failures.push('navigation runtime missing '+token);
 }
 if(choice.includes('new MutationObserver'))failures.push('choice experience must not use mutation-driven rerendering');
 if(nav.includes('new MutationObserver'))failures.push('navigation runtime must not use mutation-driven history');
+if(/history\.|popstate|pushState|replaceState/.test(nav))failures.push('navigation runtime must not intercept browser history');
 if(!choice.includes('Evidence mode:'))failures.push('practical paths need inline evidence mode');
 if(!choice.includes('separateResearch'))failures.push('research-page applicability resolver missing');
 if(!choice.includes("genericResearchPanels(main,true)"))failures.push('generic research must stay hidden before choice');
