@@ -53,6 +53,14 @@ Purpose: persistent provenance for claims and outbound government routes. This r
 - Safe product claim: NCS provides job-search and career-related services/resources. The current portal states NCS services are free of cost and warns users about misleading/fraudulent communications claiming association with NCS.
 - Product boundary: Skill Aur Dhandha does not broker jobs, collect job-placement fees or guarantee employment.
 
+### NCS International Jobs / e-Migrate
+- Official destination: https://ncs.gov.in/e-migrate
+- Authority/context: National Career Service, Directorate General of Employment, Ministry of Labour & Employment, Government of India. The current NCS portal exposes a dedicated international-jobs module and identifies it as e-Migrate-linked international job discovery.
+- Product use: Find Work → International / Abroad Jobs and Government Help → Jobs & Skills.
+- Safe product claim: users can use the NCS international-jobs route to inspect current overseas vacancies and related resources before independently verifying recruiter, employer, contract, visa and emigration requirements.
+- Important boundary: an NCS/e-Migrate listing does not guarantee selection, visa issuance, contract quality, safety, salary receipt or migration outcome. Users must verify current recruiter/employer details and official overseas-employment requirements before paying or travelling.
+- Fraud boundary: NCS states its own services are free of cost and warns against misleading/fraudulent communications claiming NCS association. Skill Aur Dhandha does not collect placement fees, broker overseas jobs or guarantee employment.
+
 ### e-Shram
 - Official destination: https://eshram.gov.in/
 - Authority/context: Ministry of Labour & Employment, Government of India. The Ministry states that it developed e-Shram to create the National Database of Unorganised Workers, including migrant, construction, gig and platform workers.
