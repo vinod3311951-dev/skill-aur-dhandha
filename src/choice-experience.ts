@@ -206,7 +206,7 @@
     const choice=selectedChoice(select);
     if(!choice){
       old?.remove();
-      for(const p of main.querySelectorAll('.research-panel'))p.hidden=false;
+      for(const p of main.querySelectorAll('.research-panel'))p.hidden=true;
       return;
     }
     const context=[main.querySelector('.eyebrow')?.textContent||'',main.querySelector('h1')?.textContent||''].join(' ');
