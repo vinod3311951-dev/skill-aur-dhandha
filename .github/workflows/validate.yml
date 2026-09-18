@@ -72,7 +72,7 @@ jobs:
           grep -Fq 'Adaptive business calculator' src/paisa.ts
           grep -Fq 'Tax & Compliance Check' src/paisa.ts
           grep -Fq 'Save My Plan' src/paisa.ts
-          grep -Fq 'Pan-India research lens' src/learn.ts
+          grep -Fq 'Research ${learnTopic} in India' src/learn.ts
           grep -Fq 'Things to check before proceeding' src/learn.ts
           grep -Fq 'Things to check before proceeding' src/gov.ts
           grep -Fq 'Need local-language help?' src/gov.ts
@@ -179,6 +179,14 @@ jobs:
           grep -Fq 'Service / Skill' src/business-analysis.ts
       - name: Run navigation contract regression
         run: npm run check:navigation
+      - name: Validate selected path and learning research context
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq 'Research this direction' src/path-routes.ts
+          grep -Fq 'current India-specific market share/size' src/path-routes.ts
+          grep -Fq 'Research ${learnTopic} in India' src/learn.ts
+          grep -Fq 'competition/substitution' src/learn.ts
       - name: Validate specific research surfaces
         shell: bash
         run: |
