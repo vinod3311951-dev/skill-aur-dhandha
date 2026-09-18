@@ -3,8 +3,7 @@
   const app=document.querySelector('#app');
   const primarySelectors=[
     '#path-route-choice','#opportunity-select','#media-role','#guided-category-select',
-    '#market-type-select','#market-route-select','#learn-mode-select','#learn-topic-select',
-    '#gov-mode-select','#future-career','#machine-choice','#export-product'
+    '#future-career','#machine-choice','#export-product'
   ].join(',');
 
   const esc=s=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]||c));
