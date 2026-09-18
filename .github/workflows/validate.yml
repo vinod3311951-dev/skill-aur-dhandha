@@ -305,6 +305,11 @@ jobs:
           grep -Fq 'Other / enter manually' src/paisa.ts
           grep -Fq 'Climate Finance Specialist / Green Project Finance Analyst' src/future-careers.ts
           grep -Fq 'regulated investment or lending advice' src/future-careers.ts
+      - name: Reject redundant export loader
+        shell: bash
+        run: |
+          set -euo pipefail
+          test ! -f src/export-affiliate-loader.ts
       - name: Reject legacy runtime modules
         shell: bash
         run: |
