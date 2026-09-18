@@ -16,3 +16,22 @@ main[data-choice-active] > :not([data-choice-flow]){display:none!important}
 main[data-choice-active] [data-choice-flow]{display:block;min-height:calc(100vh - 56px)}
 main[data-choice-active] .choice-experience{min-height:calc(100vh - 56px);display:flex;flex-direction:column;gap:18px}
 main[data-choice-active] .flow-nav{margin-top:auto}
+
+.home-header{padding-bottom:0}
+.home-primary{display:grid;gap:12px}
+.home-secondary{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.home-card{min-height:76px}
+.home-card.compact{min-height:88px;padding:12px}
+.home-card-copy{display:flex;align-items:center;gap:12px;min-width:0}
+.home-card-copy>span:last-child{display:grid;gap:3px;min-width:0}
+.home-card strong{font-size:1rem;line-height:1.2}
+.home-card small{font-size:.78rem;line-height:1.25;color:#56635b;font-weight:600}
+.home-icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--interactive-bg);border:1px solid var(--interactive-border);font-size:1.08rem;flex:0 0 34px}
+.home-secondary .home-card{align-items:flex-start}
+.home-secondary .home-card>span:last-child{display:none}
+.home-secondary .home-card-copy{align-items:flex-start}
+.home-secondary .home-card small{font-size:.74rem}
+.home-footer-tools{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:-4px}
+.text-action{border:0;background:transparent;color:#2f6242;font-weight:750;padding:8px 4px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.text-action:focus-visible{outline:3px solid #31704b;outline-offset:3px;border-radius:8px}
+@media (max-width:380px){.home-secondary{grid-template-columns:1fr}.home-card.compact{min-height:72px}}
