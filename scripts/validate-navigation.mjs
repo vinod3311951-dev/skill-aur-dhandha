@@ -10,7 +10,7 @@ const checks=[
   ['src/market.ts',['market-back','market-home','market-routes-back','market-checks-back','market-compare-picker-back','market-compare-back']],
   ['src/paisa.ts',['paisa-back','paisa-home','paisa-input-back','paisa-result-back','paisa-whatif-back','paisa-report-back','paisa-business-back','paisa-business-result-back','paisa-csv','paisa-business-export','paisa-business-print']],
   ['src/learn.ts',['learn-roadmap-back','learn-readiness-back','open-ai-learning','open-future-careers']],
-  ['src/ai-learning.ts',['open-future-careers','open-learn']],
+  ['src/ai-learning.ts',['open-future-careers','open-learn','Needs & Requirements','ai-save']],
   ['src/future-careers.ts',['future-back','future-home','future-detail-back','future-save','open-learn']],
   ['src/media-entertainment.ts',['media-back','media-home','media-save','media-paisa']],
   ['src/gov.ts',['gov-mode-select','gov-home']],
