@@ -4,12 +4,12 @@ This file is the persistent handoff checkpoint for the 100% build-complete targe
 
 ## Frozen product journey
 
-Choose → Refine with dropdowns → See 15–20 possibilities → Select one → Needs & Requirements → Pan-India Research → Calculate → Compare → Official/Trusted Next Step.
+Choice dropdown → relevant optional reality filters → 5–10 point choice-specific roadmap → relevant calculators/action links → genuine choice-centric research → compare with another choice → smart official/trusted next step. Information-led routes such as Government Help and course discovery may use a shorter fast route.
 
 ## Build-complete gates
 
 - [x] Mobile-first home shell with six primary routes, including Business Analysis.
-- [x] Persistent Back/Home navigation in deep journeys.
+- [x] Unified onscreen Back/Home plus browser/mobile Back navigation runtime for deep journeys.
 - [x] Language, Settings and “Any Indian language” shell controls.
 - [x] Language preference is locally persisted without falsely presenting untranslated copy as translated production content.
 - [x] Settings includes a locally persisted reduced-motion preference and local plan/calculator clearing; no account or server-side settings store required.
@@ -56,3 +56,20 @@ No account required for core use. No name, exact DOB, address, Aadhaar, PAN or b
 ## Audit order
 
 Build complete → Formal Audit 1 → comprehensive repair → user final-look review → Formal Audit 2 → release QA → production link → phone verification → freeze/archive.
+
+
+## Founder correction package — 2026-09-18
+
+- [x] Removed the redundant Needs & Requirements gate from exploratory dropdown journeys.
+- [x] Added optional broad reality filters for longer decision journeys.
+- [x] Added 5-step choice-specific roadmaps and contextual action links.
+- [x] Added choice-centric research resolver with official-source routes for major opportunity families.
+- [x] Disabled broad global research/self-marketing/home-business injectors that caused unrelated content leakage.
+- [x] Added neutral second-choice comparison surface.
+- [x] Added fast routing for information-led journeys.
+- [x] Added native share/copy-link action on Home.
+- [x] Added browser/mobile Back history runtime.
+- [x] Rotated service-worker cache and precached built assets for offline reload.
+- [x] Vercel production build now runs `npm run check:build` before deployment.
+
+Formal Audit 1 has **not** started. Founder requested a checkpoint message before Audit 1 begins.
