@@ -11,7 +11,7 @@ for(const token of ['/src/choice-experience.ts']){
 for(const removed of ['/src/self-marketing.ts','/src/research-lens.ts','/src/home-business-tips.ts']){
   if(index.includes(removed))failures.push('global injector still enabled: '+removed);
 }
-for(const token of ['5-step plan for','Useful actions for','Research centred on','data-choice-compare-open','Save this choice on this device','data-flow-next','data-flow-back']){
+for(const token of ['5-step plan for','What can I do now?','Research centred on','data-choice-compare-open','Save this choice on this device','data-flow-next','data-flow-back']){
   if(!choice.includes(token))failures.push('choice experience missing '+token);
 }
 for(const token of ['#path-route-choice','#opportunity-select','#media-role','#guided-category-select','#future-career','#machine-choice','#export-product']){
