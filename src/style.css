@@ -9,3 +9,5 @@
 .choice-experience select{width:100%;min-height:50px;border:1px solid var(--interactive-border);border-radius:13px;padding:13px;background:var(--interactive-bg);color:var(--interactive-text);font-weight:650}
 button[hidden],article[hidden]{display:none!important}
 @media (max-width:380px){.choice-experience{padding:16px}.choice-experience .choice{min-height:62px}}
+
+.flow-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;position:sticky;bottom:max(8px,env(safe-area-inset-bottom));z-index:6;padding-top:6px}.flow-nav button{min-height:48px;border:1px solid #dce5dd;border-radius:13px;padding:10px 6px;background:rgba(255,255,255,.96);color:#26372c;font-weight:750;cursor:pointer}.flow-nav button:disabled{opacity:.45;cursor:not-allowed}.flow-nav button:focus-visible{outline:3px solid #31704b;outline-offset:3px}
