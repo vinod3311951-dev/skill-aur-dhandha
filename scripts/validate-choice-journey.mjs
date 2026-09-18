@@ -21,11 +21,13 @@ for(const token of ['#path-route-choice','#opportunity-select','#media-role','#m
 for(const token of ['solar','ev charging','farm','food','manufactur','work|job|freelance']){
   if(!choice.toLowerCase().includes(token))failures.push('choice research resolver missing '+token);
 }
-for(const token of ['history.back','popstate','stopImmediatePropagation','skillDepth']){
+for(const token of ['history.back','history.forward','popstate','stopImmediatePropagation','skillDepth','data-history-forward']){
   if(!nav.includes(token))failures.push('navigation runtime missing '+token);
 }
-if(failures.length){
-  console.error('Choice journey contract failures:\n'+failures.map(x=>' - '+x).join('\n'));
-  process.exit(1);
-}
-console.log('Choice journey contract PASS: contextual roadmap, research, actions, compare and mobile history runtime present.');
+if(choice.includes('new MutationObserver'))failures.push('choice experience must not use mutation-driven rerendering');
+if(nav.includes('new MutationObserver'))failures.push('navigation runtime must not use mutation-driven history');
+if(!choice.includes('Evidence & official routes'))failures.push('practical paths need inline evidence mode');
+if(!choice.includes('separateResearch'))failures.push('research-page applicability resolver missing');
+if(!choice.includes("for(const p of main.querySelectorAll('.research-panel'))p.hidden=true"))failures.push('generic research must stay hidden before choice');
+if(failures.length){console.error('Choice journey contract failures:\n'+failures.map(x=>' - '+x).join('\n'));process.exit(1);}
+console.log('Choice journey contract PASS: A–F contextual flow, specific/inline evidence rules and back/home/forward runtime present.');
