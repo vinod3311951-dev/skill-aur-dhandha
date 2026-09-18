@@ -176,6 +176,24 @@
   };
   const factors=['Upfront cost','Recurring cost','Demand evidence','Competition','Time to readiness','Skill gap','Tools / space','Customer / employer route','Compliance','Seasonality','Digital opportunity','Scalability','Dependency risk','Proof needed','Long-term usefulness'];
 
+  const factorPrompt={
+    'Upfront cost':'List only setup, equipment, deposit, training and launch costs that apply.',
+    'Recurring cost':'List monthly inputs, rent, travel, software, utilities, maintenance and promotion that apply.',
+    'Demand evidence':'Check current local/online buyer, customer, employer or client evidence for this exact choice.',
+    'Competition':'Count direct alternatives and substitutes competing for the same customer or role.',
+    'Time to readiness':'Estimate learning, setup, approvals and first-customer/employer time separately.',
+    'Skill gap':'Separate skills already held from training, qualification or supervised practice still needed.',
+    'Tools / space':'List device, machine, vehicle, workspace, storage, power or safety needs that genuinely apply.',
+    'Customer / employer route':'Name the realistic route to buyers, clients, employers, platforms, retailers, FPOs or institutions.',
+    'Compliance':'Check only rules relevant to the exact activity on current official sources.',
+    'Seasonality':'Check whether demand, output, weather, festivals, crop cycles or hiring periods change the opportunity.',
+    'Digital opportunity':'Check whether online discovery, delivery, remote work, digital payments or content can materially help.',
+    'Scalability':'Ask what must increase first: time, people, equipment, inventory, space, capital or customers.',
+    'Dependency risk':'Identify dependence on one platform, buyer, supplier, employer, season, machine, location or licence.',
+    'Proof needed':'List the sample, portfolio, trial, licence, qualification, references or product proof users expect.',
+    'Long-term usefulness':'Check whether the skill, customer need or operating capability remains useful beyond one short trend.'
+  };
+
   let active=null;
 
   function selectedChoice(select){
@@ -195,6 +213,18 @@
   function profileField(key,label,value){
     return '<label>'+label+'<select data-choice-profile="'+key+'"><option value="">Skip / Not sure</option>'+profileOptions[key].map(x=>'<option '+(value===x?'selected':'')+'>'+esc(x)+'</option>').join('')+'</select></label>';
   }
+
+  function relevantProfileKeys(choice,context){
+    const s=(choice+' '+context).toLowerCase();
+    if(/course|training|learn|skill|iti|apprentice|tutor|teacher|education/.test(s))return ['time','budget','mode'];
+    if(/driving|driver|delivery|logistics/.test(s))return ['age','time','budget'];
+    if(/farm|agri|mushroom|nursery|beekeep|vermicompost|dairy|poultry|seed|flower|produce/.test(s))return ['time','budget','mode'];
+    if(/food|tiffin|baking|pickle|spice|snack|tea|chai|breakfast|juice|chaat|catering|kitchen|meal|manufactur|packag|fabricat|product|candle|textile|furniture|recycl|waste/.test(s))return ['time','budget','mode'];
+    if(/work|job|freelance|service|repair|mechanic|beauty|tailor|bookkeep|digital|design|writing|video|photograph|creator|content/.test(s))return ['time','budget','mode'];
+    return ['age','time','budget','mode'];
+  }
+
+  const profileLabels={age:'Age group',time:'Time available',budget:'Starting budget',mode:'Preferred operating mode'};
 
   function stageList(flow){
     if(flow.p.fast)return ['plan','actions','compare','next'];
@@ -271,11 +301,9 @@
     let body='';
 
     if(key==='profile'){
-      body='<p class="eyebrow">'+progress+'</p><h2>Quick reality filters</h2><p>Broad answers only. Skip anything you do not want to answer.</p>'+
-        profileField('age','Age group',saved.age||'')+
-        profileField('time','Time available',saved.time||'')+
-        profileField('budget','Starting budget',saved.budget||'')+
-        profileField('mode','Preferred operating mode',saved.mode||'');
+      const keys=relevantProfileKeys(active.choice,active.context);
+      body='<p class="eyebrow">'+progress+'</p><h2>Quick reality filters</h2><p>Only the broad details useful for this choice. Skip anything you do not want to answer.</p>'+
+        keys.map(k=>profileField(k,profileLabels[k],saved[k]||'')).join('');
     }
 
     if(key==='plan'){
@@ -383,7 +411,7 @@
       const box=app?.querySelector('[data-choice-flow]'),secondary=box?.querySelector('[data-choice-compare]');
       const b=secondary?.value||'';if(!b)return;
       const result=box?.querySelector('[data-choice-compare-result]');
-      if(result)result.innerHTML='<div class="table-wrap"><table><thead><tr><th>Factor</th><th>'+esc(active.choice)+'</th><th>'+esc(b)+'</th></tr></thead><tbody>'+factors.map(f=>'<tr><th>'+esc(f)+'</th><td>Validate for '+esc(active.choice)+' using current local/official evidence.</td><td>Validate for '+esc(b)+' using the same evidence standard.</td></tr>').join('')+'</tbody></table></div><p><strong>GUIDANCE:</strong> compare the same evidence for both choices; no automatic winner is declared.</p>';
+      if(result)result.innerHTML='<div class="table-wrap"><table><thead><tr><th>Factor</th><th>'+esc(active.choice)+'</th><th>'+esc(b)+'</th></tr></thead><tbody>'+factors.map(f=>'<tr><th>'+esc(f)+'</th><td><strong>'+esc(active.choice)+':</strong> '+esc(factorPrompt[f]||'Check the same current evidence for this choice.')+'</td><td><strong>'+esc(b)+':</strong> '+esc(factorPrompt[f]||'Check the same current evidence for this choice.')+'</td></tr>').join('')+'</tbody></table></div><p><strong>GUIDANCE:</strong> fill the same evidence for both choices. The app does not declare a winner.</p>';
       return;
     }
   });
