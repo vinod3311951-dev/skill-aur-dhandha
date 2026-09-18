@@ -21,7 +21,6 @@
 
   function separateResearch(choice,context){
     const s=(choice+' '+context).toLowerCase();
-    if(/agri|farm|mushroom|nursery|beekeep|vermicompost|dairy|poultry|seed|flower|produce/.test(s))return false;
     if(/driving|driver|delivery|logistics/.test(s))return false;
     if(/home-based|home business|from home/.test(s))return false;
     return true;
@@ -199,10 +198,10 @@
   }
 
   function stageList(flow){
-    if(flow.profile.fast)return ['plan','actions','research','next'];
-    const list=['profile','plan','actions'];
+    if(flow.p.fast)return ['plan','actions','compare','next'];
+    const list=['profile','plan','actions','compare'];
     if(flow.showResearch)list.push('research');
-    list.push('compare','next');
+    list.push('next');
     return list;
   }
 
@@ -256,7 +255,8 @@
     active.stage=Math.max(0,Math.min(active.stage,stages.length-1));
     const key=stages[active.stage];
     const saved=readProfile();
-    const progress='Step '+(active.stage+1)+' of '+stages.length+' after your choice';
+    const labels={profile:'B · Tell us a little',plan:'C · Your practical plan',actions:'D · What can I do now?',compare:'E · Compare another option',research:'F · Research (optional)',next:'Final · Your next useful step'};
+    const progress=labels[key]||('Step '+(active.stage+1));
     let body='';
 
     if(key==='profile'){
@@ -272,11 +272,11 @@
     }
 
     if(key==='actions'){
-      body='<p class="eyebrow">'+progress+'</p><h2>Useful actions for '+esc(active.choice)+'</h2><p>Open only what helps your decision. You can return with Back.</p><div class="actions">'+active.p.actions.map(actionButton).join('')+'</div>';
+      body='<p class="eyebrow">'+progress+'</p><h2>What can I do now?</h2><p>Choose only what helps. These are shortcuts, not compulsory steps.</p><div class="actions">'+active.p.actions.map(actionButton).join('')+'</div><p><strong>Tip:</strong> Market and Paisa Check are where setup-cost and other calculators belong. Learn opens training/course routes. Government Help opens official-source guidance.</p>';
     }
 
     if(key==='research'){
-      body='<p class="eyebrow">'+progress+'</p><h2>Research centred on '+esc(active.choice)+'</h2>'+
+      body='<p class="eyebrow">'+progress+'</p><h2>Research centred on '+esc(active.choice)+'</h2><p>This step is optional. Use it when you want deeper market context before deciding.</p>'+
         '<ul>'+active.p.research.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>'+
         active.p.sources.map(s=>'<a class="choice" href="'+s.url+'" target="_blank" rel="noopener noreferrer">'+esc(s.label)+'<span>↗</span></a><p class="source-note"><strong>Source note:</strong> '+esc(s.note)+'</p>').join('');
     }
@@ -295,8 +295,9 @@
         '<button type="button" class="choice" data-choice-save>Save this choice on this device<span>›</span></button><p data-choice-save-status role="status"></p>';
     }
 
-    host.innerHTML='<article class="card choice-experience"><p><strong>Selected:</strong> '+esc(active.choice)+'</p>'+body+
-      '<nav class="flow-nav" aria-label="Choice journey"><button type="button" data-flow-back>← Back</button><button type="button" data-flow-next '+(active.stage===stages.length-1?'disabled':'')+'>Next →</button></nav></article>';
+    const optional=(key==='compare'||key==='research')?'<button type="button" class="choice" data-flow-skip>Skip for now<span>›</span></button>':'';
+    host.innerHTML='<article class="card choice-experience"><p><strong>Selected:</strong> '+esc(active.choice)+'</p>'+body+optional+
+      '<nav class="flow-nav" aria-label="Choice journey"><button type="button" data-flow-back>← Back</button><button type="button" data-flow-home>Home</button><button type="button" data-flow-next '+(active.stage===stages.length-1?'disabled':'')+'>Forward →</button></nav></article>';
 
     const main=app.querySelector('main');
     if(main)genericResearchPanels(main,true);
@@ -337,6 +338,15 @@
     if(t.closest('[data-flow-next]')){
       saveProfile();
       if(active)gotoStage(active.stage+1);
+      return;
+    }
+    if(t.closest('[data-flow-skip]')){
+      saveProfile();
+      if(active)gotoStage(active.stage+1);
+      return;
+    }
+    if(t.closest('[data-flow-home]')){
+      location.href='/';
       return;
     }
     if(t.closest('[data-flow-back]')){
