@@ -13,7 +13,7 @@ const checks=[
   ['src/ai-learning.ts',['open-future-careers','open-learn','Needs & Requirements','ai-save','activeAiTrackIndex']],
   ['src/future-careers.ts',['future-back','future-home','future-detail-back','future-save','activeFutureIndex','open-learn']],
   ['src/media-entertainment.ts',['media-back','media-home','media-save','media-paisa','activeMediaIndex']],
-  ['src/gov.ts',['gov-mode-select','gov-home']],
+  ['src/gov.ts',['gov-mode-select','gov-home','do not pay an unofficial agent']],
   ['src/export-affiliate-opportunities.ts',['export-back','export-home','export-detail-back','open-export-affiliate-opportunities','export-save','export-paisa']],
   ['src/export-market-bridge.ts',['open-export-market-bridge','open-export-affiliate-opportunities']],
   ['src/business-analysis.ts',['Business Analysis','Find my business gaps','ba-back','ba-home','ba-paisa','ba-print','ba-export','Choose current condition']]
