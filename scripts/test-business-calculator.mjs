@@ -42,5 +42,11 @@ r=calculateBusiness({...base,setup:0,otherStartup:0});
 assert(r.startup===0,'zero startup supported');
 assert(r.recoveryMonths===0,'zero startup recovery is zero with positive surplus');
 
+r=calculateBusiness({...base,price:-100,rent:Number.NaN,employees:-2});
+assert(r.sales===0,'negative selling price is sanitized');
+assert(r.staff===0,'negative employees are sanitized');
+assert(Number.isFinite(r.monthly),'non-finite inputs do not poison totals');
+assert(r.edgeNotes.some(x=>x.includes('treated as 0')),'invalid numeric input warning');
+
 console.log('Business calculator edge-case tests PASS');
 fs.rmSync('.tmp-calc-test',{recursive:true,force:true});
