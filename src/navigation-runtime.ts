@@ -116,6 +116,23 @@ if(app){
 
   window.addEventListener('popstate',event=>{
     const nextDepth=Number(event.state?.skillDepth)||0;
+    const flowStage=event.state?.skillFlowStage;
+    const hasFlow=!!app.querySelector('[data-choice-flow]');
+
+    if(Number.isFinite(Number(flowStage))){
+      currentDepth=nextDepth;
+      document.dispatchEvent(new CustomEvent('skill-flow-goto',{detail:Number(flowStage)}));
+      ensureForward();
+      return;
+    }
+
+    if(hasFlow){
+      currentDepth=nextDepth;
+      document.dispatchEvent(new Event('skill-flow-exit'));
+      ensureForward();
+      return;
+    }
+
     if(nextDepth<currentDepth){
       const back=app.querySelector<HTMLButtonElement>(backSelector);
       currentDepth=nextDepth;
@@ -128,6 +145,7 @@ if(app){
       });
       return;
     }
+
     if(nextDepth>currentDepth){
       currentDepth=nextDepth;
       replay(actions.get(nextDepth));
