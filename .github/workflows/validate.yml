@@ -107,16 +107,16 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -Fq 'fixedMonthly=rent+marketing+branding+distribution+transport+staff+utilities' src/paisa.ts
-          grep -Fq 'variablePerUnit=units>0?(raw+packaging)/units:null' src/paisa.ts
-          grep -Fq 'Math.ceil(fixedMonthly/unitContribution)' src/paisa.ts
+          grep -Fq 'fixedMonthly=x.rent+x.marketing+x.branding+x.distribution+x.transport+staff+x.utilities' src/business-calculator-core.ts
+          grep -Fq 'variablePerUnit=x.units>0?(x.raw+x.packaging)/x.units:null' src/business-calculator-core.ts
+          grep -Fq 'Math.ceil(fixedMonthly/unitContribution)' src/business-calculator-core.ts
           grep -Fq 'Indicative operating break-even units' src/paisa.ts
           grep -Fq 'Break-even method:' src/paisa.ts
           grep -Fq 'Branding / creative' src/paisa.ts
           grep -Fq 'Packaging / labels' src/paisa.ts
           grep -Fq 'Simple startup-cost recovery' src/paisa.ts
           grep -Fq 'owner salary/labour' src/paisa.ts
-          ! grep -Fq 'Math.ceil((monthly-raw)/unitContribution)' src/paisa.ts
+          ! grep -Fq 'Math.ceil((monthly-x.raw)/unitContribution)' src/business-calculator-core.ts
       - name: Validate navigation and corrected workflows
         shell: bash
         run: |
