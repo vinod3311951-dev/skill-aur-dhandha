@@ -30,7 +30,7 @@ function renderRoute(i:number){
   document.querySelector('#path-route-home')?.addEventListener('click',home);
 
   document.querySelector<HTMLSelectElement>('#path-route-choice')?.addEventListener('change',e=>{
-    const select=e.currentTarget;
+    const select=e.currentTarget as HTMLSelectElement;
     const choice=select.value===''?'':route.items[Number(select.value)]||'';
     if(!choice)return;
 
