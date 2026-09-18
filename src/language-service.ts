@@ -1,11 +1,11 @@
-type LanguageCode='en-IN'|'hi-IN'|'bn-IN'|'te-IN'|'mr-IN'|'ta-IN'|'gu-IN'|'kn-IN'|'ml-IN'|'pa-IN'|'ur-IN'|'or-IN'|'as-IN';
+type LanguageCode='en-IN'|'as-IN'|'bn-IN'|'brx-IN'|'doi-IN'|'gu-IN'|'hi-IN'|'kn-IN'|'ks-IN'|'kok-IN'|'mai-IN'|'ml-IN'|'mni-IN'|'mr-IN'|'ne-IN'|'or-IN'|'pa-IN'|'sa-IN'|'sat-IN'|'sd-IN'|'ta-IN'|'te-IN'|'ur-IN';
 type TranslationRequest={text:string;from?:LanguageCode;to:LanguageCode};
 type TranslationResult={text:string;provider:'browser-fallback'|'provider';verified:boolean};
 type LanguageProvider={name:string;translate:(request:TranslationRequest)=>Promise<TranslationResult>};
 
 const LANGUAGE_PREF='skill-aur-dhandha-language';
 const VOICE_LOCALE='skill-aur-dhandha-voice-locale';
-export const supportedIndianLocales:LanguageCode[]=['en-IN','hi-IN','bn-IN','te-IN','mr-IN','ta-IN','gu-IN','kn-IN','ml-IN','pa-IN','ur-IN','or-IN','as-IN'];
+export const supportedIndianLocales:LanguageCode[]=['en-IN','as-IN','bn-IN','brx-IN','doi-IN','gu-IN','hi-IN','kn-IN','ks-IN','kok-IN','mai-IN','ml-IN','mni-IN','mr-IN','ne-IN','or-IN','pa-IN','sa-IN','sat-IN','sd-IN','ta-IN','te-IN','ur-IN'];
 
 const preferenceMap:Record<string,LanguageCode>={English:'en-IN',Hindi:'hi-IN','Roman Hindi':'hi-IN'};
 
