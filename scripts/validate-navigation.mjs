@@ -2,7 +2,7 @@ import fs from 'node:fs';
 
 const read=p=>fs.readFileSync(p,'utf8');
 const checks=[
-  ['src/navigation-runtime.ts',['popstate','history.back','history.forward','skillDepth','data-history-forward','replay']],
+  ['src/navigation-runtime.ts',['data-simple-forward','skill-flow-forward','ensureForward']],
   ['src/choice-experience.ts',['5-step plan for','Research centred on','data-choice-compare-open','data-flow-next','data-flow-back','open-paisa-business','open-market','open-learn','open-government-help']],
   ['src/main.ts',['Find My Path','Find My Market','Paisa Check','Learn & Grow','Government Help','data-i="0"','app-language','app-settings','utility-back','skill-return-to-path','voice-locale-select','skill-voice-locale']],
   ['src/path-routes.ts',['skill-return-to-path','open-media-entertainment','open-start-business','Compare before deciding','International / Abroad Jobs — Official Route','path-save']],
