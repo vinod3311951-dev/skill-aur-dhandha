@@ -11,7 +11,7 @@ let screen:Screen='home';
 const savedLang=():Lang=>{const x=localStorage.getItem(LANG_KEY);return x==='Hindi'||x==='Roman Hindi'?x:'English';};
 const reducedMotion=()=>localStorage.getItem(MOTION_KEY)==='true';
 const voiceLocales:Record<VoiceLocale,string>={'en-IN':'English','hi-IN':'Hindi','bn-IN':'Bengali','te-IN':'Telugu','mr-IN':'Marathi','ta-IN':'Tamil','gu-IN':'Gujarati','kn-IN':'Kannada','ml-IN':'Malayalam','pa-IN':'Punjabi','ur-IN':'Urdu','or-IN':'Odia','as-IN':'Assamese'};
-const savedVoiceLocale=():VoiceLocale=>{const x=localStorage.getItem(VOICE_KEY) as VoiceLocale|null;return x&&x in voiceLocales?x:'en-IN';};
+const savedVoiceLocale=():VoiceLocale=>{const x=localStorage.getItem(VOICE_KEY) as VoiceLocale|null;if(x&&x in voiceLocales)return x;return savedLang()==='Hindi'||savedLang()==='Roman Hindi'?'hi-IN':'en-IN';};
 const applyMotion=()=>{document.documentElement.dataset.reducedMotion=reducedMotion()?'true':'false';};
 applyMotion();
 const mic=()=>`<button class="mic" type="button" aria-label="Voice input"><span aria-hidden="true">●</span> Any Indian language</button>`;
