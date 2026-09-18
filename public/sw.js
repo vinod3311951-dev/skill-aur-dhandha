@@ -1,4 +1,4 @@
-const CACHE='skill-aur-dhandha-v7';
+const CACHE='skill-aur-dhandha-v8';
 const SHELL=['/','/index.html','/manifest.webmanifest','/icon.svg','/icon-192.png','/icon-512.png'];
 
 async function precacheApp(){
