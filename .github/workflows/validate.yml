@@ -179,6 +179,15 @@ jobs:
           grep -Fq 'Service / Skill' src/business-analysis.ts
       - name: Run navigation contract regression
         run: npm run check:navigation
+      - name: Validate specific research surfaces
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq 'Research this role in India' src/media-entertainment.ts
+          grep -Fq 'Research this custom role in India' src/media-entertainment.ts
+          grep -Fq 'Research this product and market' src/export-affiliate-opportunities.ts
+          grep -Fq 'research-panel' src/media-entertainment.ts
+          grep -Fq 'research-panel' src/export-affiliate-opportunities.ts
       - name: Validate universal market research dimensions
         shell: bash
         run: |
