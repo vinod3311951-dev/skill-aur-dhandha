@@ -255,8 +255,10 @@
   });
 
   if(app){
-    new MutationObserver(()=>queueMicrotask(sync)).observe(app,{subtree:true,childList:true});
     queueMicrotask(sync);
+    document.addEventListener('click',()=>queueMicrotask(sync));
+    document.addEventListener('change',()=>queueMicrotask(sync));
+    window.addEventListener('pageshow',()=>queueMicrotask(sync));
   }
 
 export {};
