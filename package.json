@@ -13,7 +13,8 @@
     "test:calculator": "node scripts/test-business-calculator.mjs",
     "test:business-analysis": "node scripts/test-business-analysis.mjs",
     "check:pwa": "node scripts/validate-pwa.mjs",
-    "check:build": "npm run check:navigation && npm run check:buttons && npm run check:pwa && npm run test:calculator && npm run test:business-analysis && npm run build && npm run check:bundle"
+    "check:build": "npm run check:navigation && npm run check:buttons && npm run check:choice-journey && npm run check:pwa && npm run test:calculator && npm run test:business-analysis && npm run build && npm run check:bundle",
+    "check:choice-journey": "node scripts/validate-choice-journey.mjs"
   },
   "devDependencies": {
     "typescript": "^5.9.2",
