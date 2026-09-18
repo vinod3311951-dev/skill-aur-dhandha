@@ -253,6 +253,16 @@ jobs:
           grep -Fq 'Nothing is sent to a server' src/possibilities.ts
           grep -Fq 'Calculating:' src/paisa.ts
           grep -Fq 'Edit assumptions' src/paisa.ts
+          grep -Fq 'save-opportunity-plan' src/possibilities.ts
+          grep -Fq 'machine-save' src/manufacturing-machines.ts
+          grep -Fq 'export-save' src/export-affiliate-opportunities.ts
+          grep -Fq 'market-save' src/market.ts
+          grep -Fq 'learn-save' src/learn.ts
+          grep -Fq 'ai-save' src/ai-learning.ts
+          grep -Fq 'future-save' src/future-careers.ts
+          grep -Fq 'media-save' src/media-entertainment.ts
+          grep -Fq 'path-save' src/path-routes.ts
+          grep -Fq 'ba-save' src/business-analysis.ts
       - name: Validate source provenance register
         shell: bash
         run: |
