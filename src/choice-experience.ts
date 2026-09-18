@@ -234,7 +234,6 @@
       options:compareOptions(select,choice),
       stage:0
     };
-    history.pushState({...history.state,skillFlow:true,skillFlowStage:0},'');
     renderStage();
   }
 
@@ -312,11 +311,10 @@
     localStorage.setItem('skill-aur-dhandha-choice-profile',JSON.stringify(data));
   }
 
-  function gotoStage(index,push=true){
+  function gotoStage(index){
     if(!active)return;
     const stages=stageList(active);
     active.stage=Math.max(0,Math.min(index,stages.length-1));
-    if(push)history.pushState({...history.state,skillFlow:true,skillFlowStage:active.stage},'');
     renderStage();
   }
 
@@ -338,13 +336,13 @@
 
     if(t.closest('[data-flow-next]')){
       saveProfile();
-      if(active)gotoStage(active.stage+1,true);
+      if(active)gotoStage(active.stage+1);
       return;
     }
     if(t.closest('[data-flow-back]')){
       if(!active)return;
-      if(active.stage===0){history.back();return;}
-      history.back();
+      if(active.stage===0){exitFlow(false);return;}
+      gotoStage(active.stage-1);
       return;
     }
 
@@ -368,14 +366,16 @@
     }
   });
 
-  document.addEventListener('skill-flow-goto',e=>{
+  document.addEventListener('skill-flow-forward',()=>{
     if(!active)return;
-    const stage=Number(e.detail);
-    if(Number.isFinite(stage)){active.stage=stage;renderStage();}
+    const stages=stageList(active);
+    if(active.stage<stages.length-1)gotoStage(active.stage+1);
   });
 
-  document.addEventListener('skill-flow-exit',()=>{
-    exitFlow(false);
+  document.addEventListener('skill-flow-back',()=>{
+    if(!active)return;
+    if(active.stage===0)exitFlow(false);
+    else gotoStage(active.stage-1);
   });
 
   window.addEventListener('pageshow',()=>{
