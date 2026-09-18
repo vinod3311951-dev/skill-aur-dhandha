@@ -4,7 +4,7 @@ const routes=[
 {title:'Find Work',intro:'Explore broad work directions without turning the app into a jobs marketplace.',items:['Local service work','Retail & customer service','Office support','Delivery & logistics','Skilled trades','Food service','Field sales','Care & support work','Remote-capable work','Warehouse support','Hospitality work','Technical support','Teaching support','Production support','Self-directed service work','International / Abroad Jobs — Official Route','Media, Education & Creator Economy']},null,
 {title:'Side Income',intro:'Explore supplementary-income directions that can fit around existing commitments.',items:['Weekend service','Home food orders','Tutoring','Reselling','Local delivery/service','Digital assistance','Creative commissions','Repair/help service','Seasonal work','Tailoring/alterations','Photography support','Translation work','Event assistance','Home beauty service','Plant/nursery sales','Creator / Education Media']},
 {title:'Freelance',intro:'Explore independent service directions; the app does not broker clients or payments.',items:['Writing/content','Design','Video/editing','Bookkeeping','Digital marketing','Web support','Translation/language','Tutoring','Virtual assistance','Spreadsheet support','Presentation design','Catalogue creation','Online research','Social media support','Local business digitisation','Media, Education & Creator Economy']},
-{title:'Show Me Options',intro:'Start broad. These are discovery directions, not promises of jobs, customers or earnings.',items:['Learn a skill','Look for work','Start a small business','Build side income','Try freelancing','Media, Education & Creator Economy','Home-based path','Low-investment path','Part-time path','Online-capable path','Agriculture-linked path','Service-based path','Making/manufacturing path','Customer-facing path','Technical path','Explore all directions']}] as const;
+{title:'Show Me Options',intro:'Start broad. These are discovery directions, not promises of jobs, customers or earnings.',items:['Learn a skill','Start a small business','Build side income','Try freelancing','Media, Education & Creator Economy','Home-based path','Low-investment path','Part-time path','Online-capable path','Agriculture-linked path','Service-based path','Making/manufacturing path','Customer-facing path','Technical path','Explore all directions']}] as const;
 const esc=(s:string)=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]||c));const home=()=>location.href='/';const back=()=>document.dispatchEvent(new CustomEvent('skill-return-to-path'));
 function renderRoute(i:number){
   const route=routes[i];if(!app||!route)return;
@@ -41,7 +41,6 @@ function renderRoute(i:number){
     }
     if(i===5){
       if(choice==='Learn a skill'){renderRoute(0);return;}
-      if(choice==='Look for work'){renderRoute(1);return;}
       if(choice==='Start a small business'){document.dispatchEvent(new Event('open-start-business'));return;}
       if(choice==='Build side income'){renderRoute(3);return;}
       if(choice==='Try freelancing'){renderRoute(4);return;}
