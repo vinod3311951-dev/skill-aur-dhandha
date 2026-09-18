@@ -16,6 +16,16 @@
   const apeda={label:'APEDA AgriXchange',url:'https://agriexchange.apeda.gov.in/',note:'Official export-market information route for relevant agricultural and processed products.'};
   const mnre={label:'MNRE rooftop solar programme',url:'https://mnre.gov.in/en/grid-connected-solar-rooftop-programme/',note:'Official renewable-energy programme information; verify current scheme period, vendor and DISCOM requirements.'};
   const power={label:'Ministry of Power',url:'https://powermin.gov.in/',note:'Use current Ministry/DISCOM guidance for charging and electricity-related requirements.'};
+  const parivahan={label:'Parivahan — driving licence services',url:'https://parivahan.gov.in/',note:'Official Ministry of Road Transport & Highways service route. Licence class, tests, fees and state procedures must be checked there.'};
+  const nsws={label:'National Single Window System',url:'https://www.nsws.gov.in/',note:'Government business-approval discovery platform. Its guidance is not exhaustive legal clearance; verify the relevant authority too.'};
+
+  function separateResearch(choice,context){
+    const s=(choice+' '+context).toLowerCase();
+    if(/agri|farm|mushroom|nursery|beekeep|vermicompost|dairy|poultry|seed|flower|produce/.test(s))return false;
+    if(/driving|driver|delivery|logistics/.test(s))return false;
+    if(/home-based|home business|from home/.test(s))return false;
+    return true;
+  }
 
   function profile(choice,context){
     const s=(choice+' '+context).toLowerCase();
@@ -103,7 +113,7 @@
         'Check current FSSAI/FoSCoS requirements for the exact food activity and operating model.'
       ]};
     if(/manufactur|packag|fabricat|product|candle|textile|furniture|recycl|waste/.test(s))return{
-      fast:false,actions:['paisa','market','learn','government'],sources:[genericBusiness],
+      fast:false,actions:['paisa','market','learn','government'],sources:[genericBusiness,nsws],
       roadmap:[
         `Define the exact product specification and buyer for ${choice}.`,
         'Map process steps, machine/manual route, inputs, utilities, safety, quality control and capacity.',
@@ -115,6 +125,19 @@
         `Research ${choice} by buyer specification, local input availability, capacity utilisation and distribution economics.`,
         'Check whether small-batch/manual production can validate demand before machinery purchase.',
         'Verify sector, safety, pollution/local-body, tax and MSME requirements applicable to the exact process.'
+      ]};
+    if(/driving|driver|delivery|logistics/.test(s))return{
+      fast:false,actions:['paisa','learn','government'],sources:[parivahan,ncs],
+      roadmap:[
+        'Define the exact driving/logistics role for '+choice+': passenger, delivery, commercial vehicle, local route or platform-linked work.',
+        'Check the correct licence/vehicle class, safety expectations, route/time demands and any employer/platform requirements.',
+        'Calculate licence/training, travel, device, fuel/vehicle contribution and work-search costs that apply to your situation.',
+        'Compare employed, owner-driver and platform-linked routes without assuming earnings from advertised gross figures.',
+        'Verify licence/service requirements on Parivahan and verify each employer/platform independently before paying or joining.'
+      ],
+      research:[
+        'For '+choice+', the useful evidence is role availability, licence class, local route demand, work hours and cost structure rather than a generic market-size page.',
+        'Use Parivahan for official licence services and NCS for employment discovery where relevant.'
       ]};
     if(/work|job|freelance|service|repair|mechanic|beauty|tailor|bookkeep|digital|design|writing|video|photograph|creator|content/.test(s))return{
       fast:false,actions:['paisa','market','learn'],sources:[ncs,skillIndia],
@@ -188,6 +211,7 @@
     }
     const context=[main.querySelector('.eyebrow')?.textContent||'',main.querySelector('h1')?.textContent||''].join(' ');
     const p=profile(choice,context);
+    const showResearch=separateResearch(choice,context);
     const savedProfile=readProfile();
     const profileNote=[
       savedProfile.age&&savedProfile.age!=='Skip'?`Age: ${savedProfile.age}`:'',
@@ -206,8 +230,8 @@
       <h3>Useful next actions</h3>
       <div class="actions">${p.actions.map(actionButton).join('')}</div>
       <section class="choice-research">
-        <h3>Research centred on ${esc(choice)}</h3>
-        <ul>${p.research.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>
+        <h3>${showResearch?'Research centred on '+esc(choice):'Evidence & official routes'}</h3>
+        ${showResearch?`<ul>${p.research.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:'<p>This path does not need a separate research page. Use the roadmap, your own calculations and the relevant official routes below.</p>'}
         ${p.sources.map(s=>`<a class="choice" href="${s.url}" target="_blank" rel="noopener noreferrer">${esc(s.label)}<span>↗</span></a><p class="source-note"><strong>Source note:</strong> ${esc(s.note)}</p>`).join('')}
       </section>
       ${compareOptions.length?`<section class="choice-compare"><h3>Compare with another choice</h3><label>Second choice<select data-choice-compare>${compareOptions.map(x=>`<option>${esc(x)}</option>`).join('')}</select></label><button type="button" class="choice" data-choice-compare-open>Compare these two<span>›</span></button><div data-choice-compare-result></div></section>`:''}
