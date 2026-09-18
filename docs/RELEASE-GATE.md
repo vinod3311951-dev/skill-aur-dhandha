@@ -73,3 +73,24 @@ Build complete → Formal Audit 1 → comprehensive repair → user final-look r
 - [x] Vercel production build now runs `npm run check:build` before deployment.
 
 Formal Audit 1 has **not** started. Founder requested a checkpoint message before Audit 1 begins.
+
+
+## Founder functional acceptance before Audit 1
+
+Audit 1 must not start until the founder has manually tested the refreshed mobile build and confirms the core journey is usable.
+
+Required pre-Audit checks:
+
+- A selection opens one clean staged journey, not an injected panel inside the old page.
+- B profile uses only simple optional dropdowns relevant to the choice.
+- C shows a choice-specific practical plan.
+- D offers shortcuts such as Learn, Market/calculators and Government Help without forcing them.
+- E comparison is optional and keeps the current choice fixed while asking for one alternative.
+- F research is optional and appears only where deeper research is useful.
+- Back, Home and Forward work on every staged screen.
+- Government Help shows the privacy/eligibility caution before official destinations and clearly limits the India Post suggestion to services actually supported there.
+- Manufacturing shows machine/setup discovery by budget with external-marketplace caution; no stored price is presented as a live seller quote.
+- Voice/language claims remain unverified until language-by-language mobile testing is completed.
+- Business Analysis is protected from this navigation refactor and must remain unchanged.
+
+A successful Vercel deployment or static quality gate is necessary but is not founder functional acceptance.
