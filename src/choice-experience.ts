@@ -47,7 +47,7 @@
         'Set your current level, time available and preferred learning mode before paying.',
         'Practise one small observable task and keep proof of work you have the right to share.',
         'Check real entry routes, employer/client expectations and any qualification requirement.',
-        'Compare training cost and time with a second path before committing.'
+        'Check training cost and time before committing.'
       ],
       research:[
         `For ${choice}, research actual India roles/clients, proof-of-skill expectations, entry routes and regional-language demand.`,
@@ -66,7 +66,7 @@
       research:[
         `Research ${choice} against current rooftop-solar adoption, residential/commercial customer types and service demand in your target state.`,
         'Check the current MNRE/national-portal and DISCOM process, empanelment/vendor rules where relevant, technical standards and subsidy boundaries.',
-        'Compare local installers on scope, warranty/AMC, response time and customer acquisition—not just panel price.'
+        'Check installer scope, warranty/AMC, response time and customer-acquisition terms—not just panel price.'
       ]};
     if(/ev charging|charging station/.test(s))return{
       fast:false,actions:['paisa','market','learn','government'],sources:[power,genericBusiness],
@@ -130,7 +130,7 @@
         'Define the exact driving/logistics role for '+choice+': passenger, delivery, commercial vehicle, local route or platform-linked work.',
         'Check the correct licence/vehicle class, safety expectations, route/time demands and any employer/platform requirements.',
         'Calculate licence/training, travel, device, fuel/vehicle contribution and work-search costs that apply to your situation.',
-        'Compare employed, owner-driver and platform-linked routes without assuming earnings from advertised gross figures.',
+        'Check employed, owner-driver and platform-linked routes without assuming earnings from advertised gross figures.',
         'Verify licence/service requirements on Parivahan and verify each employer/platform independently before paying or joining.'
       ],
       research:[
@@ -144,7 +144,7 @@
         'List proof of skill, tools/software, travel/workspace and any safety or qualification requirement.',
         'Create one small demonstrable sample or practice task you are allowed to share.',
         'Validate real employer/client demand, common entry route, competition and acquisition channel.',
-        'Compare time-to-readiness and recurring costs with one alternative path.'
+        'Check time-to-readiness and recurring costs before committing.'
       ],
       research:[
         `For ${choice}, use live role/service demand, required skills, proof-of-work and client/employer channels rather than generic earnings claims.`,
@@ -263,7 +263,7 @@
     }
   }
 
-  function compareOptions(select,choice){
+  function []{
     return [...select.options].map(o=>(o.textContent||'').replace(/^Suggested · /,'').trim()).filter(x=>x&&x!==choice&&!/choose|select|skip|not sure|other \/ enter/i.test(x)).slice(0,40);
   }
 
@@ -281,7 +281,7 @@
       p,
       showResearch:separateResearch(choice,context),
       selectId:select.id,
-      options:compareOptions(select,choice),
+      options:[],
       stage:0
     };
     main.dataset.choiceActive='true';
