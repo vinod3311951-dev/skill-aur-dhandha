@@ -37,7 +37,7 @@ jobs:
           grep -Fq '5-step plan for' src/choice-experience.ts
           grep -Fq 'Quick reality filters' src/choice-experience.ts
           grep -Fq 'Research centred on' src/choice-experience.ts
-          grep -Fq 'Compare ' src/choice-experience.ts
+          ! grep -Fq "key==='compare'" src/choice-experience.ts
           ! grep -Fq 'new MutationObserver' src/choice-experience.ts
           grep -Fq 'Share app' src/main.ts
       - name: Validate privacy and safety boundaries
@@ -46,7 +46,8 @@ jobs:
           set -euo pipefail
           ! grep -R -Fq 'type="password"' src
           ! grep -R -Fq 'type="email"' src
-          grep -Fq 'no name, exact DOB, address, Aadhaar, PAN or bank information' src/guided-filters.ts
+          grep -Fq 'No profile form is required before you explore.' src/guided-filters.ts
+          grep -Fq 'No account or sensitive personal/financial data is required' src/main.ts
           grep -Fq 'does not broker' src/path-routes.ts
           grep -Fq 'does not submit applications' src/gov.ts
       - name: Validate PWA release shell
