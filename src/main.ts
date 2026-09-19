@@ -13,7 +13,7 @@ const app=root;
 const KEY='business-sudhaar-session-v1';
 const LANG_KEY='business-sudhaar-language';
 let step:Step='home';
-let historyIndex=0;
+let historyIndex=-1;
 let questionIndex=0;
 let bizType:BizType='other';
 let issue:Issue='unknown';
@@ -74,7 +74,7 @@ function wireNav(){
   const next=app.querySelector<HTMLButtonElement>('#next');
   back?.addEventListener('click',goBack);
   next?.addEventListener('click',goNext);
-  if(next && ((step==='issue'&&!answers.issue)||(step==='history'&&!answers[history[historyIndex].id])||(step==='question'&&!answers[relevantQuestions()[questionIndex]?.id]))) next.disabled=true;
+  if(next && ((step==='issue'&&!answers.issue)||(step==='history'&&historyIndex===-1&&!answers.businessType)||(step==='history'&&historyIndex>=0&&!answers[history[historyIndex].id])||(step==='question'&&!answers[relevantQuestions()[questionIndex]?.id]))) next.disabled=true;
 }
 function privacy(){return `<p class="home-legal"><strong>Privacy:</strong> No account, name, phone, email, exact address, documents, bank details or contact list are required. Core assessment stays on this device. Voice/translation is optional. External and affiliate links open third-party sites.</p>`;}
 
@@ -95,10 +95,9 @@ function render(){
     return;
   }
   if(step==='history'){
-    if(!answers.businessType){
-      shell('What kind of business is this?',`<section class="actions">${businessTypes.map(x=>`<button class="choice" data-biz="${x.id}" type="button">${x.label}<span>›</span></button>`).join('')}</section>`,'Business history · 1 of 4');
+    if(historyIndex===-1){
+      shell('What kind of business is this?',`<section class="actions">${businessTypes.map(x=>`<button class="choice ${answers.businessType===x.id?'selected':''}" data-biz="${x.id}" type="button">${x.label}<span>›</span></button>`).join('')}</section>`,'Business history · 1 of 4');
       app.querySelectorAll<HTMLButtonElement>('[data-biz]').forEach(b=>b.addEventListener('click',()=>{bizType=b.dataset.biz as BizType;answers.businessType=bizType;save();render();}));
-      const n=app.querySelector<HTMLButtonElement>('#next');if(n)n.disabled=true;
       return;
     }
     const item=history[historyIndex];
@@ -117,7 +116,7 @@ function render(){
   if(step==='solution'){renderSolution();return;}
   if(step==='machine'){renderMachine();return;}
   if(step==='research'){renderResearch();return;}
-  if(step==='done'){shell('Done for now',`<article class="card"><h2>Your plan is saved on this device</h2><p>Act on the steps first. Recheck the business after you have enough new information to compare.</p><button class="choice" id="restart" type="button">Start a fresh check <span>›</span></button></article>`);app.querySelector('#restart')?.addEventListener('click',()=>{localStorage.removeItem(KEY);answers={};issue='unknown';bizType='other';historyIndex=0;questionIndex=0;step='home';render();});}
+  if(step==='done'){shell('Done for now',`<article class="card"><h2>Your plan is saved on this device</h2><p>Act on the steps first. Recheck the business after you have enough new information to compare.</p><button class="choice" id="restart" type="button">Start a fresh check <span>›</span></button></article>`);app.querySelector('#restart')?.addEventListener('click',()=>{localStorage.removeItem(KEY);answers={};issue='unknown';bizType='other';historyIndex=-1;questionIndex=0;step='home';render();});}
 }
 
 function score(){
@@ -185,7 +184,7 @@ function renderLanguage(){
   app.querySelector<HTMLSelectElement>('#language')?.addEventListener('change',e=>localStorage.setItem(LANG_KEY,(e.currentTarget as HTMLSelectElement).value));
 }
 function goNext(){
-  if(step==='issue'){step='history';historyIndex=0;}
+  if(step==='issue'){step='history';historyIndex=-1;}
   else if(step==='history'){
     if(historyIndex<history.length-1)historyIndex++; else {step='question';questionIndex=0;}
   } else if(step==='question'){
@@ -199,7 +198,7 @@ function goNext(){
 }
 function goBack(){
   if(step==='issue')step='home';
-  else if(step==='history'){if(historyIndex>0)historyIndex--;else step='issue';}
+  else if(step==='history'){if(historyIndex>=0)historyIndex--;else step='issue';}
   else if(step==='question'){if(questionIndex>0)questionIndex--;else{step='history';historyIndex=history.length-1;}}
   else if(step==='faults'){step='question';questionIndex=Math.max(0,relevantQuestions().length-1);}
   else if(step==='solution')step='faults';
