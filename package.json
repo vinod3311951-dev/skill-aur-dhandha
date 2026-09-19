@@ -10,10 +10,12 @@
     "test:release": "node scripts/release-check.mjs",
     "check": "npm run test:release && npm run test:diagnostic && npm run build",
     "check:build": "npm run build",
-    "test:diagnostic": "node scripts/test-diagnostic-engine.mjs"
+    "test:diagnostic": "node scripts/test-diagnostic-engine.mjs",
+    "test:mobile": "playwright test"
   },
   "devDependencies": {
     "typescript": "5.9.2",
-    "vite": "7.1.5"
+    "vite": "7.1.5",
+    "@playwright/test": "1.55.0"
   }
 }
