@@ -1,18 +1,15 @@
+import { selectedAppLanguage } from './app-language-runtime';
 type SpeechRecognitionCtor=new()=>SpeechRecognitionLike;
 type SpeechRecognitionLike={lang:string;interimResults:boolean;continuous:boolean;start:()=>void;stop:()=>void;onresult:((event:any)=>void)|null;onerror:((event:any)=>void)|null;onend:(()=>void)|null};
 type VoiceWindow=Window&typeof globalThis&{SpeechRecognition?:SpeechRecognitionCtor;webkitSpeechRecognition?:SpeechRecognitionCtor};
 
-const LANG_KEY='skill-aur-dhandha-language';
-const VOICE_LOCALE_KEY='skill-aur-dhandha-voice-locale';
-const localeByPreference:Record<string,string>={English:'en-IN',Hindi:'hi-IN','Roman Hindi':'hi-IN'};
 const supportedLocales=['en-IN','as-IN','bn-IN','brx-IN','doi-IN','gu-IN','hi-IN','kn-IN','ks-IN','kok-IN','mai-IN','ml-IN','mni-IN','mr-IN','ne-IN','or-IN','pa-IN','sa-IN','sat-IN','sd-IN','ta-IN','te-IN','ur-IN'];
 const labels:Record<string,{listen:string;heard:string;unsupported:string;error:string}>={
   'hi-IN':{listen:'सुन रहा हूँ…',heard:'आपने कहा',unsupported:'इस ब्राउज़र में वॉइस इनपुट उपलब्ध नहीं है।',error:'आवाज़ समझ नहीं आई। फिर कोशिश करें।'},
   'en-IN':{listen:'Listening…',heard:'You said',unsupported:'Voice input is not available in this browser.',error:'I could not understand that. Please try again.'}
 };
 let active:SpeechRecognitionLike|null=null;
-const preference=()=>localStorage.getItem(LANG_KEY)||'English';
-const locale=()=>localStorage.getItem(VOICE_LOCALE_KEY)||localeByPreference[preference()]||'en-IN';
+const locale=()=>selectedAppLanguage().locale;
 const copy=()=>labels[locale()]||labels['en-IN'];
 
 function statusNode(button:HTMLButtonElement){let node=button.parentElement?.querySelector<HTMLElement>('[data-voice-status]');if(node)return node;node=document.createElement('p');node.dataset.voiceStatus='true';node.setAttribute('role','status');node.setAttribute('aria-live','polite');button.insertAdjacentElement('afterend',node);return node;}
@@ -24,6 +21,6 @@ function start(button:HTMLButtonElement){const w=window as VoiceWindow;const Cto
 
 document.addEventListener('click',event=>{const target=event.target as HTMLElement|null;const mic=target?.closest<HTMLButtonElement>('.mic');if(mic){start(mic);return;}const speakButton=target?.closest<HTMLButtonElement>('[data-speak-response]');if(speakButton){const selector=speakButton.dataset.speakResponse;const source=selector?document.querySelector<HTMLElement>(selector):null;if(source)speak(source.innerText);}});
 
-document.addEventListener('skill-voice-locale',event=>{const requested=(event as CustomEvent<string>).detail;if(supportedLocales.includes(requested))localStorage.setItem(VOICE_LOCALE_KEY,requested);});
+document.addEventListener('skill-language-changed',()=>{if(active){active.stop();active=null;}});
 
 export {speak,supportedLocales};
