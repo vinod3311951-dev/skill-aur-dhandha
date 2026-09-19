@@ -70,3 +70,6 @@ main[data-choice-active] .flow-nav{margin-top:auto}
 .metric-box strong{font-size:1.05rem}
 .caution{font-size:.86rem;color:#56635b}
 @media (max-width:380px){.bs-nav{grid-template-columns:1fr 1fr}.score-ring{width:116px;height:116px}}
+.bs-language-inline{display:flex;align-items:center;gap:8px;font-size:.82rem;font-weight:800;color:#2f6242}
+.bs-language-inline select{min-height:42px;border:1px solid var(--interactive-border);border-radius:12px;padding:8px 34px 8px 10px;background:#fff;color:#1b2b21;font-weight:700;max-width:190px}
+.bs-language-inline select:focus-visible{outline:3px solid #31704b;outline-offset:3px}
