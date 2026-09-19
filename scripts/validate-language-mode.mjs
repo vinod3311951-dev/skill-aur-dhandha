@@ -9,6 +9,9 @@ const api=readFileSync('api/bhashini.ts','utf8');
 const checks=[
   ['App-wide runtime imported', main.includes("from './app-language-runtime'")],
   ['Regional selector includes appLanguages', main.includes('appLanguages.map')],
+  ['Old split text and voice selectors removed', !main.includes('Text preference')&&!main.includes('voice-locale-select')&&!main.includes('Voice input language')],
+  ['Unified copy covers typed interface and voice', main.includes('typed/displayed interface text')],
+  ['Privacy and guidance disclaimer visible in core shell', main.includes('const legalNotice=()=>')&&main.includes('Guidance disclaimer')&&main.includes('Privacy:')],
   ['One language controls app and voice', main.includes('setAppLanguage')&&voice.includes('selectedAppLanguage().locale')],
   ['Voice recognition uses selected locale', voice.includes('recognition.lang=locale()')],
   ['Speech output uses selected locale', voice.includes('utterance.lang=locale()')],
