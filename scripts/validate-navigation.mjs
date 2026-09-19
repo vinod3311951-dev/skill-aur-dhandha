@@ -3,7 +3,7 @@ import fs from 'node:fs';
 const read=p=>fs.readFileSync(p,'utf8');
 const checks=[
   ['src/choice-experience.ts',['5-step plan for','What can I do now?','Research centred on','data-flow-next','data-flow-back','data-flow-home','data-flow-skip','open-paisa-business','open-market']],
-  ['src/main.ts',['Find My Path','Find My Market','Paisa Check','Learn & Grow','Government Help','data-i="0"','app-language','app-settings','utility-back','skill-return-to-path','voice-locale-select','skill-voice-locale']],
+  ['src/main.ts',['Find My Path','Find My Market','Paisa Check','Learn & Grow','Government Help','data-i="0"','app-language','app-settings','utility-back','skill-return-to-path','appLanguages','setAppLanguage']],
   ['src/path-routes.ts',['skill-return-to-path','open-media-entertainment','open-start-business','path-save']],
   ['src/guided-filters.ts',['skill-return-to-path','open-start-business','Choose a category','No profile form is required before you explore.']],
   ['src/possibilities.ts',['s13-back','s13-home','business-journey-back','business-compare-picker-back','business-compare-back','farm-market-routes','data-machine-explorer','open-paisa-business']],
@@ -24,6 +24,10 @@ const failures=[];
 for(const [file,tokens] of checks){
   const text=read(file);
   for(const token of tokens) if(!text.includes(token)) failures.push(`${file}: missing ${token}`);
+}
+const languageRuntime=read('src/app-language-runtime.ts');
+for(const token of ['selectedAppLanguage','skill-language-changed','MutationObserver','skill-aur-dhandha-voice-locale']){
+  if(!languageRuntime.includes(token)) failures.push(`src/app-language-runtime.ts: missing ${token}`);
 }
 const index=read('index.html');
 for(const module of ['main','voice','language-service','choice-experience','path-routes','guided-filters','possibilities','manufacturing-machines','media-entertainment','future-careers','export-affiliate-opportunities','export-market-bridge','market','paisa','learn','ai-learning','gov']){
