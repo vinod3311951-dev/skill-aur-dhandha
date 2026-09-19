@@ -13,6 +13,27 @@ const app=root;
 
 const KEY='business-sudhaar-session-v1';
 const LANG_KEY='business-sudhaar-language';
+const langMeta={
+  en:{locale:'en-IN',label:'English'},hi:{locale:'hi-IN',label:'हिन्दी'},bn:{locale:'bn-IN',label:'বাংলা'},
+  gu:{locale:'gu-IN',label:'ગુજરાતી'},kn:{locale:'kn-IN',label:'ಕನ್ನಡ'},ml:{locale:'ml-IN',label:'മലയാളം'},
+  mr:{locale:'mr-IN',label:'मराठी'},ta:{locale:'ta-IN',label:'தமிழ்'},te:{locale:'te-IN',label:'తెలుగు'},
+  pa:{locale:'pa-IN',label:'ਪੰਜਾਬੀ'},or:{locale:'or-IN',label:'ଓଡ଼ିଆ'},as:{locale:'as-IN',label:'অসমীয়া'},ur:{locale:'ur-IN',label:'اردو'}
+} as const;
+type LangCode=keyof typeof langMeta;
+const localCore:Record<string,Record<string,string>>={
+  hi:{'← BACK':'← वापस','⌂ HOME':'⌂ होम','NEXT →':'आगे →','🎙 SPEAK':'🎙 बोलें','🔊 LISTEN':'🔊 सुनें','CHECK MY BUSINESS':'मेरे व्यवसाय की जाँच करें','Business Sudhaar':'बिज़नेस सुधार','BHASHINI language':'BHASHINI भाषा'},
+  bn:{'← BACK':'← ফিরে যান','⌂ HOME':'⌂ হোম','NEXT →':'আগে →','🎙 SPEAK':'🎙 বলুন','🔊 LISTEN':'🔊 শুনুন','CHECK MY BUSINESS':'আমার ব্যবসা পরীক্ষা করুন','Business Sudhaar':'বিজনেস সুধার','BHASHINI language':'BHASHINI ভাষা'},
+  gu:{'← BACK':'← પાછા','⌂ HOME':'⌂ હોમ','NEXT →':'આગળ →','🎙 SPEAK':'🎙 બોલો','🔊 LISTEN':'🔊 સાંભળો','CHECK MY BUSINESS':'મારો વ્યવસાય તપાસો','Business Sudhaar':'બિઝનેસ સુધાર','BHASHINI language':'BHASHINI ભાષા'},
+  kn:{'← BACK':'← ಹಿಂದೆ','⌂ HOME':'⌂ ಮುಖಪುಟ','NEXT →':'ಮುಂದೆ →','🎙 SPEAK':'🎙 ಮಾತನಾಡಿ','🔊 LISTEN':'🔊 ಕೇಳಿ','CHECK MY BUSINESS':'ನನ್ನ ವ್ಯವಹಾರ ಪರಿಶೀಲಿಸಿ','Business Sudhaar':'ಬಿಸಿನೆಸ್ ಸುಧಾರ್','BHASHINI language':'BHASHINI ಭಾಷೆ'},
+  ml:{'← BACK':'← പിന്നോട്ട്','⌂ HOME':'⌂ ഹോം','NEXT →':'മുന്നോട്ട് →','🎙 SPEAK':'🎙 സംസാരിക്കുക','🔊 LISTEN':'🔊 കേൾക്കുക','CHECK MY BUSINESS':'എന്റെ ബിസിനസ് പരിശോധിക്കുക','Business Sudhaar':'ബിസിനസ് സുധാർ','BHASHINI language':'BHASHINI ഭാഷ'},
+  mr:{'← BACK':'← मागे','⌂ HOME':'⌂ होम','NEXT →':'पुढे →','🎙 SPEAK':'🎙 बोला','🔊 LISTEN':'🔊 ऐका','CHECK MY BUSINESS':'माझा व्यवसाय तपासा','Business Sudhaar':'बिझनेस सुधार','BHASHINI language':'BHASHINI भाषा'},
+  ta:{'← BACK':'← பின்','⌂ HOME':'⌂ முகப்பு','NEXT →':'அடுத்து →','🎙 SPEAK':'🎙 பேசுங்கள்','🔊 LISTEN':'🔊 கேளுங்கள்','CHECK MY BUSINESS':'என் வணிகத்தை சரிபார்க்கவும்','Business Sudhaar':'பிசினஸ் சுதார்','BHASHINI language':'BHASHINI மொழி'},
+  te:{'← BACK':'← వెనక్కి','⌂ HOME':'⌂ హోమ్','NEXT →':'ముందుకు →','🎙 SPEAK':'🎙 మాట్లాడండి','🔊 LISTEN':'🔊 వినండి','CHECK MY BUSINESS':'నా వ్యాపారాన్ని తనిఖీ చేయండి','Business Sudhaar':'బిజినెస్ సుధార్','BHASHINI language':'BHASHINI భాష'},
+  pa:{'← BACK':'← ਪਿੱਛੇ','⌂ HOME':'⌂ ਹੋਮ','NEXT →':'ਅੱਗੇ →','🎙 SPEAK':'🎙 ਬੋਲੋ','🔊 LISTEN':'🔊 ਸੁਣੋ','CHECK MY BUSINESS':'ਮੇਰਾ ਕਾਰੋਬਾਰ ਜਾਂਚੋ','Business Sudhaar':'ਬਿਜ਼ਨਸ ਸੁਧਾਰ','BHASHINI language':'BHASHINI ਭਾਸ਼ਾ'},
+  or:{'← BACK':'← ପଛକୁ','⌂ HOME':'⌂ ହୋମ','NEXT →':'ଆଗକୁ →','🎙 SPEAK':'🎙 କୁହନ୍ତୁ','🔊 LISTEN':'🔊 ଶୁଣନ୍ତୁ','CHECK MY BUSINESS':'ମୋ ବ୍ୟବସାୟ ଯାଞ୍ଚ କରନ୍ତୁ','Business Sudhaar':'ବିଜନେସ ସୁଧାର','BHASHINI language':'BHASHINI ଭାଷା'},
+  as:{'← BACK':'← পিছলৈ','⌂ HOME':'⌂ হোম','NEXT →':'আগলৈ →','🎙 SPEAK':'🎙 কওক','🔊 LISTEN':'🔊 শুনক','CHECK MY BUSINESS':'মোৰ ব্যৱসায় পৰীক্ষা কৰক','Business Sudhaar':'বিজনেছ সুধাৰ','BHASHINI language':'BHASHINI ভাষা'},
+  ur:{'← BACK':'← واپس','⌂ HOME':'⌂ ہوم','NEXT →':'آگے →','🎙 SPEAK':'🎙 بولیں','🔊 LISTEN':'🔊 سنیں','CHECK MY BUSINESS':'میرا کاروبار چیک کریں','Business Sudhaar':'بزنس سدھار','BHASHINI language':'BHASHINI زبان'}
+};
 let step:Step='home';
 let historyIndex=-1;
 let questionIndex=0;
@@ -75,10 +96,10 @@ function relevantQuestions(){const list=questions.filter(q=>q.tags.includes(issu
 function save(){localStorage.setItem(KEY,JSON.stringify({bizType,issue,answers,step,historyIndex,questionIndex}));}
 function esc(s:string){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]||m));}
 function shell(title:string,body:string,progress=''){app.innerHTML=`<main class="shell bs-shell">
-  <header><p class="eyebrow">Business Sudhaar</p><h1>${title}</h1>${progress?`<p class="bs-progress">${progress}</p>`:''}</header>
+  <header><p class="eyebrow">Business Sudhaar</p><h1>${title}</h1>${progress?`<p class="bs-progress">${progress}</p>`:''}<div class="bs-voice-tools"><button id="voice-input" type="button">🎙 SPEAK</button><button id="voice-read" type="button">🔊 LISTEN</button></div><p id="voice-status" class="bs-voice-status" aria-live="polite"></p></header>
   ${body}
   ${step!=='home'?nav():''}
-</main>`;wireNav();const lang=localStorage.getItem(LANG_KEY)||'en';if(lang!=='en')queueMicrotask(()=>translateVisibleScreen(lang));}
+</main>`;wireNav();wireVoice();const lang=(localStorage.getItem(LANG_KEY)||'en') as LangCode;document.documentElement.lang=langMeta[lang]?.locale||'en-IN';document.documentElement.dir=lang==='ur'?'rtl':'ltr';if(lang!=='en')queueMicrotask(()=>translateVisibleScreen(lang));}
 function nav(){return `<nav class="bs-nav" aria-label="Journey navigation"><button id="back" type="button">← BACK</button><button id="home" type="button">⌂ HOME</button><button id="next" type="button">NEXT →</button></nav>`;}
 function wireNav(){
   const back=app.querySelector<HTMLButtonElement>('#back');
@@ -105,7 +126,7 @@ function render(){
       </div>
       ${privacy()}`);
     app.querySelector('#start')?.addEventListener('click',()=>{step='issue';save();render();});
-    app.querySelector<HTMLSelectElement>('#home-language')?.addEventListener('change',e=>{localStorage.setItem(LANG_KEY,(e.currentTarget as HTMLSelectElement).value);render();});
+    app.querySelector<HTMLSelectElement>('#home-language')?.addEventListener('change',e=>{const lang=(e.currentTarget as HTMLSelectElement).value as LangCode;localStorage.setItem(LANG_KEY,lang);document.documentElement.lang=langMeta[lang].locale;document.documentElement.dir=lang==='ur'?'rtl':'ltr';render();});
     return;
   }
   if(step==='issue'){
@@ -190,18 +211,15 @@ function renderResearch(){
   <section class="actions"><a class="choice" href="https://udyamregistration.gov.in/" rel="noopener">Udyam Registration — official MSME portal <span>›</span></a><a class="choice" href="https://champions.gov.in/" rel="noopener">MSME CHAMPIONS — guidance & grievance support <span>›</span></a><a class="choice" href="https://www.msme.gov.in/" rel="noopener">Ministry of MSME — schemes & programmes <span>›</span></a><a class="choice" href="https://samadhaan.msme.gov.in/" rel="noopener">MSME Samadhaan — delayed payments <span>›</span></a><a class="choice" href="https://sambandh.msme.gov.in/" rel="noopener">MSME Sambandh — public procurement <span>›</span></a></section>
   <p class="home-legal"><strong>Research disclaimer:</strong> External information can change. Verify eligibility, fees, terms, vendor claims and scheme details on the linked official/provider site before acting.</p>`,'Optional final layer');
 }
-const languages=[
-  ['en','English'],['hi','हिन्दी'],['bn','বাংলা'],['gu','ગુજરાતી'],['kn','ಕನ್ನಡ'],['ml','മലയാളം'],
-  ['mr','मराठी'],['ta','தமிழ்'],['te','తెలుగు'],['pa','ਪੰਜਾਬੀ'],['or','ଓଡ଼ିଆ'],['as','অসমীয়া'],['ur','اردو']
-] as const;
+const languages=(Object.entries(langMeta) as [LangCode,{locale:string;label:string}][]).map(([code,meta])=>[code,meta.label] as const);
 
-async function translateBatch(texts:string[],targetLanguage:string){
-  if(targetLanguage==='en'||!texts.length)return texts;
+async function translateBatch(texts:string[],targetLanguage:string,sourceLanguage='en'){
+  if(targetLanguage===sourceLanguage||!texts.length)return texts;
   try{
     const response=await fetch('/api/bhashini',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({texts,sourceLanguage:'en',targetLanguage})
+      body:JSON.stringify({texts,sourceLanguage,targetLanguage})
     });
     const data=await response.json();
     return response.ok&&Array.isArray(data.translated)&&data.translated.length===texts.length?data.translated:texts;
@@ -222,13 +240,90 @@ async function translateVisibleScreen(targetLanguage:string){
   }
   const unique=[...new Set(nodes.map(n=>n.textContent?.trim()||''))].slice(0,40);
   const translated=await translateBatch(unique,targetLanguage);
-  const map=new Map(unique.map((value,index)=>[value,translated[index]||value]));
+  const map=new Map(unique.map((value,index)=>[value,(translated[index]!==value?translated[index]:localCore[targetLanguage]?.[value])||value]));
   for(const node of nodes){
     const raw=node.textContent||'';
     const trimmed=raw.trim();
     const value=map.get(trimmed);
     if(value&&value!==trimmed)node.textContent=raw.replace(trimmed,value);
   }
+}
+
+
+function selectedLang():LangCode{
+  const value=(localStorage.getItem(LANG_KEY)||'en') as LangCode;
+  return value in langMeta?value:'en';
+}
+function selectedLocale(){return langMeta[selectedLang()].locale;}
+function normalizeVoice(s:string){return s.toLowerCase().replace(/[^a-z0-9\u0900-\u0d7f\u0600-\u06ff]+/g,' ').trim();}
+function currentVoiceCandidates(){
+  const out:{label:string;el:HTMLElement}[]=[];
+  app.querySelectorAll<HTMLElement>('button[data-issue],button[data-biz],button[data-answer],#start,#back,#home,#next').forEach(el=>{
+    let label='';
+    if(el.dataset.answer)label=el.dataset.answer;
+    else if(el.dataset.issue)label=issueChoices.find(x=>x.id===el.dataset.issue)?.label||'';
+    else if(el.dataset.biz)label=businessTypes.find(x=>x.id===el.dataset.biz)?.label||'';
+    else if(el.id==='start')label='check my business';
+    else if(el.id==='back')label='back';
+    else if(el.id==='home')label='home';
+    else if(el.id==='next')label='next';
+    if(label)out.push({label,el});
+  });
+  return out;
+}
+async function activateVoiceChoice(raw:string){
+  const lang=selectedLang();
+  const english=(await translateBatch([raw],'en',lang))[0]||raw;
+  const heard=normalizeVoice(english);
+  const candidates=currentVoiceCandidates();
+  let best:{score:number;el:HTMLElement}|null=null;
+  for(const item of candidates){
+    const target=normalizeVoice(item.label);
+    let score=heard===target?100:(heard.includes(target)||target.includes(heard)?80:0);
+    if(!score){
+      const a=new Set(heard.split(' ')),b=new Set(target.split(' '));
+      const overlap=[...a].filter(x=>b.has(x)).length;
+      score=overlap/Math.max(1,b.size)*60;
+    }
+    if(!best||score>best.score)best={score,el:item.el};
+  }
+  if(best&&best.score>=35){best.el.click();setVoiceStatus('');return;}
+  setVoiceStatus(lang==='en'?'I could not match that choice. Please tap an option.':'Voice heard, but the choice could not be matched. Please tap an option.');
+}
+function setVoiceStatus(text:string){const el=app.querySelector<HTMLElement>('#voice-status');if(el)el.textContent=text;}
+function startVoiceInput(){
+  const w=window as typeof window & {SpeechRecognition?:new()=>any;webkitSpeechRecognition?:new()=>any};
+  const Ctor=w.SpeechRecognition||w.webkitSpeechRecognition;
+  if(!Ctor){setVoiceStatus('Voice recognition is not available in this browser.');return;}
+  const recognition=new Ctor();
+  recognition.lang=selectedLocale();
+  recognition.interimResults=false;
+  recognition.maxAlternatives=1;
+  recognition.onstart=()=>setVoiceStatus('Listening…');
+  recognition.onerror=()=>setVoiceStatus('Voice input could not be completed. You can still tap an option.');
+  recognition.onresult=(event:any)=>{
+    const transcript=event?.results?.[0]?.[0]?.transcript||'';
+    setVoiceStatus(transcript?('Heard: '+transcript):'');
+    if(transcript)void activateVoiceChoice(transcript);
+  };
+  recognition.start();
+}
+function speakScreen(){
+  if(!('speechSynthesis' in window)){setVoiceStatus('Spoken output is not available in this browser.');return;}
+  const main=app.querySelector('main');
+  if(!main)return;
+  const text=[...main.querySelectorAll<HTMLElement>('h1,h2,.bs-progress,.choice,.metric-box,li,.home-legal')]
+    .filter(el=>!el.closest('.bs-nav'))
+    .map(el=>el.innerText.trim()).filter(Boolean).slice(0,18).join('. ');
+  if(!text)return;
+  window.speechSynthesis.cancel();
+  const utterance=new SpeechSynthesisUtterance(text);
+  utterance.lang=selectedLocale();
+  window.speechSynthesis.speak(utterance);
+}
+function wireVoice(){
+  app.querySelector('#voice-input')?.addEventListener('click',startVoiceInput);
+  app.querySelector('#voice-read')?.addEventListener('click',speakScreen);
 }
 
 function goNext(){
