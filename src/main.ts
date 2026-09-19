@@ -77,7 +77,7 @@ function shell(title:string,body:string,progress=''){app.innerHTML=`<main class=
   <header><p class="eyebrow">Business Sudhaar</p><h1>${title}</h1>${progress?`<p class="bs-progress">${progress}</p>`:''}</header>
   ${body}
   ${step!=='home'?nav():''}
-</main>`;wireNav();}
+</main>`;wireNav();const lang=localStorage.getItem(LANG_KEY)||'en';if(lang!=='en')queueMicrotask(()=>translateVisibleScreen(lang));}
 function nav(){return `<nav class="bs-nav" aria-label="Journey navigation"><button id="back" type="button">← BACK</button><button id="next" type="button">NEXT →</button></nav>`;}
 function wireNav(){
   const back=app.querySelector<HTMLButtonElement>('#back');
@@ -93,10 +93,10 @@ function render(){
     shell('Improve one business problem',`
       <article class="card bs-hero"><h2>Choose. Check. Fix.</h2><p>Answer only what matters. Business Sudhaar calculates the shortfall silently, summarises the likely faults and gives one clear action plan.</p>
       <button class="choice bs-start" id="start" type="button">CHECK MY BUSINESS <span>›</span></button></article>
-      <div class="bs-home-tools"><button class="text-action" id="lang">🌐 Regional languages</button></div>
+      <div class="bs-home-tools"><label class="bs-language-inline">🌐 Language<select id="home-language">${languages.map(([code,label])=>`<option value="${code}" ${(localStorage.getItem(LANG_KEY)||'en')===code?'selected':''}>${label}</option>`).join('')}</select></label></div>
       ${privacy()}`);
     app.querySelector('#start')?.addEventListener('click',()=>{step='issue';save();render();});
-    app.querySelector('#lang')?.addEventListener('click',renderLanguage);
+    app.querySelector<HTMLSelectElement>('#home-language')?.addEventListener('change',e=>{localStorage.setItem(LANG_KEY,(e.currentTarget as HTMLSelectElement).value);render();});
     return;
   }
   if(step==='issue'){
@@ -217,58 +217,42 @@ const languages=[
   ['mr','मराठी'],['ta','தமிழ்'],['te','తెలుగు'],['pa','ਪੰਜਾਬੀ'],['or','ଓଡ଼ିଆ'],['as','অসমীয়া'],['ur','اردو']
 ] as const;
 
-async function translateText(text:string,targetLanguage:string){
-  if(targetLanguage==='en')return text;
+async function translateBatch(texts:string[],targetLanguage:string){
+  if(targetLanguage==='en'||!texts.length)return texts;
   try{
     const response=await fetch('/api/bhashini',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({text,sourceLanguage:'en',targetLanguage})
+      body:JSON.stringify({texts,sourceLanguage:'en',targetLanguage})
     });
     const data=await response.json();
-    return response.ok&&typeof data.translated==='string'?data.translated:text;
-  }catch{return text;}
+    return response.ok&&Array.isArray(data.translated)&&data.translated.length===texts.length?data.translated:texts;
+  }catch{return texts;}
 }
 
 async function translateVisibleScreen(targetLanguage:string){
-  if(targetLanguage==='en'){render();return;}
+  if(targetLanguage==='en')return;
   const main=app.querySelector('main');
   if(!main)return;
   const nodes:Text[]=[];
   const walker=document.createTreeWalker(main,NodeFilter.SHOW_TEXT);
   while(walker.nextNode()){
     const node=walker.currentNode as Text;
+    if(node.parentElement?.closest('select,option'))continue;
     const value=node.textContent?.trim()||'';
     if(value.length>1&&!/^[-–—›←→₹0-9/.:·]+$/.test(value))nodes.push(node);
   }
   const unique=[...new Set(nodes.map(n=>n.textContent?.trim()||''))].slice(0,40);
-  const map=new Map<string,string>();
-  for(const value of unique)map.set(value,await translateText(value,targetLanguage));
+  const translated=await translateBatch(unique,targetLanguage);
+  const map=new Map(unique.map((value,index)=>[value,translated[index]||value]));
   for(const node of nodes){
     const raw=node.textContent||'';
     const trimmed=raw.trim();
-    const translated=map.get(trimmed);
-    if(translated&&translated!==trimmed)node.textContent=raw.replace(trimmed,translated);
+    const value=map.get(trimmed);
+    if(value&&value!==trimmed)node.textContent=raw.replace(trimmed,value);
   }
 }
 
-function renderLanguage(){
-  const saved=localStorage.getItem(LANG_KEY)||'en';
-  shell('Regional languages',`<article class="card">
-    <label>Preferred language
-      <select id="language">${languages.map(([code,label])=>`<option value="${code}" ${saved===code?'selected':''}>${label}</option>`).join('')}</select>
-    </label>
-    <button class="choice" id="apply-language" type="button">APPLY TO THIS SCREEN <span>›</span></button>
-    <p class="caution">BHASHINI translation is sent through a server proxy so credentials are never exposed in the browser. If translation is unavailable, English remains the fallback.</p>
-  </article>`);
-  const select=app.querySelector<HTMLSelectElement>('#language');
-  select?.addEventListener('change',e=>localStorage.setItem(LANG_KEY,(e.currentTarget as HTMLSelectElement).value));
-  app.querySelector('#apply-language')?.addEventListener('click',async()=>{
-    const code=select?.value||'en';
-    localStorage.setItem(LANG_KEY,code);
-    await translateVisibleScreen(code);
-  });
-}
 function goNext(){
   if(step==='issue'){step='history';historyIndex=-1;}
   else if(step==='history'){
