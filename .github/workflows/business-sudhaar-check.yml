@@ -1,0 +1,22 @@
+name: Business Sudhaar Build Check
+on:
+  push:
+    branches:
+      - business-sudhaar/vertical-slice-01
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install
+        run: npm install --ignore-scripts
+      - name: Build
+        run: npm run build
