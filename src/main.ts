@@ -1,35 +1,225 @@
 import './style.css';
 
-type Screen='home'|'path';
-type Lang='English'|'Hindi'|'Roman Hindi';
-type VoiceLocale='en-IN'|'as-IN'|'bn-IN'|'brx-IN'|'doi-IN'|'gu-IN'|'hi-IN'|'kn-IN'|'ks-IN'|'kok-IN'|'mai-IN'|'ml-IN'|'mni-IN'|'mr-IN'|'ne-IN'|'or-IN'|'pa-IN'|'sa-IN'|'sat-IN'|'sd-IN'|'ta-IN'|'te-IN'|'ur-IN';
-const root=document.querySelector<HTMLDivElement>('#app');if(!root)throw new Error('App root not found');const app:HTMLDivElement=root;
-const homePrimary=[
-  {i:0,icon:'🧭',label:'Find My Path',hint:'Skill, business, side income or freelance'},
-  {i:2,icon:'₹',label:'Paisa Check',hint:'Costs, monthly money and break-even'},
-  {i:3,icon:'🎓',label:'Learn & Grow',hint:'Courses, skills and learning routes'},
-  {i:4,icon:'🏛️',label:'Government Help',hint:'Official portals and support routes'}
-] as const;
-const homeSecondary=[
-  {i:1,icon:'📍',label:'Find My Market',hint:'Buyers, demand and market checks'},
-  {i:5,icon:'📊',label:'Business Analysis',hint:'Check business gaps and next actions'}
-] as const;
-const pathButtons=[{label:'Find a Skill',route:0},{label:'Start a Business',route:2},{label:'Side Income',route:3},{label:'Freelance',route:4},{label:'Not Sure - Show Me Options',route:5}] as const;
-const LANG_KEY='skill-aur-dhandha-language',MOTION_KEY='skill-aur-dhandha-reduced-motion',VOICE_KEY='skill-aur-dhandha-voice-locale';
-let screen:Screen='home';
-const savedLang=():Lang=>{const x=localStorage.getItem(LANG_KEY);return x==='Hindi'||x==='Roman Hindi'?x:'English';};
-const reducedMotion=()=>localStorage.getItem(MOTION_KEY)==='true';
-const voiceLocales:Record<VoiceLocale,string>={'en-IN':'English','as-IN':'Assamese','bn-IN':'Bengali','brx-IN':'Bodo','doi-IN':'Dogri','gu-IN':'Gujarati','hi-IN':'Hindi','kn-IN':'Kannada','ks-IN':'Kashmiri','kok-IN':'Konkani','mai-IN':'Maithili','ml-IN':'Malayalam','mni-IN':'Manipuri (Meitei)','mr-IN':'Marathi','ne-IN':'Nepali','or-IN':'Odia','pa-IN':'Punjabi','sa-IN':'Sanskrit','sat-IN':'Santali','sd-IN':'Sindhi','ta-IN':'Tamil','te-IN':'Telugu','ur-IN':'Urdu'};
-const savedVoiceLocale=():VoiceLocale=>{const x=localStorage.getItem(VOICE_KEY) as VoiceLocale|null;if(x&&x in voiceLocales)return x;return savedLang()==='Hindi'||savedLang()==='Roman Hindi'?'hi-IN':'en-IN';};
-const applyMotion=()=>{document.documentElement.dataset.reducedMotion=reducedMotion()?'true':'false';};
-applyMotion();
-const mic=()=>`<button class="mic" type="button" aria-label="Voice input"><span aria-hidden="true">●</span> Voice · ${voiceLocales[savedVoiceLocale()]}</button>`;
-const utility=()=>`<div class="utility-nav" aria-label="App controls"><button id="app-language" type="button" aria-label="Language">🌐 ${savedLang()}</button><button id="app-settings" type="button" aria-label="Settings">⚙ Settings</button></div>`;
-const nav=()=>`<nav class="nav" aria-label="Navigation"><button id="utility-back" type="button">← Back</button><button id="utility-home" type="button">Home</button></nav>`;
-function wireUtilityNav(){app.querySelector('#utility-back')?.addEventListener('click',render);app.querySelector('#utility-home')?.addEventListener('click',()=>{screen='home';render();});}
-function renderLanguage(){app.innerHTML=`<main class="shell">${utility()}<header><p class="eyebrow">Skill Aur Dhandha</p><h1>Language</h1><p>Choose saved text and voice preferences for this device.</p></header><article class="card dropdown-panel"><label>Text preference<select id="language-select"><option ${savedLang()==='English'?'selected':''}>English</option><option ${savedLang()==='Hindi'?'selected':''}>Hindi</option><option ${savedLang()==='Roman Hindi'?'selected':''}>Roman Hindi</option></select></label><label>Voice input language<select id="voice-locale-select">${Object.entries(voiceLocales).map(([code,label])=>`<option value="${code}" ${savedVoiceLocale()===code?'selected':''}>${label}</option>`).join('')}</select></label><p class="caution"><strong>GUIDANCE:</strong> You can choose any of India's 22 scheduled languages for voice preference. Actual speech recognition and playback depend on the device/browser and are not marked verified until tested language by language. Text translation coverage is not claimed until a verified provider is configured.</p></article>${mic()}${nav()}</main>`;app.querySelector<HTMLSelectElement>('#language-select')?.addEventListener('change',e=>{const value=(e.currentTarget as HTMLSelectElement).value as Lang;localStorage.setItem(LANG_KEY,value);renderLanguage();});app.querySelector<HTMLSelectElement>('#voice-locale-select')?.addEventListener('change',e=>{const value=(e.currentTarget as HTMLSelectElement).value as VoiceLocale;localStorage.setItem(VOICE_KEY,value);document.dispatchEvent(new CustomEvent('skill-voice-locale',{detail:value}));renderLanguage();});wireUtilityNav();wireUtility();}
-function renderSettings(){app.innerHTML=`<main class="shell">${utility()}<header><p class="eyebrow">Skill Aur Dhandha</p><h1>Settings</h1><p>Privacy-first local controls. No account is required for core use.</p></header><article class="card dropdown-panel"><label>Reduced motion<select id="motion-select"><option value="false" ${!reducedMotion()?'selected':''}>Standard motion</option><option value="true" ${reducedMotion()?'selected':''}>Reduce motion</option></select></label><p>Saved plans and calculator assumptions remain on this device unless you clear them.</p><button class="choice" id="clear-local-plans" type="button">Clear saved plans & calculations<span>›</span></button><p id="settings-status" role="status"></p></article>${mic()}${nav()}</main>`;app.querySelector<HTMLSelectElement>('#motion-select')?.addEventListener('change',e=>{localStorage.setItem(MOTION_KEY,(e.currentTarget as HTMLSelectElement).value);applyMotion();});app.querySelector('#clear-local-plans')?.addEventListener('click',()=>{['skill-aur-dhandha-opportunity-plan','skill-aur-dhandha-business-calculation','skill-aur-dhandha-path-choice','skill-aur-dhandha-paisa','skill-aur-dhandha-paisa-report','skill-aur-dhandha-business-analysis','skill-aur-dhandha-guided-filters','skill-aur-dhandha-selected-category'].forEach(k=>localStorage.removeItem(k));const status=app.querySelector<HTMLElement>('#settings-status');if(status)status.textContent='Saved local plans and calculations cleared. Language and accessibility preferences were kept.';});wireUtilityNav();wireUtility();}
-function wireUtility(){app.querySelector('#app-language')?.addEventListener('click',renderLanguage);app.querySelector('#app-settings')?.addEventListener('click',renderSettings);}
-function render(){if(screen==='home'){app.innerHTML=`<main class="shell">${utility()}<header class="home-header"><p class="eyebrow">India Opportunity Navigator</p><h1>Skill Aur Dhandha</h1><p>Choose one thing you want help with.</p></header><section class="home-primary" aria-label="Main actions">${homePrimary.map(x=>`<button class="choice home-card" data-i="${x.i}" type="button"><span class="home-card-copy"><span class="home-icon" aria-hidden="true">${x.icon}</span><span><strong>${x.label}</strong><small>${x.hint}</small></span></span><span aria-hidden="true">›</span></button>`).join('')}</section><section class="home-secondary" aria-label="More tools">${homeSecondary.map(x=>`<button class="choice home-card compact" data-i="${x.i}" type="button"><span class="home-card-copy"><span class="home-icon" aria-hidden="true">${x.icon}</span><span><strong>${x.label}</strong><small>${x.hint}</small></span></span><span aria-hidden="true">›</span></button>`).join('')}</section><div class="home-footer-tools"><button id="share-app" type="button" class="text-action">Share app</button><span aria-hidden="true">·</span><button id="home-language-shortcut" type="button" class="text-action">Language</button></div><p class="home-legal"><strong>Privacy & legal:</strong> No account or sensitive personal/financial data is required. Entries stay on this device. Skill Aur Dhandha does not handle payments, commissions, financial transactions, contracts, loans, investments or government applications; it provides guidance and links only.</p><p id="share-status" role="status"></p>${mic()}</main>`;wireUtility();app.querySelector('#home-language-shortcut')?.addEventListener('click',renderLanguage);app.querySelector('#share-app')?.addEventListener('click',async()=>{const data={title:'Skill Aur Dhandha',text:'Explore skills, business ideas, markets, money planning and official next steps.',url:location.origin};const status=app.querySelector<HTMLElement>('#share-status');try{if(navigator.share){await navigator.share(data);if(status)status.textContent='Share sheet opened.';}else if(navigator.clipboard){await navigator.clipboard.writeText(location.origin);if(status)status.textContent='App link copied.';}else if(status)status.textContent='Open '+location.origin+' to share this app.';}catch{if(status)status.textContent='Share cancelled.';}});app.querySelector<HTMLButtonElement>('[data-i="0"]')?.addEventListener('click',()=>{screen='path';render();});app.querySelector<HTMLButtonElement>('[data-i="5"]')?.addEventListener('click',async()=>{const mod=await import('./business-analysis.ts');mod.openBusinessAnalysis();});return;}app.innerHTML=`<main class="shell">${utility()}<header><p class="eyebrow">Find My Path</p><h1>What are you looking for?</h1></header><section class="actions">${pathButtons.map(x=>`<button class="choice" data-p="${x.route}" type="button">${x.label}<span>›</span></button>`).join('')}</section>${mic()}<nav class="nav" aria-label="Navigation"><button id="path-back" type="button">← Back</button><button id="path-home" type="button">Home</button></nav></main>`;wireUtility();const home=()=>{screen='home';render();};app.querySelector('#path-back')?.addEventListener('click',home);app.querySelector('#path-home')?.addEventListener('click',home);}
-document.addEventListener('skill-return-to-path',()=>{screen='path';render();});
+type Issue = 'sales'|'customers'|'profit'|'growth'|'unknown'|'machine-select'|'machine-breakdown';
+type BizType = 'home'|'manufacturing'|'retail'|'service'|'online'|'other';
+type Step = 'home'|'issue'|'history'|'question'|'faults'|'solution'|'machine'|'research'|'done';
+
+type AnswerMap = Record<string,string>;
+
+const root=document.querySelector<HTMLDivElement>('#app');
+if(!root) throw new Error('App root missing');
+const app=root;
+
+const KEY='business-sudhaar-session-v1';
+const LANG_KEY='business-sudhaar-language';
+let step:Step='home';
+let historyIndex=0;
+let questionIndex=0;
+let bizType:BizType='other';
+let issue:Issue='unknown';
+let answers:AnswerMap={};
+
+const issueChoices:{id:Issue;label:string;hint:string}[]=[
+  {id:'sales',label:'Sales are down',hint:'Find where sales are slipping'},
+  {id:'customers',label:'I need more customers',hint:'Check visibility, enquiries and repeat business'},
+  {id:'profit',label:'Profit is too low',hint:'Check margin, costs and pricing'},
+  {id:'growth',label:'I want to grow',hint:'Check whether the business is ready to expand'},
+  {id:'machine-select',label:'I need to select a machine',hint:'For home business or manufacturing'},
+  {id:'machine-breakdown',label:'A machine has broken down',hint:'Check repair, replacement and vendor routes'},
+  {id:'unknown',label:"I don't know what is wrong",hint:'Run a broad business check'}
+];
+
+const businessTypes:{id:BizType;label:string}[]=[
+  {id:'home',label:'Home business'},
+  {id:'manufacturing',label:'Manufacturing unit'},
+  {id:'retail',label:'Shop / retail'},
+  {id:'service',label:'Service / skill business'},
+  {id:'online',label:'Digital / online'},
+  {id:'other',label:'Other'}
+];
+
+const history=[
+  {id:'age',q:'How long has this business been operating?',o:['Less than 1 year','1–3 years','3–7 years','More than 7 years']},
+  {id:'trend',q:'Compared with 6–12 months ago, business is…',o:['Improving','Mostly stable','Declining','Too irregular to tell']},
+  {id:'tracking',q:'How closely do you track sales and major costs?',o:['Weekly','Monthly','Sometimes','Not tracked']}
+];
+
+type Q={id:string;q:string;o:string[];tags:Issue[]};
+const questions:Q[]=[
+  {id:'sales',q:'What best describes sales right now?',o:['Growing','Stable','Falling','Very irregular','Not tracked'],tags:['sales','profit','growth','unknown']},
+  {id:'customers',q:'What best describes customer flow?',o:['Growing','Stable','Falling','Too dependent on a few customers','Not tracked'],tags:['sales','customers','growth','unknown']},
+  {id:'repeat',q:'How strong is repeat business?',o:['Strong','Some repeat','Low repeat','Not tracked'],tags:['customers','sales','growth','unknown']},
+  {id:'margin',q:'After direct costs, your margin feels…',o:['Healthy','Tight','Negative','Not calculated'],tags:['profit','sales','growth','unknown']},
+  {id:'cash',q:'How often does cash feel short even when sales happen?',o:['Rarely','Sometimes','Often','Almost always','Not sure'],tags:['profit','growth','unknown']},
+  {id:'pricing',q:'When did you last check whether prices cover current costs?',o:['Within 3 months','3–12 months ago','More than a year ago','Never / not sure'],tags:['profit','sales','unknown']},
+  {id:'marketing',q:'How predictable are new enquiries?',o:['Predictable','Mixed','Weak','Almost none','Not tracked'],tags:['customers','sales','growth','unknown']},
+  {id:'operations',q:'How often do delays, stock, quality or process problems affect delivery?',o:['Rarely','Sometimes','Often','Very often'],tags:['growth','profit','sales','unknown']},
+  {id:'capacity',q:'Can the business handle more orders without major disruption?',o:['Yes comfortably','With small changes','No, capacity is tight','Not sure'],tags:['growth','unknown']},
+  {id:'machine-impact',q:'How dependent is current production on this machine?',o:['Low','Moderate','High','Production is stopped'],tags:['machine-select','machine-breakdown']},
+  {id:'machine-service',q:'Is authorised service / spare-part support available?',o:['Yes locally','Yes but slow','Unclear','No known support'],tags:['machine-select','machine-breakdown']},
+  {id:'machine-economics',q:'Compared with replacement cost, expected repair cost is…',o:['Below 20%','20–40%','Above 40%','Unknown'],tags:['machine-breakdown']}
+];
+
+function relevantQuestions(){return questions.filter(q=>q.tags.includes(issue)).slice(0,issue==='unknown'?8:6);}
+function save(){localStorage.setItem(KEY,JSON.stringify({bizType,issue,answers,step,historyIndex,questionIndex}));}
+function esc(s:string){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]||m));}
+function shell(title:string,body:string,progress=''){app.innerHTML=`<main class="shell bs-shell">
+  <header><p class="eyebrow">Business Sudhaar</p><h1>${title}</h1>${progress?`<p class="bs-progress">${progress}</p>`:''}</header>
+  ${body}
+  ${step!=='home'?nav():''}
+</main>`;wireNav();}
+function nav(){return `<nav class="bs-nav" aria-label="Journey navigation"><button id="back" type="button">← BACK</button><button id="next" type="button">NEXT →</button></nav>`;}
+function wireNav(){
+  const back=app.querySelector<HTMLButtonElement>('#back');
+  const next=app.querySelector<HTMLButtonElement>('#next');
+  back?.addEventListener('click',goBack);
+  next?.addEventListener('click',goNext);
+  if(next && ((step==='issue'&&!answers.issue)||(step==='history'&&!answers[history[historyIndex].id])||(step==='question'&&!answers[relevantQuestions()[questionIndex]?.id]))) next.disabled=true;
+}
+function privacy(){return `<p class="home-legal"><strong>Privacy:</strong> No account, name, phone, email, exact address, documents, bank details or contact list are required. Core assessment stays on this device. Voice/translation is optional. External and affiliate links open third-party sites.</p>`;}
+
+function render(){
+  if(step==='home'){
+    shell('Improve one business problem',`
+      <article class="card bs-hero"><h2>Choose. Check. Fix.</h2><p>Answer only what matters. Business Sudhaar calculates the shortfall silently, summarises the likely faults and gives one clear action plan.</p>
+      <button class="choice bs-start" id="start" type="button">CHECK MY BUSINESS <span>›</span></button></article>
+      <div class="bs-home-tools"><button class="text-action" id="lang">🌐 Regional languages</button></div>
+      ${privacy()}`);
+    app.querySelector('#start')?.addEventListener('click',()=>{step='issue';save();render();});
+    app.querySelector('#lang')?.addEventListener('click',renderLanguage);
+    return;
+  }
+  if(step==='issue'){
+    shell('What needs improvement?',`<section class="actions">${issueChoices.map(x=>`<button class="choice ${answers.issue===x.id?'selected':''}" data-issue="${x.id}" type="button"><span class="choice-copy"><strong>${x.label}</strong><small>${x.hint}</small></span><span>›</span></button>`).join('')}</section>`,'Step 1 · Choose one issue');
+    app.querySelectorAll<HTMLButtonElement>('[data-issue]').forEach(b=>b.addEventListener('click',()=>{issue=b.dataset.issue as Issue;answers.issue=issue;save();render();}));
+    return;
+  }
+  if(step==='history'){
+    const item=history[historyIndex];
+    shell(item.q,`<section class="actions">${item.o.map(o=>`<button class="choice ${answers[item.id]===o?'selected':''}" data-answer="${esc(o)}" type="button">${esc(o)}<span>›</span></button>`).join('')}</section>`,`Business history · ${historyIndex+1} of ${history.length+1}`);
+    app.querySelectorAll<HTMLButtonElement>('[data-answer]').forEach(b=>b.addEventListener('click',()=>{answers[item.id]=b.dataset.answer||'';save();render();}));
+    return;
+  }
+  if(step==='question'){
+    const qs=relevantQuestions();
+    const q=qs[questionIndex];
+    shell(q.q,`<section class="actions">${q.o.map(o=>`<button class="choice ${answers[q.id]===o?'selected':''}" data-answer="${esc(o)}" type="button">${esc(o)}<span>›</span></button>`).join('')}</section>`,`Current condition · ${questionIndex+1} of ${qs.length}`);
+    app.querySelectorAll<HTMLButtonElement>('[data-answer]').forEach(b=>b.addEventListener('click',()=>{answers[q.id]=b.dataset.answer||'';save();render();}));
+    return;
+  }
+  if(step==='faults'){renderFaults();return;}
+  if(step==='solution'){renderSolution();return;}
+  if(step==='machine'){renderMachine();return;}
+  if(step==='research'){renderResearch();return;}
+  if(step==='done'){shell('Done for now',`<article class="card"><h2>Your plan is saved on this device</h2><p>Act on the steps first. Recheck the business after you have enough new information to compare.</p><button class="choice" id="restart" type="button">Start a fresh check <span>›</span></button></article>`);app.querySelector('#restart')?.addEventListener('click',()=>{localStorage.removeItem(KEY);answers={};issue='unknown';bizType='other';historyIndex=0;questionIndex=0;step='home';render();});}
+}
+
+function score(){
+  let risk=0, possible=0;
+  const negative=['Falling','Very irregular','Declining','Too irregular to tell','Low repeat','Tight','Negative','Not calculated','Often','Almost always','Weak','Almost none','Very often','No, capacity is tight','Production is stopped','Unclear','No known support','Above 40%'];
+  const warning=['Stable','Sometimes','Some repeat','Mixed','Moderate','High','More than a year ago','Never / not sure','Not tracked','Unknown'];
+  for(const v of Object.values(answers)){possible+=2;if(negative.some(x=>v.includes(x)))risk+=2;else if(warning.some(x=>v.includes(x)))risk+=1;}
+  const health=possible?Math.max(0,Math.round(100-(risk/possible)*100)):50;
+  return {health,shortfall:100-health};
+}
+function faults(){
+  const f:string[]=[];
+  const a=answers;
+  if(a.sales?.includes('Falling')||a.trend==='Declining')f.push('Sales momentum is weakening.');
+  if(a.customers?.includes('Falling')||a.marketing?.includes('Weak')||a.marketing?.includes('Almost none'))f.push('Customer acquisition is not strong enough.');
+  if(['Tight','Negative','Not calculated'].includes(a.margin))f.push('Margin visibility or margin strength needs attention.');
+  if(a.cash==='Often'||a.cash==='Almost always')f.push('Cash pressure may be hiding the real operating shortfall.');
+  if(a.pricing==='More than a year ago'||a.pricing==='Never / not sure')f.push('Pricing may not reflect current costs.');
+  if(a.operations==='Often'||a.operations==='Very often')f.push('Operational friction is affecting delivery or cost.');
+  if(a.capacity==='No, capacity is tight')f.push('Growth is constrained by current capacity.');
+  if(issue==='machine-breakdown')f.push('Machine downtime is creating an operational dependency that needs a repair-versus-replace decision.');
+  if(issue==='machine-select')f.push('Machine selection should be driven by output need, serviceability and total operating cost—not only purchase price.');
+  if(!f.length)f.push('No severe fault is obvious from the answers; the biggest opportunity is disciplined tracking and one measurable improvement.');
+  return f.slice(0,5);
+}
+function renderFaults(){
+  const s=score(); const fs=faults();
+  shell('What appears to be wrong',`<article class="card bs-result"><div class="score-ring"><strong>${s.health}</strong><span>/100 health</span></div><p><strong>Calculated shortfall: ${s.shortfall} points.</strong> This is a deterministic guidance score from your answers, not an audited financial rating.</p><h2>Fault summary</h2><ol>${fs.map(x=>`<li>${esc(x)}</li>`).join('')}</ol></article>`,'Assessment complete');
+}
+function plan(){
+  const fs=faults();
+  const steps:string[]=[];
+  if(fs.some(x=>x.includes('Sales')))steps.push('Separate sales by product/service and compare the last 4–8 weeks. Stop guessing which line is falling.');
+  if(fs.some(x=>x.includes('Customer')))steps.push('Track enquiries, conversions and repeat customers for one week. Choose the weakest stage and improve that stage first.');
+  if(fs.some(x=>x.includes('Margin')))steps.push('Recalculate selling price minus direct unit cost for the top-selling items. Flag items with weak or negative contribution.');
+  if(fs.some(x=>x.includes('Cash')))steps.push('List weekly cash-in and unavoidable cash-out. Identify the largest timing mismatch before taking on new spending.');
+  if(fs.some(x=>x.includes('Pricing')))steps.push('Recheck current input costs and compare margin versus markup before changing price.');
+  if(fs.some(x=>x.includes('Operational')))steps.push('Write down the top three recurring delays/errors and remove one root cause before adding volume.');
+  if(fs.some(x=>x.includes('capacity')))steps.push('Measure real weekly capacity and bottleneck time before committing to expansion.');
+  if(issue==='machine-breakdown')steps.push('Record downtime, repair quote, warranty/service status and replacement cost; compare total business interruption before deciding.');
+  if(issue==='machine-select')steps.push('Define required output, power/space, service support, consumables and budget before comparing machines.');
+  while(steps.length<3)steps.push('Track one number weekly—sales, enquiries, gross margin or downtime—and compare after the change.');
+  return steps.slice(0,5);
+}
+function renderSolution(){
+  const metric=issue==='customers'?'Weekly qualified enquiries':issue==='profit'?'Gross margin on top products':issue.startsWith('machine')?'Machine downtime / productive hours':'Weekly sales';
+  shell('Your step-by-step plan',`<article class="card"><ol class="bs-plan">${plan().map(x=>`<li>${esc(x)}</li>`).join('')}</ol><div class="metric-box"><span>Track one number</span><strong>${metric}</strong></div><p class="caution">Work through these steps before adding more complexity. Results depend on your inputs and business conditions.</p></article>`,'One action screen');
+}
+function needsMachine(){return (bizType==='home'||bizType==='manufacturing')&&(issue==='machine-select'||issue==='machine-breakdown');}
+function renderMachine(){
+  const title=issue==='machine-breakdown'?'Repair, spares or replacement':'Find the right machine';
+  shell(title,`<article class="card"><h2>Before opening a vendor site</h2><ul><li>Confirm required output/capacity.</li><li>Check power, space and installation needs.</li><li>Confirm warranty, service response and spare-part availability.</li><li>Compare total operating cost—not only purchase price.</li><li>For breakdowns, avoid hazardous electrical/mechanical repair unless handled by a qualified technician.</li></ul></article>
+  <section class="actions"><a class="choice" href="https://www.moglix.com/" target="_blank" rel="noopener sponsored">Search industrial products on Moglix <span>↗</span></a><a class="choice" href="https://www.indiamart.com/" target="_blank" rel="noopener">Search suppliers on IndiaMART <span>↗</span></a><a class="choice" href="https://www.tradeindia.com/Seller/Machinery/" target="_blank" rel="noopener">Search machinery on TradeIndia <span>↗</span></a></section>
+  <p class="home-legal"><strong>Vendor disclaimer:</strong> Links are for discovery. Business Sudhaar does not verify sellers, machines, prices, repairs, warranties or transactions. A link may be marked sponsored/affiliate only when an approved tracking arrangement is configured.</p>`,'Vendor discovery · no lead collection');
+}
+function renderResearch(){
+  shell('Research & official help',`<article class="card"><h2>Proven-source research</h2><p>Use these after the action plan when you need current sector, scheme or compliance information. Core diagnosis does not change based on these links.</p></article>
+  <section class="actions"><a class="choice" href="https://udyamregistration.gov.in/" target="_blank" rel="noopener">Udyam Registration — official MSME portal <span>↗</span></a><a class="choice" href="https://champions.gov.in/" target="_blank" rel="noopener">MSME CHAMPIONS — guidance & grievance support <span>↗</span></a><a class="choice" href="https://www.msme.gov.in/" target="_blank" rel="noopener">Ministry of MSME — schemes & programmes <span>↗</span></a><a class="choice" href="https://samadhaan.msme.gov.in/" target="_blank" rel="noopener">MSME Samadhaan — delayed payments <span>↗</span></a></section>
+  <p class="home-legal"><strong>Research disclaimer:</strong> External information can change. Verify eligibility, fees, terms, vendor claims and scheme details on the linked official/provider site before acting.</p>`,'Optional final layer');
+}
+function renderLanguage(){
+  const saved=localStorage.getItem(LANG_KEY)||'English';
+  const langs=['English','हिन्दी','বাংলা','ગુજરાતી','ಕನ್ನಡ','മലയാളം','मराठी','தமிழ்','తెలుగు','ਪੰਜਾਬੀ','ଓଡ଼ିଆ','অসমীয়া'];
+  shell('Regional languages',`<article class="card"><label>Preferred language<select id="language">${langs.map(x=>`<option ${saved===x?'selected':''}>${x}</option>`).join('')}</select></label><p><strong>BHASHINI integration:</strong> this PWA is prepared for server-side BHASHINI speech/translation. Until credentials are configured, English remains the verified text path and device speech can be used as fallback.</p><p>No BHASHINI key will be exposed in browser code.</p></article>`);
+  app.querySelector<HTMLSelectElement>('#language')?.addEventListener('change',e=>localStorage.setItem(LANG_KEY,(e.currentTarget as HTMLSelectElement).value));
+}
+function goNext(){
+  if(step==='issue'){step='history';historyIndex=0;}
+  else if(step==='history'){
+    if(historyIndex<history.length-1)historyIndex++; else {step='question';questionIndex=0;}
+  } else if(step==='question'){
+    const qs=relevantQuestions();
+    if(questionIndex<qs.length-1)questionIndex++; else step='faults';
+  } else if(step==='faults') step='solution';
+  else if(step==='solution') step=needsMachine()?'machine':'research';
+  else if(step==='machine') step='research';
+  else if(step==='research') step='done';
+  save();render();
+}
+function goBack(){
+  if(step==='issue')step='home';
+  else if(step==='history'){if(historyIndex>0)historyIndex--;else step='issue';}
+  else if(step==='question'){if(questionIndex>0)questionIndex--;else{step='history';historyIndex=history.length-1;}}
+  else if(step==='faults'){step='question';questionIndex=Math.max(0,relevantQuestions().length-1);}
+  else if(step==='solution')step='faults';
+  else if(step==='machine')step='solution';
+  else if(step==='research')step=needsMachine()?'machine':'solution';
+  else if(step==='done')step='research';
+  save();render();
+}
+
+function hydrate(){
+  try{
+    const s=JSON.parse(localStorage.getItem(KEY)||'{}');
+    if(s && typeof s==='object'){bizType=s.bizType||bizType;issue=s.issue||issue;answers=s.answers||answers;}
+  }catch{}
+}
+hydrate();
+
+// business type is intentionally asked only after issue choice to keep Home friction-free
+const originalGoNext=goNext;
+function ensureBusinessType(){
+  if(step!=='history'||answers.businessType) return false;
+  shell('What kind of business is this?',`<section class="actions">${businessTypes.map(x=>`<button class="choice" data-biz="${x.id}" type="button">${x.label}<span>›</span></button>`).join('')}</section>`,'Business history · 1 of 4');
+  app.querySelectorAll<HTMLButtonElement>('[data-biz]').forEach(b=>b.addEventListener('click',()=>{bizType=b.dataset.biz as BizType;answers.businessType=bizType;save();render();}));
+  const n=app.querySelector<HTMLButtonElement>('#next'); if(n)n.disabled=!answers.businessType;
+  return true;
+}
+const baseRender=render;
+render=function(){baseRender(); if(step==='history'&&!answers.businessType) ensureBusinessType();};
 render();
