@@ -129,3 +129,17 @@ The branch may receive only:
 4. security/accessibility fixes,
 5. explicit founder-approved versioned feature work.
 
+
+## Post-lock verified patch — Regional language + voice
+
+Founder-approved release fix after the original lock:
+- One selected regional language is the source of truth for interface and voice.
+- BACK / HOME / NEXT have regional-language local fallbacks.
+- Visible screen text is routed through the secure BHASHINI translation proxy when configured.
+- Speech recognition uses the selected language locale.
+- Spoken screen output uses the selected language locale.
+- Voice can activate the currently visible guided choices.
+- English/tap controls remain safe fallbacks when speech or BHASHINI is unavailable.
+- Release checks now fail if interface/voice language synchronization is removed.
+
+This patch does not change the frozen diagnosis formula, business journey, privacy boundary, vendor boundary or three-action output.
