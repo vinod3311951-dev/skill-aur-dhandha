@@ -25,6 +25,16 @@ export const appLanguages:AppLang[]=[
   {code:'pa',locale:'pa-IN',label:'ਪੰਜਾਬੀ'},
   {code:'or',locale:'or-IN',label:'ଓଡ଼ିଆ'},
   {code:'as',locale:'as-IN',label:'অসমীয়া'},
+  {code:'brx',locale:'brx-IN',label:'Bodo'},
+  {code:'doi',locale:'doi-IN',label:'Dogri'},
+  {code:'ks',locale:'ks-IN',label:'Kashmiri'},
+  {code:'kok',locale:'kok-IN',label:'Konkani'},
+  {code:'mai',locale:'mai-IN',label:'Maithili'},
+  {code:'mni',locale:'mni-IN',label:'Manipuri (Meitei)'},
+  {code:'ne',locale:'ne-IN',label:'Nepali'},
+  {code:'sa',locale:'sa-IN',label:'Sanskrit'},
+  {code:'sat',locale:'sat-IN',label:'Santali'},
+  {code:'sd',locale:'sd-IN',label:'Sindhi'},
   {code:'ur',locale:'ur-IN',label:'اردو'}
 ];
 
@@ -59,7 +69,7 @@ export function setAppLanguage(code:string){
   localStorage.setItem(LEGACY_LANGUAGE_KEY,found.code==='hi'?'Hindi':found.code==='en'?'English':found.label);
   localStorage.setItem('skill-aur-dhandha-voice-locale',found.locale);
   document.documentElement.lang=found.locale;
-  document.documentElement.dir=found.code==='ur'?'rtl':'ltr';
+  document.documentElement.dir=(found.code==='ur'||found.code==='ks'||found.code==='sd')?'rtl':'ltr';
   document.dispatchEvent(new CustomEvent('skill-language-changed',{detail:found}));
   scheduleTranslate(true);
 }
@@ -100,7 +110,7 @@ async function translateNow(force=false){
   const myGeneration=++generation;
   const lang=selectedAppLanguage();
   document.documentElement.lang=lang.locale;
-  document.documentElement.dir=lang.code==='ur'?'rtl':'ltr';
+  document.documentElement.dir=(lang.code==='ur'||lang.code==='ks'||lang.code==='sd')?'rtl':'ltr';
   if(lang.code==='en'){
     const root=document.querySelector<HTMLElement>('#app');
     if(!root)return;
