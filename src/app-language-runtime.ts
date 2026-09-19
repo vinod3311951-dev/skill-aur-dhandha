@@ -6,6 +6,11 @@ type AppLang={
 
 const LANGUAGE_CODE_KEY='skill-aur-dhandha-language-code';
 const LEGACY_LANGUAGE_KEY='skill-aur-dhandha-language';
+const cache=new Map<string,string>();
+const originalText=new WeakMap<Text,string>();
+const appliedLang=new WeakMap<Text,string>();
+let generation=0;
+let timer=0;
 
 export const appLanguages:AppLang[]=[
   {code:'en',locale:'en-IN',label:'English'},
