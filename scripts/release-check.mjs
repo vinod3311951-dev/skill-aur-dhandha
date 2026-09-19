@@ -20,6 +20,7 @@ const checks=[
   ['Voice follows selected interface locale', main.includes('recognition.lang=selectedLocale()')&&main.includes('utterance.lang=selectedLocale()')],
   ['Regional core navigation fallback present', main.includes("'← BACK'")&&main.includes("'⌂ HOME'")&&main.includes("'NEXT →'")],
   ['Voice can activate current choices', main.includes('activateVoiceChoice')&&main.includes('currentVoiceCandidates')],
+  ['Scheduled-language selector expanded', ['brx-IN','doi-IN','ks-IN','kok-IN','mai-IN','mni-IN','ne-IN','sa-IN','sat-IN','sd-IN'].every(x=>main.includes(x))],
   ['Front-page privacy notice present', main.includes('<strong>Privacy:</strong>')],
   ['Front-page business guidance disclaimer present', main.includes('<strong>Business guidance disclaimer:</strong>')],
   ['BHASHINI server proxy present', api.includes('BHASHINI_API_KEY')&&api.includes('BHASHINI_TRANSLATION_SERVICE_ID')],
