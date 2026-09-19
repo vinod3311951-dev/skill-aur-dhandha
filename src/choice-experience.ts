@@ -263,9 +263,6 @@
     }
   }
 
-  function []{
-    return [...select.options].map(o=>(o.textContent||'').replace(/^Suggested · /,'').trim()).filter(x=>x&&x!==choice&&!/choose|select|skip|not sure|other \/ enter/i.test(x)).slice(0,40);
-  }
 
   function begin(select){
     if(!app)return;
