@@ -1,4 +1,4 @@
-const CACHE='business-sudhaar-v1';
+const CACHE='business-sudhaar-v2';
 const SHELL=['/','/index.html','/manifest.webmanifest','/icon.svg','/icon-192.png','/icon-512.png'];
 async function precacheApp(){const cache=await caches.open(CACHE);await cache.addAll(SHELL);try{const response=await fetch('/index.html',{cache:'no-store'});if(response.ok){const html=await response.clone().text();await cache.put('/index.html',response);const urls=[...html.matchAll(/(?:src|href)="(\/assets\/[^"]+)"/g)].map(m=>m[1]);if(urls.length)await cache.addAll([...new Set(urls)]);}}catch{}}
 self.addEventListener('install',event=>event.waitUntil(precacheApp().then(()=>self.skipWaiting())));
