@@ -17,7 +17,11 @@ const langMeta={
   en:{locale:'en-IN',label:'English'},hi:{locale:'hi-IN',label:'हिन्दी'},bn:{locale:'bn-IN',label:'বাংলা'},
   gu:{locale:'gu-IN',label:'ગુજરાતી'},kn:{locale:'kn-IN',label:'ಕನ್ನಡ'},ml:{locale:'ml-IN',label:'മലയാളം'},
   mr:{locale:'mr-IN',label:'मराठी'},ta:{locale:'ta-IN',label:'தமிழ்'},te:{locale:'te-IN',label:'తెలుగు'},
-  pa:{locale:'pa-IN',label:'ਪੰਜਾਬੀ'},or:{locale:'or-IN',label:'ଓଡ଼ିଆ'},as:{locale:'as-IN',label:'অসমীয়া'},ur:{locale:'ur-IN',label:'اردو'}
+  pa:{locale:'pa-IN',label:'ਪੰਜਾਬੀ'},or:{locale:'or-IN',label:'ଓଡ଼ିଆ'},as:{locale:'as-IN',label:'অসমীয়া'},
+  brx:{locale:'brx-IN',label:'Bodo'},doi:{locale:'doi-IN',label:'Dogri'},ks:{locale:'ks-IN',label:'Kashmiri'},
+  kok:{locale:'kok-IN',label:'Konkani'},mai:{locale:'mai-IN',label:'Maithili'},mni:{locale:'mni-IN',label:'Manipuri (Meitei)'},
+  ne:{locale:'ne-IN',label:'Nepali'},sa:{locale:'sa-IN',label:'Sanskrit'},sat:{locale:'sat-IN',label:'Santali'},sd:{locale:'sd-IN',label:'Sindhi'},
+  ur:{locale:'ur-IN',label:'اردو'}
 } as const;
 type LangCode=keyof typeof langMeta;
 const localCore:Record<string,Record<string,string>>={
@@ -99,7 +103,7 @@ function shell(title:string,body:string,progress=''){app.innerHTML=`<main class=
   <header><p class="eyebrow">Business Sudhaar</p><h1>${title}</h1>${progress?`<p class="bs-progress">${progress}</p>`:''}<div class="bs-voice-tools"><button id="voice-input" type="button">🎙 SPEAK</button><button id="voice-read" type="button">🔊 LISTEN</button></div><p id="voice-status" class="bs-voice-status" aria-live="polite"></p></header>
   ${body}
   ${step!=='home'?nav():''}
-</main>`;wireNav();wireVoice();const lang=(localStorage.getItem(LANG_KEY)||'en') as LangCode;document.documentElement.lang=langMeta[lang]?.locale||'en-IN';document.documentElement.dir=lang==='ur'?'rtl':'ltr';if(lang!=='en')queueMicrotask(()=>translateVisibleScreen(lang));}
+</main>`;wireNav();wireVoice();const lang=(localStorage.getItem(LANG_KEY)||'en') as LangCode;document.documentElement.lang=langMeta[lang]?.locale||'en-IN';document.documentElement.dir=(lang==='ur'||lang==='ks'||lang==='sd')?'rtl':'ltr';if(lang!=='en')queueMicrotask(()=>translateVisibleScreen(lang));}
 function nav(){return `<nav class="bs-nav" aria-label="Journey navigation"><button id="back" type="button">← BACK</button><button id="home" type="button">⌂ HOME</button><button id="next" type="button">NEXT →</button></nav>`;}
 function wireNav(){
   const back=app.querySelector<HTMLButtonElement>('#back');
@@ -126,7 +130,7 @@ function render(){
       </div>
       ${privacy()}`);
     app.querySelector('#start')?.addEventListener('click',()=>{step='issue';save();render();});
-    app.querySelector<HTMLSelectElement>('#home-language')?.addEventListener('change',e=>{const lang=(e.currentTarget as HTMLSelectElement).value as LangCode;localStorage.setItem(LANG_KEY,lang);document.documentElement.lang=langMeta[lang].locale;document.documentElement.dir=lang==='ur'?'rtl':'ltr';render();});
+    app.querySelector<HTMLSelectElement>('#home-language')?.addEventListener('change',e=>{const lang=(e.currentTarget as HTMLSelectElement).value as LangCode;localStorage.setItem(LANG_KEY,lang);document.documentElement.lang=langMeta[lang].locale;document.documentElement.dir=(lang==='ur'||lang==='ks'||lang==='sd')?'rtl':'ltr';render();});
     return;
   }
   if(step==='issue'){
