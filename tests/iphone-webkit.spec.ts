@@ -27,6 +27,36 @@ test('iPhone WebKit PWA shell survives core navigation and layout checks', async
   await page.waitForTimeout(150);
   await expect(page.locator('body')).toBeVisible();
 
+
+  // Unified regional mode: one language choice must drive UI + voice locale.
+  await page.goto('/');
+  await page.locator('#app-language').click();
+  await expect(page.locator('#language-select')).toBeVisible();
+  await page.locator('#language-select').selectOption('hi');
+  await page.waitForTimeout(200);
+
+  const languageState = await page.evaluate(() => ({
+    code: localStorage.getItem('skill-aur-dhandha-language-code'),
+    voice: localStorage.getItem('skill-aur-dhandha-voice-locale'),
+    lang: document.documentElement.lang
+  }));
+  expect(languageState.code).toBe('hi');
+  expect(languageState.voice).toBe('hi-IN');
+  expect(languageState.lang).toBe('hi-IN');
+
+  await page.locator('#utility-home').click();
+  await page.waitForTimeout(150);
+  await expect(page.getByText('मेरा रास्ता खोजें', { exact: false }).first()).toBeVisible();
+  await expect(page.locator('.mic').first()).toContainText(/Hindi/);
+
+  // Restore English so the remaining generic PWA checks use the baseline copy.
+  await page.evaluate(() => {
+    localStorage.setItem('skill-aur-dhandha-language-code','en');
+    localStorage.setItem('skill-aur-dhandha-language','English');
+    localStorage.setItem('skill-aur-dhandha-voice-locale','en-IN');
+  });
+  await page.reload({ waitUntil: 'domcontentloaded' });
+
   // Confirm unsupported SpeechRecognition does not crash the page in WebKit.
   await page.evaluate(() => {
     delete (window as any).SpeechRecognition;
