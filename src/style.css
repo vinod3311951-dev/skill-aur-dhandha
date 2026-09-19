@@ -35,3 +35,12 @@ main[data-choice-active] .flow-nav{margin-top:auto}
 .text-action{border:0;background:transparent;color:#2f6242;font-weight:750;padding:8px 4px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .text-action:focus-visible{outline:3px solid #31704b;outline-offset:3px;border-radius:8px}
 @media (max-width:380px){.home-secondary{grid-template-columns:1fr}.home-card.compact{min-height:72px}}
+
+.home-secondary .home-card{min-width:0;padding:10px}
+.home-secondary .home-card-copy{width:100%;min-width:0;gap:8px}
+.home-secondary .home-card-copy>span{font-size:inherit;flex:1 1 auto;min-width:0}
+.home-secondary .home-icon{flex:0 0 30px;width:30px;height:30px;font-size:1rem}
+.home-secondary .home-card strong,.home-secondary .home-card small{display:block;max-width:100%;white-space:normal;overflow-wrap:anywhere;word-break:normal}
+.home-secondary .home-card strong{font-size:.9rem;line-height:1.15}
+.home-secondary .home-card small{font-size:.68rem;line-height:1.2}
+@media (max-width:340px){.home-secondary{grid-template-columns:1fr}}
