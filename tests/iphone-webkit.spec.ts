@@ -38,9 +38,38 @@ test('iPhone WebKit PWA shell survives core navigation and layout checks', async
     await expect(page.locator('[data-voice-status]').first()).toContainText(/not available|उपलब्ध नहीं/);
   }
 
-  // Exercise an offline reload after the shell has been loaded once.
-  await context.setOffline(true);
+  // Verify that the service worker is active and the app shell cache exists.
+  await page.evaluate(async () => {
+    if (!('serviceWorker' in navigator)) throw new Error('Service workers unavailable');
+    await navigator.serviceWorker.ready;
+  });
   await page.reload({ waitUntil: 'domcontentloaded' });
-  await expect(page.locator('body')).toBeVisible();
+  await page.evaluate(async () => {
+    await navigator.serviceWorker.ready;
+    const keys = await caches.keys();
+    if (!keys.some(key => key.startsWith('skill-aur-dhandha-'))) {
+      throw new Error('Expected app shell cache was not created');
+    }
+  });
+
+  // Simulate an offline runtime fetch instead of forcing an offline document reload,
+  // which currently triggers a Playwright WebKit internal error unrelated to app code.
+  await context.setOffline(true);
+  const offlineShell = await page.evaluate(async () => {
+    try {
+      const response = await fetch('/', { cache: 'no-store' });
+      return response.ok ? await response.text() : '';
+    } catch {
+      return '';
+    }
+  });
+  expect(offlineShell).toContain('Skill Aur Dhandha');
   await context.setOffline(false);
+
+  // Confirm recovery after reconnect.
+  const onlineAgain = await page.evaluate(async () => {
+    const response = await fetch('/', { cache: 'no-store' });
+    return response.ok;
+  });
+  expect(onlineAgain).toBeTruthy();
 });
