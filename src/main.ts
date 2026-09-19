@@ -209,14 +209,65 @@ function renderMachine(){
 }
 function renderResearch(){
   shell('Research & official help',`<article class="card"><h2>Proven-source research</h2><p>Use these after the action plan when you need current sector, scheme or compliance information. Core diagnosis does not change based on these links.</p></article>
-  <section class="actions"><a class="choice" href="https://udyamregistration.gov.in/" rel="noopener">Udyam Registration — official MSME portal <span>↗</span></a><a class="choice" href="https://champions.gov.in/" rel="noopener">MSME CHAMPIONS — guidance & grievance support <span>↗</span></a><a class="choice" href="https://www.msme.gov.in/" rel="noopener">Ministry of MSME — schemes & programmes <span>↗</span></a><a class="choice" href="https://samadhaan.msme.gov.in/" rel="noopener">MSME Samadhaan — delayed payments <span>↗</span></a></section>
+  <section class="actions"><a class="choice" href="https://udyamregistration.gov.in/" rel="noopener">Udyam Registration — official MSME portal <span>›</span></a><a class="choice" href="https://champions.gov.in/" rel="noopener">MSME CHAMPIONS — guidance & grievance support <span>›</span></a><a class="choice" href="https://www.msme.gov.in/" rel="noopener">Ministry of MSME — schemes & programmes <span>›</span></a><a class="choice" href="https://samadhaan.msme.gov.in/" rel="noopener">MSME Samadhaan — delayed payments <span>›</span></a><a class="choice" href="https://sambandh.msme.gov.in/" rel="noopener">MSME Sambandh — public procurement <span>›</span></a></section>
   <p class="home-legal"><strong>Research disclaimer:</strong> External information can change. Verify eligibility, fees, terms, vendor claims and scheme details on the linked official/provider site before acting.</p>`,'Optional final layer');
 }
+const languages=[
+  ['en','English'],['hi','हिन्दी'],['bn','বাংলা'],['gu','ગુજરાતી'],['kn','ಕನ್ನಡ'],['ml','മലയാളം'],
+  ['mr','मराठी'],['ta','தமிழ்'],['te','తెలుగు'],['pa','ਪੰਜਾਬੀ'],['or','ଓଡ଼ିଆ'],['as','অসমীয়া'],['ur','اردو']
+] as const;
+
+async function translateText(text:string,targetLanguage:string){
+  if(targetLanguage==='en')return text;
+  try{
+    const response=await fetch('/api/bhashini',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({text,sourceLanguage:'en',targetLanguage})
+    });
+    const data=await response.json();
+    return response.ok&&typeof data.translated==='string'?data.translated:text;
+  }catch{return text;}
+}
+
+async function translateVisibleScreen(targetLanguage:string){
+  if(targetLanguage==='en'){render();return;}
+  const main=app.querySelector('main');
+  if(!main)return;
+  const nodes:Text[]=[];
+  const walker=document.createTreeWalker(main,NodeFilter.SHOW_TEXT);
+  while(walker.nextNode()){
+    const node=walker.currentNode as Text;
+    const value=node.textContent?.trim()||'';
+    if(value.length>1&&!/^[-–—›←→₹0-9/.:·]+$/.test(value))nodes.push(node);
+  }
+  const unique=[...new Set(nodes.map(n=>n.textContent?.trim()||''))].slice(0,40);
+  const map=new Map<string,string>();
+  for(const value of unique)map.set(value,await translateText(value,targetLanguage));
+  for(const node of nodes){
+    const raw=node.textContent||'';
+    const trimmed=raw.trim();
+    const translated=map.get(trimmed);
+    if(translated&&translated!==trimmed)node.textContent=raw.replace(trimmed,translated);
+  }
+}
+
 function renderLanguage(){
-  const saved=localStorage.getItem(LANG_KEY)||'English';
-  const langs=['English','हिन्दी','বাংলা','ગુજરાતી','ಕನ್ನಡ','മലയാളം','मराठी','தமிழ்','తెలుగు','ਪੰਜਾਬੀ','ଓଡ଼ିଆ','অসমীয়া'];
-  shell('Regional languages',`<article class="card"><label>Preferred language<select id="language">${langs.map(x=>`<option ${saved===x?'selected':''}>${x}</option>`).join('')}</select></label><p><strong>BHASHINI integration:</strong> this PWA is prepared for server-side BHASHINI speech/translation. Until credentials are configured, English remains the verified text path and device speech can be used as fallback.</p><p>No BHASHINI key will be exposed in browser code.</p></article>`);
-  app.querySelector<HTMLSelectElement>('#language')?.addEventListener('change',e=>localStorage.setItem(LANG_KEY,(e.currentTarget as HTMLSelectElement).value));
+  const saved=localStorage.getItem(LANG_KEY)||'en';
+  shell('Regional languages',`<article class="card">
+    <label>Preferred language
+      <select id="language">${languages.map(([code,label])=>`<option value="${code}" ${saved===code?'selected':''}>${label}</option>`).join('')}</select>
+    </label>
+    <button class="choice" id="apply-language" type="button">APPLY TO THIS SCREEN <span>›</span></button>
+    <p class="caution">BHASHINI translation is sent through a server proxy so credentials are never exposed in the browser. If translation is unavailable, English remains the fallback.</p>
+  </article>`);
+  const select=app.querySelector<HTMLSelectElement>('#language');
+  select?.addEventListener('change',e=>localStorage.setItem(LANG_KEY,(e.currentTarget as HTMLSelectElement).value));
+  app.querySelector('#apply-language')?.addEventListener('click',async()=>{
+    const code=select?.value||'en';
+    localStorage.setItem(LANG_KEY,code);
+    await translateVisibleScreen(code);
+  });
 }
 function goNext(){
   if(step==='issue'){step='history';historyIndex=-1;}
