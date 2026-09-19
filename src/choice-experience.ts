@@ -227,7 +227,7 @@
   }
 
   function actionButton(action){
-    const map={paisa:['Calculate costs → Paisa Check','open-paisa-business'],market:['Check market → Find My Market','open-market'],learn:['Learn / Courses → Learn & Grow','open-learn'],government:['Government Help → official routes','open-government-help']};
+    const map={paisa:['Calculate costs → Paisa Check','open-paisa-business'],market:['Check market → Find My Market','open-market']};
     const x=map[action];if(!x)return '';
     return '<button type="button" class="choice" data-choice-action="'+x[1]+'">'+x[0]+'<span>›</span></button>';
   }
@@ -249,8 +249,8 @@
   const profileLabels={age:'Age group',time:'Time available',budget:'Starting budget',mode:'Preferred operating mode'};
 
   function stageList(flow){
-    if(flow.p.fast)return ['plan','actions','compare','next'];
-    const list=['profile','plan','actions','compare'];
+    if(flow.p.fast)return ['plan','actions','next'];
+    const list=['profile','plan','actions'];
     if(flow.showResearch)list.push('research');
     list.push('next');
     return list;
@@ -318,7 +318,7 @@
     active.stage=Math.max(0,Math.min(active.stage,stages.length-1));
     const key=stages[active.stage];
     const saved=readProfile();
-    const labels={profile:'B · Tell us a little',plan:'C · Your practical plan',actions:'D · What can I do now?',compare:'E · Compare another option',research:'F · Research (optional)',next:'Final · Your next useful step'};
+    const labels={profile:'B · Tell us a little',plan:'C · Your practical plan',actions:'D · What can I do now?',research:'E · Research (optional)',next:'Final · Your next useful step'};
     const progress=labels[key]||('Step '+(active.stage+1));
     let body='';
 
@@ -333,19 +333,13 @@
     }
 
     if(key==='actions'){
-      body='<p class="eyebrow">'+progress+'</p><h2>What can I do now?</h2><p>Choose only what helps. These are shortcuts, not compulsory steps.</p><div class="actions">'+active.p.actions.map(actionButton).join('')+'</div><p><strong>Tip:</strong> Market and Paisa Check are where setup-cost and other calculators belong. Learn opens training/course routes. Government Help opens official-source guidance.</p>';
+      body='<p class="eyebrow">'+progress+'</p><h2>What can I do now?</h2><p>Choose only what helps. These are shortcuts, not compulsory steps.</p><div class="actions">'+active.p.actions.map(actionButton).join('')+'</div><p><strong>Tip:</strong> Use Paisa Check for your own numbers and Find My Market for demand and buyer-route checks.</p>';
     }
 
     if(key==='research'){
       body='<p class="eyebrow">'+progress+'</p><h2>Research centred on '+esc(active.choice)+'</h2><p>This step is optional. Use it when you want deeper market context before deciding.</p>'+
         '<ul>'+active.p.research.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>'+
         active.p.sources.map(s=>'<a class="choice" href="'+s.url+'" target="_blank" rel="noopener noreferrer">'+esc(s.label)+'<span>↗</span></a><p class="source-note"><strong>Source note:</strong> '+esc(s.note)+'</p>').join('');
-    }
-
-    if(key==='compare'){
-      const options=active.options||[];
-      body='<p class="eyebrow">'+progress+'</p><h2>Compare '+esc(active.choice)+' with another choice</h2>'+
-        (options.length?'<label>Second choice<select data-choice-compare>'+options.map(x=>'<option>'+esc(x)+'</option>').join('')+'</select></label><button type="button" class="choice" data-choice-compare-open>Compare these two<span>›</span></button><div data-choice-compare-result></div>':'<p>No second option is available in this dropdown. Continue to the next step.</p>');
     }
 
     if(key==='next'){
@@ -356,7 +350,7 @@
         '<button type="button" class="choice" data-choice-save>Save this choice on this device<span>›</span></button><p data-choice-save-status role="status"></p>';
     }
 
-    const optional=(key==='compare'||key==='research')?'<button type="button" class="choice" data-flow-skip>Skip for now<span>›</span></button>':'';
+    const optional=key==='research'?'<button type="button" class="choice" data-flow-skip>Skip for now<span>›</span></button>':'';
     host.innerHTML='<article class="card choice-experience"><p><strong>Selected:</strong> '+esc(active.choice)+'</p>'+body+optional+
       '<nav class="flow-nav" aria-label="Choice journey"><button type="button" data-flow-back>← Back</button><button type="button" data-flow-home>Home</button><button type="button" data-flow-next '+(active.stage===stages.length-1?'disabled':'')+'>Forward →</button></nav></article>';
 
@@ -428,17 +422,9 @@
       return;
     }
 
-    if(t.closest('[data-choice-compare-open]')){
-      if(!active)return;
-      const box=app?.querySelector('[data-choice-flow]'),secondary=box?.querySelector('[data-choice-compare]');
-      const b=secondary?.value||'';if(!b)return;
-      const result=box?.querySelector('[data-choice-compare-result]');
-      if(result)result.innerHTML='<div class="table-wrap"><table><thead><tr><th>Factor</th><th>'+esc(active.choice)+'</th><th>'+esc(b)+'</th></tr></thead><tbody>'+factors.map(f=>'<tr><th>'+esc(f)+'</th><td><strong>'+esc(active.choice)+':</strong> '+esc(factorPrompt[f]||'Check the same current evidence for this choice.')+'</td><td><strong>'+esc(b)+':</strong> '+esc(factorPrompt[f]||'Check the same current evidence for this choice.')+'</td></tr>').join('')+'</tbody></table></div><p><strong>GUIDANCE:</strong> fill the same evidence for both choices. The app does not declare a winner.</p>';
-      return;
-    }
   });
 
-  const captureReturnIds=new Set(['market-back','paisa-business-back','learn-back','gov-back']);
+  const captureReturnIds=new Set(['market-back','paisa-business-back']);
   document.addEventListener('click',e=>{
     const target=e.target?.closest?.('button');if(!target||!captureReturnIds.has(target.id))return;
     let hasReturn=false;try{hasReturn=!!sessionStorage.getItem(FLOW_RETURN_KEY);}catch{}
