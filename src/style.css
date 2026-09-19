@@ -44,3 +44,6 @@ main[data-choice-active] .flow-nav{margin-top:auto}
 .home-secondary .home-card strong{font-size:.9rem;line-height:1.15}
 .home-secondary .home-card small{font-size:.68rem;line-height:1.2}
 @media (max-width:340px){.home-secondary{grid-template-columns:1fr}}
+
+.home-legal{margin:0;text-align:center;font-size:.72rem;line-height:1.45;color:#5d685f;padding:0 8px}
+.home-legal strong{color:#3e4d42}
