@@ -78,3 +78,7 @@ main[data-choice-active] .flow-nav{margin-top:auto}
 .bs-dimension-list{display:grid;gap:8px;margin-top:14px}
 .bs-dimension-list>div{display:flex;justify-content:space-between;gap:12px;padding:10px 12px;border:1px solid #dfe7e1;border-radius:12px;background:#fbfdfb;font-size:.82rem}
 .bs-dimension-list strong{color:#2f6242}
+.bs-voice-tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.bs-voice-tools button{min-height:42px;border:1px solid var(--interactive-border);border-radius:999px;padding:9px 13px;background:#fff;color:#2f6242;font-size:.78rem;font-weight:800;cursor:pointer}
+.bs-voice-tools button:focus-visible{outline:3px solid #31704b;outline-offset:3px}
+.bs-voice-status{min-height:1.2em;margin-top:7px!important;font-size:.75rem;color:#56635b}
