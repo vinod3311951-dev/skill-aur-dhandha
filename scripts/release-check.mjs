@@ -6,6 +6,7 @@ const style=readFileSync('src/style.css','utf8');
 const manifest=readFileSync('public/manifest.webmanifest','utf8');
 const sw=readFileSync('public/sw.js','utf8');
 const api=readFileSync('api/bhashini.ts','utf8');
+const index=readFileSync('index.html','utf8');
 
 const checks=[
   ['No new-tab targets', !main.includes('target="_blank"')],
@@ -28,7 +29,9 @@ const checks=[
   ['Same-tab official/vendor links', !main.includes('target="_blank"')],
   ['Deterministic local session key', main.includes("business-sudhaar-session-v1")],
   ['Profile fields excluded from scoring', engine.includes("Business profile fields are not scored")],
-  ['No runtime AI diagnosis', !main.toLowerCase().includes('openai')&&!engine.toLowerCase().includes('openai')]
+  ['No runtime AI diagnosis', !main.toLowerCase().includes('openai')&&!engine.toLowerCase().includes('openai')],
+  ['Public social metadata present', index.includes('property="og:title"')&&index.includes('property="og:description"')&&index.includes('property="og:image"')&&index.includes('businesssudhaar.thinkingapps.in')]
+
 ];
 
 let failed=false;
