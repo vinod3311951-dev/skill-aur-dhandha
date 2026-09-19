@@ -1,4 +1,5 @@
 import './style.css';
+import { calculateDiagnostic } from './diagnostic-engine';
 
 type Issue = 'sales'|'customers'|'profit'|'growth'|'unknown'|'machine-select'|'machine-breakdown';
 type BizType = 'home'|'manufacturing'|'retail'|'service'|'online'|'other';
@@ -78,22 +79,30 @@ function shell(title:string,body:string,progress=''){app.innerHTML=`<main class=
   ${body}
   ${step!=='home'?nav():''}
 </main>`;wireNav();const lang=localStorage.getItem(LANG_KEY)||'en';if(lang!=='en')queueMicrotask(()=>translateVisibleScreen(lang));}
-function nav(){return `<nav class="bs-nav" aria-label="Journey navigation"><button id="back" type="button">← BACK</button><button id="next" type="button">NEXT →</button></nav>`;}
+function nav(){return `<nav class="bs-nav" aria-label="Journey navigation"><button id="back" type="button">← BACK</button><button id="home" type="button">⌂ HOME</button><button id="next" type="button">NEXT →</button></nav>`;}
 function wireNav(){
   const back=app.querySelector<HTMLButtonElement>('#back');
+  const home=app.querySelector<HTMLButtonElement>('#home');
   const next=app.querySelector<HTMLButtonElement>('#next');
   back?.addEventListener('click',goBack);
+  home?.addEventListener('click',()=>{step='home';save();render();});
   next?.addEventListener('click',goNext);
   if(next && ((step==='issue'&&!answers.issue)||(step==='history'&&historyIndex===-1&&!answers.businessType)||(step==='history'&&historyIndex>=0&&!answers[history[historyIndex].id])||(step==='question'&&!answers[relevantQuestions()[questionIndex]?.id]))) next.disabled=true;
 }
-function privacy(){return `<p class="home-legal"><strong>Privacy:</strong> No account, name, phone, email, exact address, documents, bank details or contact list are required. Core assessment stays on this device. If you use translation, only the text needed for that request is sent to our language-processing provider. Business Sudhaar does not store audio.</p>`;}
+function privacy(){return `<div class="bs-front-notices">
+  <p class="home-legal"><strong>Privacy:</strong> No account, name, phone, email, exact address, documents, bank details or contact list are required. Core assessment stays on this device. If you use BHASHINI translation, only the text needed for that request is sent to the language-processing service. Business Sudhaar does not store audio.</p>
+  <p class="home-legal"><strong>Business guidance disclaimer:</strong> Business Sudhaar gives deterministic guidance from the answers you choose. It is not an audited financial assessment and does not guarantee profits, business results, vendor quality, repairs, finance, schemes or government benefits. Verify external terms before acting.</p>
+</div>`;}
 
 function render(){
   if(step==='home'){
     shell('Improve one business problem',`
       <article class="card bs-hero"><h2>Choose. Check. Fix.</h2><p>Answer only what matters. Business Sudhaar calculates the shortfall silently, summarises the likely faults and gives one clear action plan.</p>
       <button class="choice bs-start" id="start" type="button">CHECK MY BUSINESS <span>›</span></button></article>
-      <div class="bs-home-tools"><label class="bs-language-inline">🌐 Language<select id="home-language">${languages.map(([code,label])=>`<option value="${code}" ${(localStorage.getItem(LANG_KEY)||'en')===code?'selected':''}>${label}</option>`).join('')}</select></label></div>
+      <div class="bs-home-tools">
+        <label class="bs-language-inline"><span>🌐 BHASHINI language</span><select id="home-language" aria-label="BHASHINI regional language">${languages.map(([code,label])=>`<option value="${code}" ${(localStorage.getItem(LANG_KEY)||'en')===code?'selected':''}>${label}</option>`).join('')}</select></label>
+        <p class="bs-bhashini-note">Regional-language translation uses the BHASHINI server-side language layer when configured; English remains the safe fallback.</p>
+      </div>
       ${privacy()}`);
     app.querySelector('#start')?.addEventListener('click',()=>{step='issue';save();render();});
     app.querySelector<HTMLSelectElement>('#home-language')?.addEventListener('change',e=>{localStorage.setItem(LANG_KEY,(e.currentTarget as HTMLSelectElement).value);render();});
@@ -130,57 +139,26 @@ function render(){
   if(step==='done'){shell('Done for now',`<article class="card"><h2>Your plan is saved on this device</h2><p>Act on the steps first. Recheck the business after you have enough new information to compare.</p><button class="choice" id="restart" type="button">Start a fresh check <span>›</span></button></article>`);app.querySelector('#restart')?.addEventListener('click',()=>{localStorage.removeItem(KEY);answers={};issue='unknown';bizType='other';historyIndex=-1;questionIndex=0;step='home';render();});}
 }
 
-function score(){
-  let risk=0, possible=0;
-  const negative=['Falling','Very irregular','Declining','Too irregular to tell','Low repeat','Tight','Negative','Not calculated','Often','Almost always','Weak','Almost none','Very often','No, capacity is tight','Production is stopped','Unclear','No known support','Above 40%'];
-  const warning=['Stable','Sometimes','Some repeat','Mixed','Moderate','High','More than a year ago','Never / not sure','Not tracked','Unknown'];
-  for(const [key,v] of Object.entries(answers)){
-    if(['issue','businessType','age','model','workers','machine-category','machine-capacity','machine-budget','machine-automation','machine-power','machine-condition'].includes(key))continue;
-    possible+=2;
-    if(negative.some(x=>v.includes(x)))risk+=2;
-    else if(warning.some(x=>v.includes(x)))risk+=1;
-  }
-  const health=possible?Math.max(0,Math.round(100-(risk/possible)*100)):50;
-  return {health,shortfall:100-health};
-}
-function faults(){
-  const f:string[]=[];
-  const a=answers;
-  if(a.sales?.includes('Falling')||a.trend==='Declining')f.push('Sales momentum is weakening.');
-  if(a.customers?.includes('Falling')||a.marketing?.includes('Weak')||a.marketing?.includes('Almost none'))f.push('Customer acquisition is not strong enough.');
-  if(['Tight','Negative','Not calculated'].includes(a.margin))f.push('Margin visibility or margin strength needs attention.');
-  if(a.cash==='Often'||a.cash==='Almost always')f.push('Cash pressure may be hiding the real operating shortfall.');
-  if(a.pricing==='More than a year ago'||a.pricing==='Never / not sure')f.push('Pricing may not reflect current costs.');
-  if(a.operations==='Often'||a.operations==='Very often')f.push('Operational friction is affecting delivery or cost.');
-  if(a.capacity==='No, capacity is tight')f.push('Growth is constrained by current capacity.');
-  if(a.tracking==='Not tracked')f.push('Weak measurement makes it harder to identify the true cause.');
-  if(issue==='machine-breakdown')f.push('Machine downtime is creating an operational dependency that needs a repair-versus-replace decision.');
-  if(issue==='machine-select')f.push('Machine selection should be driven by output need, serviceability and total operating cost—not only purchase price.');
-  if(!f.length)f.push('No severe fault is obvious from the answers; the biggest opportunity is disciplined tracking and one measurable improvement.');
-  return f.slice(0,5);
+function diagnostic(){
+  return calculateDiagnostic(issue,bizType,answers);
 }
 function renderFaults(){
-  const s=score(); const fs=faults();
-  shell('What appears to be wrong',`<article class="card bs-result"><div class="score-ring"><strong>${s.health}</strong><span>/100 health</span></div><p><strong>Calculated shortfall: ${s.shortfall} points.</strong> This is a deterministic guidance score from your answers, not an audited financial rating.</p><h2>Fault summary</h2><ol>${fs.map(x=>`<li>${esc(x)}</li>`).join('')}</ol></article>`,'Assessment complete');
-}
-function plan(){
-  const fs=faults();
-  const steps:string[]=[];
-  if(fs.some(x=>x.includes('Sales')))steps.push('Separate sales by product/service and compare the last 4–8 weeks. Stop guessing which line is falling.');
-  if(fs.some(x=>x.includes('Customer')))steps.push('Track enquiries, conversions and repeat customers for one week. Choose the weakest stage and improve that stage first.');
-  if(fs.some(x=>x.includes('Margin')))steps.push('Recalculate selling price minus direct unit cost for the top-selling items. Flag items with weak or negative contribution.');
-  if(fs.some(x=>x.includes('Cash')))steps.push('List weekly cash-in and unavoidable cash-out. Identify the largest timing mismatch before taking on new spending.');
-  if(fs.some(x=>x.includes('Pricing')))steps.push('Recheck current input costs and compare margin versus markup before changing price.');
-  if(fs.some(x=>x.includes('Operational')))steps.push('Write down the top three recurring delays/errors and remove one root cause before adding volume.');
-  if(fs.some(x=>x.includes('capacity')))steps.push('Measure real weekly capacity and bottleneck time before committing to expansion.');
-  if(issue==='machine-breakdown')steps.push('Record downtime, repair quote, warranty/service status and replacement cost; compare total business interruption before deciding.');
-  if(issue==='machine-select')steps.push('Define required output, power/space, service support, consumables and budget before comparing machines.');
-  while(steps.length<3)steps.push('Track one number weekly—sales, enquiries, gross margin or downtime—and compare after the change.');
-  return steps.slice(0,3);
+  const result=diagnostic();
+  shell('What appears to be wrong',`<article class="card bs-result">
+    <div class="score-ring"><strong>${result.signalScore}</strong><span>/100 ${esc(result.scoreLabel.toLowerCase())}</span></div>
+    <p><strong>Calculated shortfall: ${result.shortfall} points.</strong> ${esc(result.formula)}</p>
+    <h2>Fault summary</h2>
+    <ol>${result.faults.map(x=>`<li>${esc(x)}</li>`).join('')}</ol>
+    <div class="bs-dimension-list">${result.dimensions.filter(x=>x.pressure>0).slice(0,4).map(x=>`<div><span>${esc(x.label)}</span><strong>${x.pressure}% pressure</strong></div>`).join('')}</div>
+  </article>`,'Assessment complete');
 }
 function renderSolution(){
-  const metric=issue==='customers'?'Weekly qualified enquiries':issue==='profit'?'Gross margin on top products':issue.startsWith('machine')?'Machine downtime / productive hours':'Weekly sales';
-  shell('Your step-by-step plan',`<article class="card"><ol class="bs-plan">${plan().map(x=>`<li>${esc(x)}</li>`).join('')}</ol><div class="metric-box"><span>Track one number</span><strong>${metric}</strong></div><p class="caution">Work through these steps before adding more complexity. Results depend on your inputs and business conditions.</p></article>`,'One action screen');
+  const result=diagnostic();
+  shell('Your step-by-step plan',`<article class="card">
+    <ol class="bs-plan">${result.actions.map(x=>`<li>${esc(x)}</li>`).join('')}</ol>
+    <div class="metric-box"><span>Track one number</span><strong>${esc(result.metric)}</strong></div>
+    <p class="caution">The actions are generated from the highest-pressure signals in this assessment, so different answer patterns can produce different priorities. Change one major lever at a time, then re-check.</p>
+  </article>`,'Three priority actions');
 }
 function needsMachine(){return (bizType==='home'||bizType==='manufacturing')&&(issue==='machine-select'||issue==='machine-breakdown');}
 function machineSummary(){
