@@ -95,8 +95,14 @@ function render(){
     return;
   }
   if(step==='history'){
+    if(!answers.businessType){
+      shell('What kind of business is this?',`<section class="actions">${businessTypes.map(x=>`<button class="choice" data-biz="${x.id}" type="button">${x.label}<span>›</span></button>`).join('')}</section>`,'Business history · 1 of 4');
+      app.querySelectorAll<HTMLButtonElement>('[data-biz]').forEach(b=>b.addEventListener('click',()=>{bizType=b.dataset.biz as BizType;answers.businessType=bizType;save();render();}));
+      const n=app.querySelector<HTMLButtonElement>('#next');if(n)n.disabled=true;
+      return;
+    }
     const item=history[historyIndex];
-    shell(item.q,`<section class="actions">${item.o.map(o=>`<button class="choice ${answers[item.id]===o?'selected':''}" data-answer="${esc(o)}" type="button">${esc(o)}<span>›</span></button>`).join('')}</section>`,`Business history · ${historyIndex+1} of ${history.length+1}`);
+    shell(item.q,`<section class="actions">${item.o.map(o=>`<button class="choice ${answers[item.id]===o?'selected':''}" data-answer="${esc(o)}" type="button">${esc(o)}<span>›</span></button>`).join('')}</section>`,`Business history · ${historyIndex+2} of ${history.length+1}`);
     app.querySelectorAll<HTMLButtonElement>('[data-answer]').forEach(b=>b.addEventListener('click',()=>{answers[item.id]=b.dataset.answer||'';save();render();}));
     return;
   }
@@ -211,15 +217,4 @@ function hydrate(){
 }
 hydrate();
 
-// business type is intentionally asked only after issue choice to keep Home friction-free
-const originalGoNext=goNext;
-function ensureBusinessType(){
-  if(step!=='history'||answers.businessType) return false;
-  shell('What kind of business is this?',`<section class="actions">${businessTypes.map(x=>`<button class="choice" data-biz="${x.id}" type="button">${x.label}<span>›</span></button>`).join('')}</section>`,'Business history · 1 of 4');
-  app.querySelectorAll<HTMLButtonElement>('[data-biz]').forEach(b=>b.addEventListener('click',()=>{bizType=b.dataset.biz as BizType;answers.businessType=bizType;save();render();}));
-  const n=app.querySelector<HTMLButtonElement>('#next'); if(n)n.disabled=!answers.businessType;
-  return true;
-}
-const baseRender=render;
-render=function(){baseRender(); if(step==='history'&&!answers.businessType) ensureBusinessType();};
 render();
