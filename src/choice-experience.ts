@@ -169,10 +169,10 @@
 
   const readProfile=()=>{try{return JSON.parse(localStorage.getItem('skill-aur-dhandha-choice-profile')||'{}')}catch{return {}}};
   const profileOptions={
-    age:['17 or under','18–24','25–34','35–49','50–59','60+','Skip'],
-    time:['A few hours a week','Part-time','Most days','Full-time','Skip'],
-    budget:['Very low / use what I have','Under ₹20,000','₹20,000–₹50,000','₹50,000–₹1 lakh','Above ₹1 lakh','Skip'],
-    mode:['Home','Local / field','Shop / workspace','Online / remote','Flexible','Skip']
+    age:['17 or under','18–24','25–34','35–49','50–59','60+'],
+    time:['A few hours a week','Part-time','Most days','Full-time'],
+    budget:['Very low / use what I have','Under ₹20,000','₹20,000–₹50,000','₹50,000–₹1 lakh','Above ₹1 lakh'],
+    mode:['Home','Local / field','Shop / workspace','Online / remote','Flexible']
   };
   const factors=['Upfront cost','Recurring cost','Demand evidence','Competition','Time to readiness','Skill gap','Tools / space','Customer / employer route','Compliance','Seasonality','Digital opportunity','Scalability','Dependency risk','Proof needed','Long-term usefulness'];
 
@@ -233,7 +233,7 @@
   }
 
   function profileField(key,label,value){
-    return '<label>'+label+'<select data-choice-profile="'+key+'"><option value="">Skip / Not sure</option>'+profileOptions[key].map(x=>'<option '+(value===x?'selected':'')+'>'+esc(x)+'</option>').join('')+'</select></label>';
+    return '<label>'+label+'<select data-choice-profile="'+key+'"><option value="">Optional</option>'+profileOptions[key].map(x=>'<option '+(value===x?'selected':'')+'>'+esc(x)+'</option>').join('')+'</select></label>';
   }
 
   function relevantProfileKeys(choice,context){
@@ -324,7 +324,7 @@
 
     if(key==='profile'){
       const keys=relevantProfileKeys(active.choice,active.context);
-      body='<p class="eyebrow">'+progress+'</p><h2>Quick reality filters</h2><p>Only the broad details useful for this choice. Skip anything you do not want to answer.</p>'+
+      body='<p class="eyebrow">'+progress+'</p><h2>Quick reality filters</h2><p>Only the broad details useful for this choice.</p>'+
         keys.map(k=>profileField(k,profileLabels[k],saved[k]||'')).join('');
     }
 
@@ -345,7 +345,7 @@
     if(key==='next'){
       const noResearch=!active.showResearch;
       body='<p class="eyebrow">'+progress+'</p><h2>Next step for '+esc(active.choice)+'</h2>'+
-        (noResearch?'<p><strong>Evidence mode:</strong> this practical path does not need a separate market-research page. Use your roadmap, your own calculations and the relevant official routes below.</p>':'<p>Your roadmap, calculations/actions, research and comparison are now available for this choice.</p>')+
+        (noResearch?'<p><strong>Evidence mode:</strong> this practical path does not need a separate market-research page. Use your roadmap, your own calculations and the relevant official routes below.</p>':'<p>Your roadmap, calculations/actions and research are now available for this choice.</p>')+
         active.p.sources.map(s=>'<a class="choice" href="'+s.url+'" target="_blank" rel="noopener noreferrer">'+esc(s.label)+'<span>↗</span></a><p class="source-note"><strong>Source note:</strong> '+esc(s.note)+'</p>').join('')+
         '<button type="button" class="choice" data-choice-save>Save this choice on this device<span>›</span></button><p data-choice-save-status role="status"></p>';
     }
