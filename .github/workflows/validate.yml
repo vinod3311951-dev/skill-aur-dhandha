@@ -13,7 +13,7 @@ permissions:
 jobs:
   quality:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,6 +25,10 @@ jobs:
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Run Factory X quality gate
         run: npm run check:build
+      - name: Install WebKit test browser
+        run: npx playwright install --with-deps webkit
+      - name: Run iPhone WebKit PWA smoke test
+        run: npm run test:webkit
       - name: Validate founder correction architecture
         shell: bash
         run: |
