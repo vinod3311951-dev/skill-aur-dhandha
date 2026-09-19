@@ -17,7 +17,7 @@ const checks=[
   ['No client-side BHASHINI secret', !main.includes('BHASHINI_API_KEY')&&!runtime.includes('BHASHINI_API_KEY')&&!voice.includes('BHASHINI_API_KEY')],
   ['UI mutation observer translates new screens', runtime.includes('new MutationObserver')&&runtime.includes('scheduleTranslate')],
   ['Core navigation has local language fallback', runtime.includes("'Home'")&&runtime.includes("'Forward →'")],
-  ['Urdu RTL supported', runtime.includes("found.code==='ur'?'rtl':'ltr'")||runtime.includes("lang.code==='ur'?'rtl':'ltr'")]
+  ['RTL languages supported', runtime.includes("found.code==='ur'||found.code==='ks'||found.code==='sd'")&&runtime.includes("lang.code==='ur'||lang.code==='ks'||lang.code==='sd'")]
 ];
 
 let failed=false;
