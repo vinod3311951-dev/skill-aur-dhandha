@@ -134,7 +134,12 @@ function score(){
   let risk=0, possible=0;
   const negative=['Falling','Very irregular','Declining','Too irregular to tell','Low repeat','Tight','Negative','Not calculated','Often','Almost always','Weak','Almost none','Very often','No, capacity is tight','Production is stopped','Unclear','No known support','Above 40%'];
   const warning=['Stable','Sometimes','Some repeat','Mixed','Moderate','High','More than a year ago','Never / not sure','Not tracked','Unknown'];
-  for(const v of Object.values(answers)){possible+=2;if(negative.some(x=>v.includes(x)))risk+=2;else if(warning.some(x=>v.includes(x)))risk+=1;}
+  for(const [key,v] of Object.entries(answers)){
+    if(['issue','businessType','age','model','workers','machine-category','machine-capacity','machine-budget','machine-automation','machine-power','machine-condition'].includes(key))continue;
+    possible+=2;
+    if(negative.some(x=>v.includes(x)))risk+=2;
+    else if(warning.some(x=>v.includes(x)))risk+=1;
+  }
   const health=possible?Math.max(0,Math.round(100-(risk/possible)*100)):50;
   return {health,shortfall:100-health};
 }
@@ -148,6 +153,7 @@ function faults(){
   if(a.pricing==='More than a year ago'||a.pricing==='Never / not sure')f.push('Pricing may not reflect current costs.');
   if(a.operations==='Often'||a.operations==='Very often')f.push('Operational friction is affecting delivery or cost.');
   if(a.capacity==='No, capacity is tight')f.push('Growth is constrained by current capacity.');
+  if(a.tracking==='Not tracked')f.push('Weak measurement makes it harder to identify the true cause.');
   if(issue==='machine-breakdown')f.push('Machine downtime is creating an operational dependency that needs a repair-versus-replace decision.');
   if(issue==='machine-select')f.push('Machine selection should be driven by output need, serviceability and total operating cost—not only purchase price.');
   if(!f.length)f.push('No severe fault is obvious from the answers; the biggest opportunity is disciplined tracking and one measurable improvement.');
@@ -170,16 +176,34 @@ function plan(){
   if(issue==='machine-breakdown')steps.push('Record downtime, repair quote, warranty/service status and replacement cost; compare total business interruption before deciding.');
   if(issue==='machine-select')steps.push('Define required output, power/space, service support, consumables and budget before comparing machines.');
   while(steps.length<3)steps.push('Track one number weekly—sales, enquiries, gross margin or downtime—and compare after the change.');
-  return steps.slice(0,5);
+  return steps.slice(0,3);
 }
 function renderSolution(){
   const metric=issue==='customers'?'Weekly qualified enquiries':issue==='profit'?'Gross margin on top products':issue.startsWith('machine')?'Machine downtime / productive hours':'Weekly sales';
   shell('Your step-by-step plan',`<article class="card"><ol class="bs-plan">${plan().map(x=>`<li>${esc(x)}</li>`).join('')}</ol><div class="metric-box"><span>Track one number</span><strong>${metric}</strong></div><p class="caution">Work through these steps before adding more complexity. Results depend on your inputs and business conditions.</p></article>`,'One action screen');
 }
 function needsMachine(){return (bizType==='home'||bizType==='manufacturing')&&(issue==='machine-select'||issue==='machine-breakdown');}
+function machineSummary(){
+  if(issue==='machine-select'){
+    const values=[
+      answers['machine-category'],
+      answers['machine-capacity'],
+      answers['machine-budget'],
+      answers['machine-automation'],
+      answers['machine-power'],
+      answers['machine-condition']
+    ].filter(Boolean);
+    return values.length?values.join(' · '):'Use, capacity, budget, automation, power and condition should be confirmed before vendor search.';
+  }
+  const repair=answers['machine-economics'];
+  const support=answers['machine-service'];
+  if(repair==='Below 20%'&&support==='Yes locally')return 'Repair-first is worth checking because expected repair share is low and local support exists.';
+  if(repair==='Above 40%'||support==='No known support')return 'Compare replacement seriously because repair economics or support may be weak.';
+  return 'Compare one qualified repair quote with one replacement quote, including downtime and future service cost.';
+}
 function renderMachine(){
   const title=issue==='machine-breakdown'?'Repair, spares or replacement':'Find the right machine';
-  shell(title,`<article class="card"><h2>Before opening a vendor site</h2><ul><li>Confirm required output/capacity.</li><li>Check power, space and installation needs.</li><li>Confirm warranty, service response and spare-part availability.</li><li>Compare total operating cost—not only purchase price.</li><li>For breakdowns, avoid hazardous electrical/mechanical repair unless handled by a qualified technician.</li></ul></article>
+  shell(title,`<article class="card"><div class="metric-box"><span>${issue==='machine-select'?'Requirement summary':'Decision direction'}</span><strong>${esc(machineSummary())}</strong></div><h2>Before opening a vendor site</h2><ul><li>Confirm required output/capacity.</li><li>Check power, space and installation needs.</li><li>Confirm warranty, service response and spare-part availability.</li><li>Compare total operating cost—not only purchase price.</li><li>For breakdowns, avoid hazardous electrical/mechanical repair unless handled by a qualified technician.</li></ul></article>
   <section class="actions"><a class="choice" href="https://www.moglix.com/" rel="noopener sponsored">Search industrial products on Moglix <span>↗</span></a><a class="choice" href="https://www.indiamart.com/" rel="noopener">Search suppliers on IndiaMART <span>↗</span></a><a class="choice" href="https://www.tradeindia.com/Seller/Machinery/" rel="noopener">Search machinery on TradeIndia <span>↗</span></a></section>
   <p class="home-legal"><strong>Vendor disclaimer:</strong> Links are for discovery. Business Sudhaar does not verify sellers, machines, prices, repairs, warranties or transactions. A link may be marked sponsored/affiliate only when an approved tracking arrangement is configured.</p>`,'Vendor discovery · no lead collection');
 }
