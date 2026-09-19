@@ -18,5 +18,9 @@ jobs:
           node-version: 20
       - name: Install
         run: npm install --ignore-scripts
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium webkit
       - name: Release gate
         run: npm run check
+      - name: Android + Apple automated mobile gate
+        run: npm run test:mobile
