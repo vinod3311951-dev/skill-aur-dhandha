@@ -1,13 +1,54 @@
-name: Sarhad BrowserStack QA
+name: Sarhad QA
 
 on:
   workflow_dispatch:
+    inputs:
+      real_device:
+        description: 'Run BrowserStack final real-device certification'
+        required: false
+        default: false
+        type: boolean
   push:
     branches:
       - sarhad-browserstack-gate
 
 jobs:
-  real-device-qa:
+  free-playwright-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: qa
+    env:
+      GAME_URL: https://sarhad-sniper-production.up.railway.app/
+      FUZZ_SECONDS: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: qa/package.json
+      - name: Install QA dependencies
+        run: npm install --no-audit --no-fund
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium firefox webkit
+      - name: Run free heavy Playwright gate
+        run: npm run test:free
+      - name: Upload free QA evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sarhad-free-playwright-evidence
+          path: |
+            qa/results.json
+            qa/playwright-report/
+            qa/test-results/
+          if-no-files-found: ignore
+
+  real-device-certification:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.real_device }}
+    needs: free-playwright-qa
     runs-on: ubuntu-latest
     timeout-minutes: 45
     defaults:
@@ -17,45 +58,36 @@ jobs:
       GAME_URL: https://sarhad-sniper-production.up.railway.app/
       BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
       BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
-
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: sarhad-browserstack-gate
-
       - name: Validate BrowserStack credentials
         shell: bash
         run: |
           if [ -z "$BROWSERSTACK_USERNAME" ] || [ -z "$BROWSERSTACK_ACCESS_KEY" ]; then
-            echo "::error::BrowserStack GitHub Actions secrets are missing. Set BROWSERSTACK_USERNAME and BROWSERSTACK_ACCESS_KEY before running the real-device gate."
+            echo "::error::BrowserStack secrets are missing."
             exit 2
           fi
-
       - name: BrowserStack environment setup
         uses: browserstack/github-actions/setup-env@master
         with:
           username: ${{ secrets.BROWSERSTACK_USERNAME }}
           access-key: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
-          build-name: 'sarhad-sniper-real-device-gate'
+          build-name: 'sarhad-sniper-final-real-device-certification'
           project-name: 'Sarhad Sniper'
-
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: npm
           cache-dependency-path: qa/package.json
-
       - name: Install QA dependencies
         run: npm install --no-audit --no-fund
-
-      - name: Run BrowserStack real-device gates
+      - name: Run BrowserStack final certification
         run: npm run test:bs
-
-      - name: Upload QA evidence
+      - name: Upload real-device evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: sarhad-browserstack-evidence
+          name: sarhad-browserstack-final-evidence
           path: |
             qa/results.json
             qa/playwright-report/
