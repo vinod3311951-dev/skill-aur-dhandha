@@ -1,8 +1,11 @@
 framework: playwright
 projectName: game-autotest
-buildName: sarhad-sniper-rc
+buildName: sarhad-sniper-real-device-gate
 browserstackLocal: false
 platforms:
+  - deviceName: Samsung Galaxy M32
+    osVersion: 11.0
+    browserName: chrome
   - deviceName: Samsung Galaxy S22 Ultra
     osVersion: 12.0
     browserName: chrome
