@@ -15,11 +15,12 @@ platforms:
   - deviceName: iPhone 16
     osVersion: 18
     browserName: safari
-# Keep the real-device gate deliberately sequential. The suite repeats each
-# test three times; launching four device projects concurrently can exhaust
-# low-parallel BrowserStack plans/queues before useful evidence is collected.
 parallelsPerPlatform: 1
 maxParallelTests: 1
-debug: true
-networkLogs: true
-video: true
+# BrowserStack documents a 90s default idle timeout and allows up to 300s.
+idleTimeout: 300
+# Keep heavy diagnostics off for the normal gate; GitHub still retains
+# Playwright failure screenshots/traces/results as evidence.
+debug: false
+networkLogs: false
+video: false
