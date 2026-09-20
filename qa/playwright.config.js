@@ -8,11 +8,10 @@ module.exports = defineConfig({
   use: {
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
-    // IMPORTANT: do not set reducedMotion globally for BrowserStack real iOS.
-    // BrowserStack's real-iOS newContext bridge currently rejects the translated
-    // Playwright "no-override" value. Omitting the option leaves the physical
-    // device/system preference untouched and avoids sending an unsupported
-    // emulation capability to the remote context.
+    // Playwright defaults reducedMotion to "no-preference". BrowserStack real iOS
+    // currently validates its bridge value as "none", so make the system-default
+    // intent explicit via null and let the SDK translate it for the remote context.
+    reducedMotion: null,
   },
   // Local sanity projects. On BrowserStack, the SDK replaces these with the platforms in browserstack.yml.
   projects: [
