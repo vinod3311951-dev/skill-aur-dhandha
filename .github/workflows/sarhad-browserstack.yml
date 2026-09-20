@@ -2,6 +2,9 @@ name: Sarhad BrowserStack QA
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - sarhad-browserstack-gate
 
 jobs:
   real-device-qa:
@@ -17,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: sarhad-sniper-deploy
+          ref: sarhad-browserstack-gate
       - uses: actions/setup-node@v4
         with:
           node-version: 20
