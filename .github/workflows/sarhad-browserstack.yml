@@ -1,0 +1,39 @@
+name: Sarhad BrowserStack QA
+
+on:
+  workflow_dispatch:
+
+jobs:
+  real-device-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: qa
+    env:
+      GAME_URL: https://sarhad-sniper-production.up.railway.app/
+      BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+      BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: sarhad-sniper-deploy
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: qa/package.json
+      - name: Install QA dependencies
+        run: npm install --no-audit --no-fund
+      - name: Run BrowserStack real-device gates
+        run: npm run test:bs
+      - name: Upload QA evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sarhad-browserstack-evidence
+          path: |
+            qa/results.json
+            qa/playwright-report/
+            qa/test-results/
+          if-no-files-found: ignore
