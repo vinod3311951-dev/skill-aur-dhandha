@@ -8,7 +8,7 @@
     "test:bs": "browserstack-node-sdk playwright test --repeat-each=3"
   },
   "devDependencies": {
-    "@playwright/test": "^1.59.0",
+    "@playwright/test": "1.59.0",
     "browserstack-node-sdk": "latest",
     "pngjs": "^7.0.0"
   }
