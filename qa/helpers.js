@@ -1,5 +1,6 @@
 const { test: base, expect } = require('@playwright/test');
 const path = require('path');
+const fs = require('fs');
 const { PNG } = require('pngjs');
 
 const num = (key, fallback) => (process.env[key] !== undefined ? Number(process.env[key]) : fallback);
@@ -45,6 +46,7 @@ const test = base.extend({
 
     const seed = GATES.seedBase + testInfo.repeatEachIndex; // each repeat explores a different but reproducible path
     let lateInject = false;
+    let lumaCaptureIndex = 0;
 
     const game = {
       page,
@@ -90,10 +92,17 @@ const test = base.extend({
 
       viewport: () => page.evaluate(() => ({ w: window.innerWidth, h: window.innerHeight })),
 
-      // Std-dev of luminance on the canvas screenshot. ~0 means a blank/solid-colour canvas.
+      // Std-dev of luminance on a screenshot. BrowserStack's Playwright wrapper requires
+      // an explicit screenshot path on real devices, so capture to testInfo.outputPath().
       async lumaStdDev() {
+        const shotPath = testInfo.outputPath(`luma-${++lumaCaptureIndex}.png`);
         const canvas = page.locator('canvas').first();
-        const buf = (await canvas.count()) ? await canvas.screenshot() : await page.screenshot();
+        if (await canvas.count()) await canvas.screenshot({ path: shotPath });
+        else await page.screenshot({ path: shotPath });
+
+        const buf = fs.readFileSync(shotPath);
+        try { fs.unlinkSync(shotPath); } catch (_) { /* non-fatal cleanup */ }
+
         const { data, width, height } = PNG.sync.read(buf);
         const total = width * height;
         const step = Math.max(1, Math.floor(total / 20000));
