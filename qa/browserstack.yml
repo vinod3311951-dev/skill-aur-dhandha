@@ -15,7 +15,11 @@ platforms:
   - deviceName: iPhone 16
     osVersion: 18
     browserName: safari
+# Keep the real-device gate deliberately sequential. The suite repeats each
+# test three times; launching four device projects concurrently can exhaust
+# low-parallel BrowserStack plans/queues before useful evidence is collected.
 parallelsPerPlatform: 1
+maxParallelTests: 1
 debug: true
 networkLogs: true
 video: true
