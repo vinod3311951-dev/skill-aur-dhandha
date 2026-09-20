@@ -4,6 +4,8 @@
   "version": "1.0.0",
   "scripts": {
     "test:local": "playwright test",
+    "test:free": "playwright test",
+    "test:free:repeat": "playwright test --repeat-each=3",
     "test:smoke": "playwright test tests/smoke.spec.js",
     "test:bs": "browserstack-node-sdk playwright test --repeat-each=3"
   },
