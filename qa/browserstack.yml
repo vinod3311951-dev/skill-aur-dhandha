@@ -1,0 +1,18 @@
+framework: playwright
+projectName: game-autotest
+buildName: sarhad-sniper-rc
+browserstackLocal: false
+platforms:
+  - deviceName: Samsung Galaxy S22 Ultra
+    osVersion: 12.0
+    browserName: chrome
+  - deviceName: Google Pixel 8
+    osVersion: 14.0
+    browserName: chrome
+  - deviceName: iPhone 16
+    osVersion: 18
+    browserName: safari
+parallelsPerPlatform: 1
+debug: true
+networkLogs: true
+video: true
