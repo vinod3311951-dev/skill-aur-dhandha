@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+<defs>
+<linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+<stop offset="0%" stop-color="#19BFD3"/><stop offset="100%" stop-color="#79C84A"/>
+</linearGradient>
+<filter id="fade"><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncR type="linear" slope=".72" intercept=".16"/><feFuncG type="linear" slope=".72" intercept=".16"/><feFuncB type="linear" slope=".72" intercept=".16"/></feComponentTransfer></filter>
+</defs>
+<g filter="url(#fade)">
+<rect width="1080" height="1920" fill="url(#bg)"/>
+<circle cx="860" cy="250" r="170" fill="#ffffff" opacity=".13"/>
+<circle cx="120" cy="820" r="55" fill="#ffffff" opacity=".22"/><path d="M120 900 Q90 790 120 710 Q150 790 120 900" fill="none" stroke="#ffffff" stroke-width="10" opacity=".28"/><circle cx="270" cy="730" r="58" fill="#ffffff" opacity=".22"/><path d="M270 900 Q240 790 270 710 Q300 790 270 900" fill="none" stroke="#ffffff" stroke-width="10" opacity=".28"/><circle cx="420" cy="820" r="61" fill="#ffffff" opacity=".22"/><path d="M420 900 Q390 790 420 710 Q450 790 420 900" fill="none" stroke="#ffffff" stroke-width="10" opacity=".28"/><circle cx="570" cy="730" r="64" fill="#ffffff" opacity=".22"/><path d="M570 900 Q540 790 570 710 Q600 790 570 900" fill="none" stroke="#ffffff" stroke-width="10" opacity=".28"/><circle cx="720" cy="820" r="67" fill="#ffffff" opacity=".22"/><path d="M720 900 Q690 790 720 710 Q750 790 720 900" fill="none" stroke="#ffffff" stroke-width="10" opacity=".28"/><circle cx="870" cy="730" r="70" fill="#ffffff" opacity=".22"/><path d="M870 900 Q840 790 870 710 Q900 790 870 900" fill="none" stroke="#ffffff" stroke-width="10" opacity=".28"/>
+<rect x="70" y="1100" width="940" height="620" rx="70" fill="#18213A" opacity=".16"/>
+<g opacity=".38"><circle cx="260" cy="1360" r="110" fill="#19BFD3"/><circle cx="470" cy="1470" r="125" fill="#D94BCB"/><circle cx="700" cy="1320" r="105" fill="#F2C94C"/><circle cx="820" cy="1540" r="90" fill="#79C84A"/></g>
+<text x="90" y="250" font-family="system-ui,sans-serif" font-size="78" font-weight="800" fill="#F8FAFF">Dawn Gardens</text>
+</g></svg>
