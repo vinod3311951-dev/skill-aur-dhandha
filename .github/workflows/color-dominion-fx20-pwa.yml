@@ -1,0 +1,65 @@
+name: Color Dominion FX20 PWA Checks
+
+on:
+  push:
+    branches:
+      - color-dominion-fx07-smoke-v2
+
+permissions:
+  contents: read
+
+jobs:
+  pwa-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run full regression before PWA gate
+        run: npm test
+
+      - name: Install Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+
+      - name: Start local PWA server
+        shell: bash
+        run: |
+          node server.mjs > /tmp/color-dominion-fx20.log 2>&1 &
+          echo $! > /tmp/color-dominion-fx20.pid
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:8080/ >/dev/null; then
+              echo "FX20_SERVER=READY"
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/color-dominion-fx20.log
+          exit 1
+
+      - name: Run installability and offline lifecycle checks
+        env:
+          FX20_BASE_URL: http://127.0.0.1:8080/
+        run: node tests/fx20-pwa.mjs
+
+      - name: Verify PWA file surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s manifest.webmanifest
+          test -s sw.js
+          test -s assets/pwa/icon-192.png
+          test -s assets/pwa/icon-512.png
+          test -s assets/pwa/CD-BRAND-004-maskable-icon-512-v1.png
+          grep -q 'display.*standalone' manifest.webmanifest
+          grep -q 'purpose.*maskable' manifest.webmanifest
+          echo "FX20_PWA_FILES=PASS"
+
+      - name: Stop server
+        if: always()
+        shell: bash
+        run: |
+          if test -f /tmp/color-dominion-fx20.pid; then
+            kill "$(cat /tmp/color-dominion-fx20.pid)" || true
+          fi
