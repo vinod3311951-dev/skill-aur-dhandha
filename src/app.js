@@ -1,6 +1,6 @@
 import{COLOR_HEX,SYMBOLS,SAVE_KEY,SAVE_VERSION,CORE_STAGE_COUNT,WORLDS}from"./config.js";
 import{cellCenter,fromKey}from"./grid.js";
-import{STAGES,generateBoard,validateBoard}from"./stages.js";
+import{STAGES,generateValidBoard}from"./stages.js";
 import{GameEngine}from"./engine.js";
 
 const $=s=>document.querySelector(s);
@@ -29,7 +29,7 @@ function worldAssets(name){const slug=worldSlug(name);return{faded:`./assets/wor
 function worldProgress(i){const start=i*20+1,end=Math.min(CORE_STAGE_COUNT,start+19),done=Math.max(0,Math.min(20,state.unlockedStage-start));return{start,end,done,pct:Math.round(done/20*100),unlocked:state.unlockedStage>=start}}
 function renderMap(){const map=$("#world-map");map.innerHTML=WORLDS.map((w,i)=>{const p=worldProgress(i),a=worldAssets(w),restored=p.pct>=100?"restored":"",locked=p.unlocked?"":"locked";return `<article class="world-card ${restored} ${locked}" style="--world-image:url('${p.pct>0?a.restored:a.faded}')"><h3>${w}</h3><p>${p.unlocked?`${p.pct}% restored • Stages ${p.start}–${p.end}`:"Locked"}</p><div class="world-progress"><span style="width:${p.pct}%"></span></div></article>`}).join("")}
 
-function start(id=state.currentStage){try{state.currentStage=Math.max(1,Math.min(CORE_STAGE_COUNT,id));save();const c=STAGES[state.currentStage-1],b=generateBoard(c),v=validateBoard(b,c);if(!v.ok)throw Error(v.reason);engine=new GameEngine({board:b,config:c});overlay.hidden=true;pauseOverlay.hidden=true;paused=false;show("play");hud();applySettings();st.textContent="Aim anywhere above the launcher, then release."}catch(err){showError(err)}}
+function start(id=state.currentStage){try{state.currentStage=Math.max(1,Math.min(CORE_STAGE_COUNT,id));save();const c=STAGES[state.currentStage-1],generated=generateValidBoard(c,3);engine=new GameEngine({board:generated.board,config:{...c,seed:generated.config.seed}});overlay.hidden=true;pauseOverlay.hidden=true;paused=false;show("play");hud();applySettings();st.textContent="Aim anywhere above the launcher, then release."}catch(err){showError(err)}}
 function showError(err){$("#error-message").textContent=`The board could not start safely (${err?.message||"unknown error"}). Retry this stage or return Home.`;show("error")}
 function hud(){if(!engine)return;sl.textContent=`Stage ${engine.config.id}`;wl.textContent=engine.config.world;sc.textContent=`Score ${engine.score}`;sh.textContent=`Shots ${engine.shotsLeft}`;nc.style.background=COLOR_HEX[engine.nextColor]||"transparent";nc.textContent=engine.nextColor?SYMBOLS[engine.nextColor]:"—"}
 function resize(){const r=canvas.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);canvas.width=Math.max(1,r.width*d);canvas.height=Math.max(1,r.height*d);ctx.setTransform(d,0,0,d,0,0);const R=Math.max(15,Math.min(24,r.width/18)),bw=R*17;g={cols:8,radius:R,rowStep:R*1.72,left:Math.max(8,(r.width-bw)/2),top:18,boardWidth:bw,width:r.width,height:r.height,launcher:{x:r.width/2,y:r.height-58}}}
