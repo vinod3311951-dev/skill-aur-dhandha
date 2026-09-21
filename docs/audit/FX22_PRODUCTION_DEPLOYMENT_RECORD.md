@@ -46,3 +46,17 @@ Founder trademark disposition remains unchanged: working name may continue for i
 ## Regression maintenance
 FX-22 intentionally changed staging runtime surfaces (noindex metadata, robots.txt, private-preview UI, founder level-select, service-worker cache version).
 Persistent regression guards from FX-16/FX-19/FX-20 were updated only to recognize the authorized FX-22 staging cache/runtime baseline. No gameplay rule, asset, monetisation feature, public analytics sender, cross-promo surface, or release-mode behavior was added by this maintenance.
+
+
+## Custom staging domain attachment attempt
+Founder created DNS:
+- host: colordominion
+- type: CNAME
+- value: cname.vercel-dns.com
+- zone: thinkingapps.in
+
+FX-22 then added a branch-local Vercel alias configuration:
+- colordominion.thinkingapps.in
+
+Because this vercel.json exists on color-dominion-fx07-smoke-v2, the alias is intended to follow this branch's Vercel deployment within the shared skill-aur-dhandha project.
+This does not activate FX-23 and does not remove noindex/robots staging controls.
