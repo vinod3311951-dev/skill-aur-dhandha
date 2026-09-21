@@ -1,0 +1,67 @@
+name: Color Dominion FX18 Playwright QA
+
+on:
+  push:
+    branches:
+      - color-dominion-fx07-smoke-v2
+
+permissions:
+  contents: read
+
+jobs:
+  playwright-qa:
+    name: playwright-${{ matrix.browser }}-${{ matrix.profile }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - browser: chromium
+            profile: desktop
+          - browser: chromium
+            profile: android
+          - browser: firefox
+            profile: desktop
+          - browser: webkit
+            profile: desktop
+          - browser: webkit
+            profile: ios
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Playwright test runtime
+        run: npm install --no-save playwright@1.55.0
+
+      - name: Install browser engine
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+
+      - name: Start Color Dominion
+        shell: bash
+        run: |
+          node server.mjs > /tmp/color-dominion-fx18.log 2>&1 &
+          echo $! > /tmp/color-dominion-fx18.pid
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:8080/ >/dev/null; then
+              echo "FX18_SERVER=READY"
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/color-dominion-fx18.log
+          exit 1
+
+      - name: Run Playwright browser/profile QA
+        env:
+          FX18_BROWSER: ${{ matrix.browser }}
+          FX18_PROFILE: ${{ matrix.profile }}
+          FX18_BASE_URL: http://127.0.0.1:8080/
+        run: node tests/fx18-playwright.mjs
+
+      - name: Stop server
+        if: always()
+        shell: bash
+        run: |
+          if test -f /tmp/color-dominion-fx18.pid; then
+            kill "$(cat /tmp/color-dominion-fx18.pid)" || true
+          fi
