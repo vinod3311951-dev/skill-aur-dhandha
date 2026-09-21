@@ -1,0 +1,64 @@
+name: Color Dominion FX21 Final Mobile Performance Device QA
+
+on:
+  push:
+    branches:
+      - color-dominion-fx07-smoke-v2
+
+permissions:
+  contents: read
+
+jobs:
+  mobile-performance-device:
+    name: fx21-${{ matrix.engine }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, webkit]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Playwright runtime
+        run: npm install --no-save playwright@1.55.0
+
+      - name: Install browser engine
+        run: npx playwright install --with-deps ${{ matrix.engine }}
+
+      - name: Start local Color Dominion
+        shell: bash
+        run: |
+          node server.mjs > /tmp/color-dominion-fx21.log 2>&1 &
+          echo $! > /tmp/color-dominion-fx21.pid
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:8080/ >/dev/null; then
+              echo "FX21_SERVER=READY"
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/color-dominion-fx21.log
+          exit 1
+
+      - name: Run final mobile / performance / device-emulation QA
+        env:
+          FX21_ENGINE: ${{ matrix.engine }}
+          FX21_BASE_URL: http://127.0.0.1:8080/
+        run: node --expose-gc tests/fx21-mobile-performance.mjs
+
+      - name: Upload performance evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fx21-${{ matrix.engine }}-evidence
+          path: artifacts/fx21-${{ matrix.engine }}.json
+          if-no-files-found: warn
+
+      - name: Stop server
+        if: always()
+        shell: bash
+        run: |
+          if test -f /tmp/color-dominion-fx21.pid; then
+            kill "$(cat /tmp/color-dominion-fx21.pid)" || true
+          fi
