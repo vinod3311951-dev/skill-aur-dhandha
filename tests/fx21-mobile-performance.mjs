@@ -16,7 +16,8 @@ const profiles=[
   {name:"landscape-844x390",viewport:{width:844,height:390},hasTouch:true,isMobile:true,deviceScaleFactor:2}
 ];
 
-const out={engine:engineName,profiles:[],soak:null,timestamp:new Date().toISOString()};
+const out={engine:engineName,profiles:[],soak:null,timestamp:new Date().toISOString(),failure:null};
+function persist(){fs.mkdirSync("artifacts",{recursive:true});fs.writeFileSync(`artifacts/fx21-${engineName}.json`,JSON.stringify(out,null,2))}
 
 async function visibleButtonsMeetFloor(page,label){
   const bad=await page.locator("button:visible").evaluateAll(btns=>btns.map(b=>{
@@ -37,7 +38,7 @@ async function oneTouchShot(page){
   const attempts=[[.50,.18],[.38,.22],[.62,.22],[.28,.26],[.72,.26],[.50,.30]];
   const t0=Date.now();
   for(const[xr,yr]of attempts){
-    await page.touchscreen.tap(box.x+box.width*xr,box.y+Math.max(32,box.height*yr));
+    await page.locator("#game").tap({position:{x:box.width*xr,y:Math.max(32,box.height*yr)}});
     await page.waitForTimeout(1100);
     const after=await page.evaluate(()=>window.__CD_DIAGNOSTICS__.snapshot().shotsLeft);
     if(after<before)return Date.now()-t0;
@@ -46,16 +47,21 @@ async function oneTouchShot(page){
   throw new Error("touch shot did not resolve after bounded aim attempts: "+JSON.stringify(diag));
 }
 
-async function sampleFrameBudget(page,durationMs=2600){
-  const start=await page.evaluate(()=>window.__CD_DIAGNOSTICS__.frameSamples().length);
-  await page.waitForTimeout(durationMs);
-  const samples=(await page.evaluate(i=>window.__CD_DIAGNOSTICS__.frameSamples().slice(i),start))
-    .filter(x=>x>0&&x<1000).sort((a,b)=>a-b);
-  assert.ok(samples.length>=30,"insufficient frame samples");
-  const q=p=>samples[Math.min(samples.length-1,Math.floor((samples.length-1)*p))];
-  const p95Ms=q(.95),p90Ms=q(.90),medianMs=q(.50),p95Fps=1000/p95Ms;
-  assert.ok(p95Fps>=30,`Factory X p95 FPS floor failed: ${p95Fps.toFixed(2)} FPS (${p95Ms.toFixed(2)}ms frame)`);
-  return{samples:samples.length,medianMs,p90Ms,p95Ms,p95Fps,maxMs:samples[samples.length-1]};
+async function sampleFrameBudget(page,durationMs=2200){
+  const runs=[];
+  await page.waitForTimeout(350);
+  for(let run=1;run<=3;run++){
+    const start=await page.evaluate(()=>window.__CD_DIAGNOSTICS__.frameSamples().length);
+    await page.waitForTimeout(durationMs);
+    const samples=(await page.evaluate(i=>window.__CD_DIAGNOSTICS__.frameSamples().slice(i),start))
+      .filter(x=>x>0&&x<1000).sort((a,b)=>a-b);
+    assert.ok(samples.length>=30,"insufficient frame samples");
+    const q=p=>samples[Math.min(samples.length-1,Math.floor((samples.length-1)*p))];
+    const p95Ms=q(.95),p90Ms=q(.90),medianMs=q(.50),p95Fps=1000/p95Ms;
+    runs.push({run,samples:samples.length,medianMs,p90Ms,p95Ms,p95Fps,maxMs:samples[samples.length-1]});
+    assert.ok(p95Fps>=30,`Factory X p95 FPS floor failed run ${run}: ${p95Fps.toFixed(2)} FPS (${p95Ms.toFixed(2)}ms frame)`);
+  }
+  return{runs,minP95Fps:Math.min(...runs.map(x=>x.p95Fps)),maxP95Ms:Math.max(...runs.map(x=>x.p95Ms))};
 }
 
 const browser=await browserType.launch({headless:true});
@@ -118,6 +124,7 @@ try{
       frameSamples:usable.length,frameMedianMs:q(.5),frameP90Ms:q(.9),frameP95Ms:q(.95),
       frameMaxMs:usable.length?usable[usable.length-1]:null,performanceGate:frameBudget
     });
+    persist();
     await context.close();
   }
 
@@ -149,14 +156,17 @@ try{
     const endHeap=await page.evaluate(()=>performance.memory?.usedJSHeapSize??null);
     assert.deepEqual(errors,[],"24-cycle soak browser errors: "+errors.join(" | "));
     out.soak={cycles:24,startHeap,endHeap,heapDelta:startHeap!=null&&endHeap!=null?endHeap-startHeap:null,stageMetrics};
+    persist();
     await context.close();
   }
 
-  fs.mkdirSync("artifacts",{recursive:true});
-  const artifactPath=`artifacts/fx21-${engineName}.json`;
-  fs.writeFileSync(artifactPath,JSON.stringify(out,null,2));
+  persist();
   console.log("FX21_DEVICE_QA=PASS");
   console.log("FX21_METRICS="+JSON.stringify(out));
+}catch(err){
+  out.failure={name:err?.name||"Error",message:String(err?.message||err),stack:String(err?.stack||"")};
+  persist();
+  throw err;
 }finally{
   await browser.close();
 }
