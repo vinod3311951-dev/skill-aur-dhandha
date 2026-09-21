@@ -25,6 +25,7 @@
     <button id="play-btn" class="primary" type="button">Play / Continue</button>
     <p id="progress-text" class="progress" aria-live="polite"></p>
     <p id="offline-pill" class="offline-pill" hidden>Offline — core play remains available</p>
+    <p id="storage-pill" class="offline-pill warning-pill" hidden></p>
     <button id="how-btn" class="text-btn" type="button">How to Play</button>
     <p class="privacy-note">No login • local-only progress • 100 core stages</p>
   </section>
@@ -61,7 +62,7 @@
     <div class="how-grid">
       <article><b>1</b><h3>Aim</h3><p>Drag toward the bubble field. Use the guide for straight or bank shots.</p></article>
       <article><b>2</b><h3>Match 3+</h3><p>Release to shoot. Matching groups clear and unsupported bubbles drop.</p></article>
-      <article><b>3</b><h3>Clear & Claim</h3><p>Finish the board, earn stars and restore colour to the Dominion.</p></article>
+      <article><b>3</b><h3>Clear & Claim</h3><p>Complete the level objective, earn stars and restore colour to the Dominion.</p></article>
     </div>
     <button id="how-play-btn" class="primary" type="button">Play</button>
   </section>
@@ -74,6 +75,7 @@
         <div id="next-color" class="next-dot" aria-label="Next bubble"></div>
         <div class="hud-score"><strong id="score-label">Score 0</strong><br><small id="shots-label">Shots 30</small></div>
       </div>
+      <div class="objective-strip" aria-live="polite"><span id="objective-label">Clear the board</span><span id="combo-label"></span></div>
     </header>
     <div class="game-wrap">
       <div id="bloom-layer" class="bloom-layer" aria-hidden="true"></div>
@@ -123,6 +125,7 @@
 <audio id="sfx-launch" src="./assets/audio/sfx/CD-SFX-003-launch-v1.wav" preload="none"></audio>
 <audio id="sfx-pop" src="./assets/audio/sfx/CD-SFX-005-pop-a-v1.wav" preload="none"></audio>
 <audio id="sfx-drop" src="./assets/audio/sfx/CD-SFX-006-drop-v1.wav" preload="none"></audio>
+<audio id="sfx-combo" src="./assets/audio/sfx/CD-SFX-007-combo-rise-v1.wav" preload="none"></audio>
 <audio id="sfx-bloom" src="./assets/audio/sfx/CD-SFX-011-color-bloom-v1.wav" preload="none"></audio>
 <audio id="sfx-fail" src="./assets/audio/sfx/CD-SFX-012-failure-v1.wav" preload="none"></audio>
 

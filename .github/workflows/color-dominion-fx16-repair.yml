@@ -1,0 +1,87 @@
+name: Color Dominion FX16 Repair Regression
+
+on:
+  push:
+    branches:
+      - color-dominion-fx07-smoke-v2
+
+permissions:
+  contents: read
+
+jobs:
+  fx16-repair-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Unit, objective, soak and integration regression
+        run: npm test
+
+      - name: Static repair gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f src/integrations.js
+          test -f docs/audit/FX16_AUDIT2_REPAIR_RECORD.md
+          grep -q 'objective-label' index.html
+          grep -q 'color-dominion-v16' sw.js
+          grep -q 'FOUNDER DISPOSITION' docs/ip/TRADEMARK_NAME_CHECK.md
+          echo "FX16_STATIC_REPAIR=PASS"
+
+      - name: Install Chromium for lifecycle regression
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+
+      - name: Browser save, pause and offline lifecycle
+        shell: bash
+        run: |
+          node server.mjs > /tmp/color-dominion-fx16.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:8080/ >/dev/null; then break; fi
+            sleep 1
+          done
+          node --input-type=module <<'NODE'
+          import { chromium } from 'playwright';
+          const browser=await chromium.launch({headless:true});
+          const context=await browser.newContext({viewport:{width:390,height:844}});
+          const page=await context.newPage();
+          const errors=[];
+          page.on('console',m=>{if(m.type()==='error')errors.push('console:'+m.text())});
+          page.on('pageerror',e=>errors.push('page:'+String(e)));
+
+          const response=await page.goto('http://127.0.0.1:8080/',{waitUntil:'networkidle'});
+          if(response?.status()!==200) throw new Error('home not 200');
+
+          await page.locator('#settings-btn').click();
+          await page.locator('#motion-toggle').check();
+          await page.locator('#settings-screen [data-home]').click();
+          await page.reload({waitUntil:'networkidle'});
+          await page.locator('#settings-btn').click();
+          if(!(await page.locator('#motion-toggle').isChecked())) throw new Error('settings save/reload failed');
+          await page.locator('#settings-screen [data-home]').click();
+
+          await page.evaluate(async()=>{await navigator.serviceWorker.ready});
+          await context.setOffline(true);
+          await page.reload({waitUntil:'domcontentloaded'});
+          await page.locator('#home-screen').waitFor({state:'visible'});
+          if(!(await page.locator('#offline-pill').isVisible())) throw new Error('offline state not visible');
+          await context.setOffline(false);
+          await page.reload({waitUntil:'networkidle'});
+
+          await page.locator('#play-btn').click();
+          await page.locator('#game').waitFor({state:'visible'});
+          const objective=await page.locator('#objective-label').textContent();
+          if(!objective?.trim()) throw new Error('objective HUD missing');
+          await page.locator('#pause-btn').click();
+          await page.locator('#pause-overlay').waitFor({state:'visible'});
+          await page.locator('#resume-btn').click();
+          const diag=await page.evaluate(()=>window.__CD_DIAGNOSTICS__?.snapshot());
+          if(!diag||diag.stage!==1||diag.status!=='playing') throw new Error('diagnostic/runtime state invalid');
+          if(errors.length) throw new Error(errors.join('\n'));
+          console.log('FX16_BROWSER_LIFECYCLE=PASS');
+          console.log('DIAGNOSTICS='+JSON.stringify(diag));
+          await browser.close();
+          NODE
