@@ -56,10 +56,10 @@ jobs:
           if(response?.status()!==200) throw new Error('home not 200');
           await page.locator('#settings-btn').click();
           await page.locator('#settings-screen').waitFor({state:'visible'});
-          await page.locator('[data-home]').first().click();
+          await page.locator('#settings-screen [data-home]').click();
           await page.locator('#map-btn').click();
           await page.locator('#map-screen').waitFor({state:'visible'});
-          await page.locator('[data-home]').first().click();
+          await page.locator('#map-screen [data-home]').click();
           await page.locator('#how-btn').click();
           await page.locator('#how-screen').waitFor({state:'visible'});
           await page.locator('#how-play-btn').click();
