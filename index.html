@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#18213A">
 <meta name="description" content="Color Dominion — aim, match and restore a faded world to colour.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="googlebot" content="noindex, nofollow">
 <title>Color Dominion</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" href="./assets/pwa/icon-192.png">
@@ -19,6 +21,7 @@
       <button class="icon-btn" id="settings-btn" type="button" aria-label="Open settings">Settings</button>
     </div>
     <img class="brand" src="./assets/brand/CD-BRAND-002-emblem-master-v1.svg" alt="Color Dominion emblem">
+    <p class="staging-badge" aria-label="Private preview">Private Preview</p>
     <p class="kicker">Restore the faded Dominion</p>
     <h1>Color Dominion</h1>
     <p class="lead">Aim. Match 3+. Trigger cascades. Bring each world back to colour.</p>
@@ -35,6 +38,17 @@
       <button class="secondary compact" data-home type="button">Home</button>
       <div><small>DOMINION MAP</small><h2>Your restored world</h2></div>
     </header>
+    <div class="review-level-card" aria-labelledby="review-level-title">
+      <p class="kicker">PRIVATE REVIEW</p>
+      <h3 id="review-level-title">Founder Level Select</h3>
+      <p>Jump directly to any core stage during staging review. This does not require sequential completion.</p>
+      <div class="review-level-controls">
+        <label for="review-level-input">Stage</label>
+        <input id="review-level-input" type="number" min="1" max="100" step="1" value="1" inputmode="numeric">
+        <button id="review-level-go" class="secondary" type="button">Open Stage</button>
+      </div>
+      <p id="review-level-status" class="privacy-note" aria-live="polite"></p>
+    </div>
     <div id="world-map" class="world-map"></div>
   </section>
 

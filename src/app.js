@@ -60,6 +60,16 @@ $("#next-btn").onclick=()=>start(state.currentStage);
 $("#home-btn").onclick=()=>show("home");
 $("#pause-home-btn").onclick=()=>{paused=false;show("home");applySettings()};
 $("#map-btn").onclick=()=>show("map");
+const reviewLevelInput=$("#review-level-input"),reviewLevelStatus=$("#review-level-status");
+$("#review-level-go").onclick=()=>{
+  const raw=Number(reviewLevelInput.value),id=Math.trunc(raw);
+  if(!Number.isFinite(raw)||id<1||id>CORE_STAGE_COUNT){
+    reviewLevelStatus.textContent=`Enter a stage from 1 to ${CORE_STAGE_COUNT}.`;
+    return;
+  }
+  reviewLevelStatus.textContent=`Opening Stage ${id} in private review mode.`;
+  start(id);
+};
 $("#result-map-btn").onclick=()=>show("map");
 $("#settings-btn").onclick=()=>show("settings");
 $("#how-btn").onclick=()=>show("how");

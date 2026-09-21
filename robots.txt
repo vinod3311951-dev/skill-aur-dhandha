@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /
+
+# Factory X staging mode — no crawling or indexing until explicit founder release.

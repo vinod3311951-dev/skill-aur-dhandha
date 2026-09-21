@@ -1,6 +1,6 @@
-const CACHE="color-dominion-v16";
+const CACHE="color-dominion-v22-staging";
 const CORE=[
-  "./","./index.html","./styles.css","./manifest.webmanifest",
+  "./","./index.html","./styles.css","./manifest.webmanifest","./robots.txt",
   "./src/app.js","./src/config.js","./src/grid.js","./src/rng.js","./src/stages.js","./src/engine.js","./src/integrations.js",
   "./assets/brand/CD-BRAND-002-emblem-master-v1.svg","./assets/pwa/icon-192.png","./assets/pwa/icon-512.png",
   "./assets/worlds/dawn-gardens/CD-WORLD-dawn-gardens-faded-v1.svg","./assets/worlds/dawn-gardens/CD-WORLD-dawn-gardens-restored-v1.svg",
