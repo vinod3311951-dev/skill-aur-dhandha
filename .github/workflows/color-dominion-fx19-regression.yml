@@ -17,22 +17,25 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Verify FX-19 product runtime remains unchanged
+      - name: Verify authorized repaired product runtime remains unchanged
         shell: bash
         run: |
           set -euo pipefail
-          BASE="905328ee98bb5a474ebd7d6c2b680d11bef84445"
+          # FX-19 originally proved no product change after FX-18.
+          # FX-21 later made authorized mobile/performance repairs, so this
+          # persistent downstream guard now freezes the final FX-21 runtime RC.
+          BASE="e03250051bf07ccc8b7fee66ab4e2ad18f5827f5"
           git cat-file -e "$BASE^{commit}"
           git diff --name-only "$BASE"...HEAD | tee /tmp/fx19-diff.txt
 
           while IFS= read -r file; do
             case "$file" in
               index.html|styles.css|manifest.webmanifest|sw.js|server.mjs|package.json)
-                echo "Unexpected product/runtime change after FX-18: $file"
+                echo "Unexpected product/runtime change after final FX-21 repair baseline: $file"
                 exit 1
                 ;;
               src/*|assets/*)
-                echo "Unexpected product/runtime change after FX-18: $file"
+                echo "Unexpected product/runtime change after final FX-21 repair baseline: $file"
                 exit 1
                 ;;
               *)
@@ -40,7 +43,7 @@ jobs:
             esac
           done < /tmp/fx19-diff.txt
 
-          echo "FX19_PRODUCT_RUNTIME_CHANGE=NONE"
+          echo "POST_FX21_PRODUCT_RUNTIME_CHANGE=NONE"
 
       - name: Re-run complete Node regression suite
         run: npm test
