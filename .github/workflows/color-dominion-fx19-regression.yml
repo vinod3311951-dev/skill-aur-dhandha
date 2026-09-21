@@ -24,18 +24,18 @@ jobs:
           # FX-19 originally proved no product change after FX-18.
           # FX-21 later made authorized mobile/performance repairs, so this
           # persistent downstream guard now freezes the final FX-21 runtime RC.
-          BASE="e03250051bf07ccc8b7fee66ab4e2ad18f5827f5"
+          BASE="f493d0820f48b8d95cee36fd2e2938fb2259fe1c"
           git cat-file -e "$BASE^{commit}"
           git diff --name-only "$BASE"...HEAD | tee /tmp/fx19-diff.txt
 
           while IFS= read -r file; do
             case "$file" in
               index.html|styles.css|manifest.webmanifest|sw.js|server.mjs|package.json)
-                echo "Unexpected product/runtime change after final FX-21 repair baseline: $file"
+                echo "Unexpected product/runtime change after authorized FX-22 staging baseline: $file"
                 exit 1
                 ;;
               src/*|assets/*)
-                echo "Unexpected product/runtime change after final FX-21 repair baseline: $file"
+                echo "Unexpected product/runtime change after authorized FX-22 staging baseline: $file"
                 exit 1
                 ;;
               *)
@@ -43,7 +43,7 @@ jobs:
             esac
           done < /tmp/fx19-diff.txt
 
-          echo "POST_FX21_PRODUCT_RUNTIME_CHANGE=NONE"
+          echo "POST_FX22_PRODUCT_RUNTIME_CHANGE=NONE"
 
       - name: Re-run complete Node regression suite
         run: npm test

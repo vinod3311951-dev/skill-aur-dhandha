@@ -41,3 +41,8 @@ Founder trademark disposition remains unchanged: working name may continue for i
 
 ## Compliance declaration
 "No locked number, workflow, product fact, authority, or rule was blended, inferred, approximated, substituted, or silently changed during this stage."
+
+
+## Regression maintenance
+FX-22 intentionally changed staging runtime surfaces (noindex metadata, robots.txt, private-preview UI, founder level-select, service-worker cache version).
+Persistent regression guards from FX-16/FX-19/FX-20 were updated only to recognize the authorized FX-22 staging cache/runtime baseline. No gameplay rule, asset, monetisation feature, public analytics sender, cross-promo surface, or release-mode behavior was added by this maintenance.

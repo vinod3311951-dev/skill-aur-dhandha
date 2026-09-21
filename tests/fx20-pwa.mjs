@@ -48,7 +48,7 @@ assert.match(html,/rel="apple-touch-icon"/);
 for(const external of html.matchAll(/(?:src|href)="(https?:\/\/[^"]+)"/g))throw new Error("unexpected external runtime resource: "+external[1]);
 
 const sw=text("sw.js");
-assert.match(sw,/color-dominion-v16/);
+assert.match(sw,/color-dominion-v22-staging/);
 assert.match(sw,/caches\.open\(CACHE\)/);
 assert.match(sw,/request\.mode==="navigate"/);
 assert.match(sw,/caches\.match\("\.\/index\.html"\)/);
