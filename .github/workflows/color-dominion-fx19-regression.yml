@@ -1,0 +1,51 @@
+name: Color Dominion FX19 Fixes and Regression
+
+on:
+  push:
+    branches:
+      - color-dominion-fx07-smoke-v2
+
+permissions:
+  contents: read
+
+jobs:
+  fx19-no-change-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify FX-19 is a no-product-change pass
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="905328ee98bb5a474ebd7d6c2b680d11bef84445"
+          git cat-file -e "$BASE^{commit}"
+          git diff --name-only "$BASE"...HEAD | tee /tmp/fx19-diff.txt
+          while IFS= read -r file; do
+            case "$file" in
+              docs/audit/FX18_PLAYWRIGHT_QA_RECORD.md) ;;
+              docs/audit/FX19_FIXES_REGRESSION_RECORD.md) ;;
+              .github/workflows/color-dominion-fx19-regression.yml) ;;
+              "") ;;
+              *)
+                echo "Unexpected product/runtime change in FX-19: $file"
+                exit 1
+                ;;
+            esac
+          done < /tmp/fx19-diff.txt
+          echo "FX19_PRODUCT_CHANGE=NONE"
+
+      - name: Re-run complete Node regression suite
+        run: npm test
+
+      - name: Verify critical PWA/runtime files remain present
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in index.html styles.css manifest.webmanifest sw.js src/app.js src/engine.js src/stages.js src/integrations.js; do
+            test -s "$f"
+          done
+          echo "FX19_CRITICAL_FILES=PASS"
