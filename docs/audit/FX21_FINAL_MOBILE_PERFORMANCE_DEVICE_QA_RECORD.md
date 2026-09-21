@@ -1,13 +1,17 @@
 # Color Dominion — FX-21 Final Mobile / Performance / Device QA Record
 
 Stage: FX-21 — Final Mobile / Performance / Device QA
-Status: EXECUTION PENDING
+Status: EXECUTION / REPAIR IN PROGRESS
 Branch: color-dominion-fx07-smoke-v2
 
 ## Ordinary-release authority boundary
-The current authoritative PWA-hours lock separates ordinary PWA release from paid BrowserStack winner certification.
-Therefore FX-21 performs free browser/device-emulation, responsiveness, lifecycle, input and performance-evidence QA.
-It does NOT purchase or start BrowserStack physical-device sessions.
+The authoritative PWA-hours lock separates ordinary PWA release from paid BrowserStack winner certification.
+FX-21 therefore performs the free mobile/browser/device-emulation and performance gate. No paid BrowserStack physical-device session is started.
+
+## Authoritative performance budget
+Portfolio game law targets 60 FPS with a graceful approximately 30 FPS floor.
+The Factory X mobile rendering prevention protocol makes the release floor explicit: p95 FPS must be >=30 unless a product-specific frozen blueprint requires higher.
+Color Dominion has no higher product-specific numeric floor, so FX-21 enforces p95 FPS >=30.
 
 ## Device/viewport coverage
 Chromium and WebKit each cover:
@@ -21,27 +25,28 @@ Chromium and WebKit each cover:
 ## Functional/mobile checks
 - touch-first gameplay entry;
 - first board within the blueprint's <=10-second target after Play;
-- one touch-shot resolving on every profile;
+- bounded touch-shot attempts with successful resolved shot required;
 - pause/resume;
 - background/foreground recovery smoke;
 - no horizontal overflow;
-- visible control target floor;
+- visible button target floor of 48 CSS px/dp-equivalent;
 - console/page-error absence.
 
 ## Performance evidence
-- requestAnimationFrame timing distribution is recorded for each profile;
-- input-to-resolved-shot elapsed time is recorded;
-- cold-load and first-board timing are recorded;
-- Chromium additionally performs a 24-level repeated-render soak;
-- Chromium records JS heap before/after the 24-level soak when performance.memory is available.
+- dedicated requestAnimationFrame sample per profile;
+- p95 FPS >=30 hard gate;
+- input-to-resolved-shot elapsed time recorded;
+- cold-load and first-board timing recorded;
+- Chromium performs a 24-cycle same-page restart soak;
+- Chromium records JS heap before/after the soak when performance.memory is available.
 
-## Performance-budget authority note
-The Color Dominion blueprint requires a performance budget to pass, but the currently indexed Color Dominion authorities do not provide a numeric FPS/frame-time/input-latency/memory ceiling.
-FX-21 therefore records the metrics and checks functional stability without inventing a numeric release threshold.
-A numeric performance verdict cannot be represented as a locked budget unless an authoritative value already exists or the founder explicitly establishes one.
+## QA incidents
+1. Initial FX-21 attempt timed out on one fixed touch aim point in both Chromium and WebKit. This was classified as TEST HARNESS because prior FX-18 touch paths were green and the harness assumed one trajectory must always decrement shots. The QA was changed to bounded alternative aim points rather than changing game rules.
+2. The first repair commit accidentally referenced a missing sampleFrameBudget helper. This was a TEST HARNESS coding defect and was corrected before any product verdict.
+3. Final-mobile accessibility enforcement identified compact controls below the portfolio 48dp-equivalent target; CSS compact control height was raised to 48px and the full regression matrix is required to rerun.
 
 ## Physical-device boundary
-The reusable real-device standard remains retained for the later winner batch. Physical Android/iPhone BrowserStack certification is not performed here because the authoritative ordinary-release workflow explicitly defers that paid layer until real traction selects approximately 3–4 winners.
+Physical Android/iPhone BrowserStack certification remains deferred to the later winner batch after real traction, under the current locked winner workflow. Emulator/browser performance evidence is necessary for ordinary PWA release but is not represented as final physical hardware certification.
 
 ## Founder dispositions
 Trademark/name disposition remains unchanged.
