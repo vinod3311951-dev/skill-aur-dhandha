@@ -1,0 +1,75 @@
+name: Color Dominion Live Smoke
+
+on:
+  push:
+    branches:
+      - color-dominion-fx07-smoke-v2
+
+permissions:
+  contents: read
+
+jobs:
+  live-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for Pages propagation
+        run: sleep 15
+
+      - name: HTTP smoke matrix
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="https://vinod3311951-dev.github.io/skill-aur-dhandha"
+          check() {
+            label="$1"
+            path="$2"
+            code="$(curl -L -sS -o /dev/null -w "%{http_code}" "$BASE$path")"
+            echo "$label $path HTTP=$code"
+            test "$code" = "200"
+          }
+          check "INDEX" "/"
+          check "CSS" "/styles.css"
+          check "JS_APP" "/src/app.js"
+          check "JS_CONFIG" "/src/config.js"
+          check "JS_ENGINE" "/src/engine.js"
+          check "JS_GRID" "/src/grid.js"
+          check "JS_RNG" "/src/rng.js"
+          check "JS_STAGES" "/src/stages.js"
+          check "BRAND" "/assets/brand/CD-BRAND-002-emblem-master-v1.svg"
+          check "BUBBLE" "/assets/bubbles/CD-BUB-001-cyan-ring-v1.svg"
+
+      - name: Install browser smoke dependency
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+
+      - name: Browser console smoke
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import { chromium } from 'playwright';
+          const url = 'https://vinod3311951-dev.github.io/skill-aur-dhandha/';
+          const browser = await chromium.launch({headless:true});
+          const page = await browser.newPage({viewport:{width:390,height:844}});
+          const consoleErrors = [];
+          const pageErrors = [];
+          page.on('console', msg => {
+            if (msg.type() === 'error') consoleErrors.push(msg.text());
+          });
+          page.on('pageerror', err => pageErrors.push(String(err)));
+          const response = await page.goto(url, {waitUntil:'networkidle', timeout:60000});
+          console.log('PAGE_HTTP=' + (response ? response.status() : 'NO_RESPONSE'));
+          const title = await page.title();
+          const h1 = await page.locator('h1').textContent();
+          const playVisible = await page.locator('#play-btn').isVisible();
+          console.log('TITLE=' + title);
+          console.log('H1=' + h1);
+          console.log('PLAY_VISIBLE=' + playVisible);
+          console.log('CONSOLE_ERRORS=' + JSON.stringify(consoleErrors));
+          console.log('PAGE_ERRORS=' + JSON.stringify(pageErrors));
+          if (!response || response.status() !== 200) throw new Error('Page HTTP status not 200');
+          if ((h1 || '').trim() !== 'Color Dominion') throw new Error('Expected Color Dominion heading missing');
+          if (!playVisible) throw new Error('Play button not visible');
+          if (consoleErrors.length || pageErrors.length) throw new Error('Critical browser console/page error detected');
+          await browser.close();
+          NODE
