@@ -31,7 +31,7 @@ async function noHorizontalOverflow(page,label){
   assert.ok(m.sw-m.cw<=2,`${label}: horizontal overflow ${m.sw-m.cw}px`);
 }
 
-async function oneTouchShot(page){
+async function oneTouchShot(page,label){
   const box=await page.locator("#game").boundingBox();
   assert.ok(box&&box.width>100&&box.height>160,"game canvas unavailable");
   const before=await page.evaluate(()=>window.__CD_DIAGNOSTICS__.snapshot().shotsLeft);
@@ -44,7 +44,7 @@ async function oneTouchShot(page){
     if(after<before)return Date.now()-t0;
   }
   const diag=await page.evaluate(()=>window.__CD_DIAGNOSTICS__.snapshot());
-  throw new Error("touch shot did not resolve after bounded aim attempts: "+JSON.stringify(diag));
+  throw new Error(label+" touch shot did not resolve after bounded aim attempts: "+JSON.stringify(diag));
 }
 
 async function sampleFrameBudget(page,durationMs=2200){
@@ -94,7 +94,7 @@ try{
     assert.ok(firstBoardMs<=10000,`${profile.name}: first board exceeded 10s target: ${firstBoardMs}ms`);
     await visibleButtonsMeetFloor(page,profile.name+" gameplay");
 
-    const inputResolveMs=await oneTouchShot(page);
+    const inputResolveMs=await oneTouchShot(page,profile.name);
     const frameBudget=await sampleFrameBudget(page);
 
     await page.locator("#pause-btn").click();
