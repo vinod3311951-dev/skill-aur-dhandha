@@ -107,11 +107,13 @@ Rationale recorded by founder:
 - Review every product using the founder sampling plan.
 - Log likes/dislikes.
 - Batch feedback.
+- Products remain noindex, unlisted, unmarketed and password-gated.
 
 ### Phase 3 — Fixes
 - Apply founder-requested edits.
 - Re-run affected pipeline stages.
 - Products update in staging.
+- Products remain noindex, unlisted, unmarketed and password-gated.
 
 ### Phase 4 — Marketing
 DO NOT ACTIVATE.
@@ -162,15 +164,25 @@ This record performs NO:
 - Play Store action;
 - stage transition.
 
-## Anti-Confusion Note — Future-Phase Conflict To Resolve Before Activation
+## Founder Clarification — Directive D Correction
 
-Directive A says all products remain noindex and unlisted during staging until explicit per-product release after the timing lock.
-Directive D also contains the sentence that products remain "findable during Phases 2–3 (indexed, listed) but no active marketing."
+Directive A is authoritative on staging visibility.
+The earlier Directive D wording that suggested products could be indexed/listed during Phases 2–3 was incorrect and is superseded.
 
-Those instructions conflict if interpreted literally.
-No choice is made here and neither behavior is activated.
-Before Phase 2/3 indexing/listing behavior is changed, founder clarification is required.
-Until then, the currently explicit Staging Mode implementation remains unactivated planning text, not an executed change.
+Corrected portfolio visibility policy:
+
+| Phase | Indexed? | Marketed? | Access |
+|---|---|---|---|
+| Phase 1 (production) | NO | NO | Password-gated |
+| Phase 2 (founder review) | NO | NO | Password-gated |
+| Phase 3 (fixes) | NO | NO | Password-gated |
+| Phase 4 (marketing launch) | YES | YES | Public |
+| Phase 5 (scale) | YES | YES | Public |
+
+Binding rule:
+- Phases 1–3 remain noindex and unlisted.
+- Phase 4 begins indexing/listing/marketing only after the explicit founder release directive and the other staging-release conditions are satisfied.
+- No automatic release or indexing is permitted.
 
 ## Current Color Dominion State
 
