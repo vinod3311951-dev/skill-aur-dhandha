@@ -68,6 +68,7 @@ try{
     const firstBoardMs=Date.now()-firstActionStart;
     assert.ok(firstBoardMs<=10000,`${profile.name}: first board exceeded 10s target: ${firstBoardMs}ms`);
     const inputResolveMs=await oneTouchShot(page);
+    const frameBudget=await sampleFrameBudget(page);
 
     await page.locator("#pause-btn").click();
     await page.locator("#pause-overlay").waitFor({state:"visible"});
@@ -100,7 +101,8 @@ try{
       frameMedianMs:q(.5),
       frameP90Ms:q(.9),
       frameP95Ms:q(.95),
-      frameMaxMs:usable.length?usable[usable.length-1]:null
+      frameMaxMs:usable.length?usable[usable.length-1]:null,
+      performanceGate:frameBudget
     });
     await context.close();
   }
