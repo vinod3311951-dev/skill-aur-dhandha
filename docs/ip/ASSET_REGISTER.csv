@@ -1,0 +1,13 @@
+asset_id,path_or_group,type,provenance_category,evidence,status
+CD-BRAND-001,assets/brand/CD-BRAND-001-wordmark-master-v1.svg,brand,ORIGINAL_FACTORY_X,git:1aa8e0939cebfe760b85fa71b0c41cbe778e6087,active
+CD-BRAND-002,assets/brand/CD-BRAND-002-emblem-master-v1.svg,brand,ORIGINAL_FACTORY_X,git:215c4016b1ec066c7da913c1b02e8cf28839d02f,active
+CD-PWA,assets/pwa/,icons,ORIGINAL_FACTORY_X,repository-history,active
+CD-WORLDS,assets/worlds/,world-art,ORIGINAL_FACTORY_X,repository-history,active
+CD-BUBBLES,assets/bubbles/,game-art,ORIGINAL_FACTORY_X,repository-history,active
+CD-UI,assets/ui/,ui-art,ORIGINAL_FACTORY_X,repository-history,active
+CD-EFFECTS,assets/effects/,effects,ORIGINAL_FACTORY_X,repository-history,active
+CD-LAUNCHER,assets/launcher/,launcher-art,ORIGINAL_FACTORY_X,repository-history,active
+CD-MARKETING,assets/marketing/,marketing-art,ORIGINAL_FACTORY_X,repository-history,active
+CD-MUSIC,assets/audio/music/,music,ORIGINAL_FACTORY_X,repository-history,active
+CD-SFX,assets/audio/sfx/,sound-effects,ORIGINAL_FACTORY_X,repository-history,active
+CD-CODE,index.html|styles.css|src/|tests/|sw.js|manifest.webmanifest,source-code,ORIGINAL_FACTORY_X,repository-history,active
