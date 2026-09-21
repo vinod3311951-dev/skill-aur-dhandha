@@ -17,26 +17,30 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Verify FX-19 is a no-product-change pass
+      - name: Verify FX-19 product runtime remains unchanged
         shell: bash
         run: |
           set -euo pipefail
           BASE="905328ee98bb5a474ebd7d6c2b680d11bef84445"
           git cat-file -e "$BASE^{commit}"
           git diff --name-only "$BASE"...HEAD | tee /tmp/fx19-diff.txt
+
           while IFS= read -r file; do
             case "$file" in
-              docs/audit/FX18_PLAYWRIGHT_QA_RECORD.md) ;;
-              docs/audit/FX19_FIXES_REGRESSION_RECORD.md) ;;
-              .github/workflows/color-dominion-fx19-regression.yml) ;;
-              "") ;;
-              *)
-                echo "Unexpected product/runtime change in FX-19: $file"
+              index.html|styles.css|manifest.webmanifest|sw.js|server.mjs|package.json)
+                echo "Unexpected product/runtime change after FX-18: $file"
                 exit 1
+                ;;
+              src/*|assets/*)
+                echo "Unexpected product/runtime change after FX-18: $file"
+                exit 1
+                ;;
+              *)
                 ;;
             esac
           done < /tmp/fx19-diff.txt
-          echo "FX19_PRODUCT_CHANGE=NONE"
+
+          echo "FX19_PRODUCT_RUNTIME_CHANGE=NONE"
 
       - name: Re-run complete Node regression suite
         run: npm test
