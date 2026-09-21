@@ -1,0 +1,9 @@
+{
+  "name": "color-dominion-fx07-smoke",
+  "private": true,
+  "version": "0.7.0",
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs"
+  }
+}
