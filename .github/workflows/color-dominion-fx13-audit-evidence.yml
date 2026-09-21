@@ -1,0 +1,55 @@
+name: Color Dominion FX13 Audit Evidence
+
+on:
+  push:
+    branches:
+      - color-dominion-fx07-smoke-v2
+
+permissions:
+  contents: read
+
+jobs:
+  audit-evidence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Current unit tests
+        run: npm test
+
+      - name: PWA file presence audit
+        shell: bash
+        run: |
+          echo "MANIFEST_PRESENT=$(test -f manifest.json && echo yes || echo no)"
+          echo "SERVICE_WORKER_PRESENT=$(find . -maxdepth 2 -type f \( -name 'sw.js' -o -name 'service-worker.js' \) | head -n 1 | grep -q . && echo yes || echo no)"
+
+      - name: Install browser
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+
+      - name: Live first-use probe
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import { chromium } from 'playwright';
+          const browser = await chromium.launch({headless:true});
+          const page = await browser.newPage({viewport:{width:390,height:844}});
+          const errors=[];
+          page.on('console',m=>{if(m.type()==='error')errors.push('console:'+m.text())});
+          page.on('pageerror',e=>errors.push('page:'+String(e)));
+          const t0=Date.now();
+          const response=await page.goto('https://vinod3311951-dev.github.io/skill-aur-dhandha/',{waitUntil:'networkidle',timeout:60000});
+          await page.locator('#play-btn').click();
+          await page.locator('#game').waitFor({state:'visible',timeout:5000});
+          const elapsed=Date.now()-t0;
+          const stage=await page.locator('#stage-label').textContent();
+          console.log('PAGE_HTTP='+(response?.status()??'NO'));
+          console.log('FIRST_PLAY_VISIBLE_MS='+elapsed);
+          console.log('STAGE_LABEL='+stage);
+          console.log('ERRORS='+JSON.stringify(errors));
+          if(response?.status()!==200) throw new Error('live page not 200');
+          if(!stage?.includes('Stage 1')) throw new Error('stage 1 not reached');
+          if(errors.length) throw new Error('browser errors');
+          await browser.close();
+          NODE
