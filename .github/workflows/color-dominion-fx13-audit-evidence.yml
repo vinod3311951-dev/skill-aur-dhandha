@@ -1,4 +1,4 @@
-name: Color Dominion FX13 Audit Evidence
+name: Color Dominion FX14 Regression
 
 on:
   push:
@@ -9,47 +9,67 @@ permissions:
   contents: read
 
 jobs:
-  audit-evidence:
+  fx14-regression:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Current unit tests
+      - name: Unit and FX-14 static regression
         run: npm test
 
-      - name: PWA file presence audit
+      - name: PWA and IP presence gate
         shell: bash
         run: |
-          echo "MANIFEST_PRESENT=$(test -f manifest.json && echo yes || echo no)"
-          echo "SERVICE_WORKER_PRESENT=$(find . -maxdepth 2 -type f \( -name 'sw.js' -o -name 'service-worker.js' \) | head -n 1 | grep -q . && echo yes || echo no)"
+          test -f manifest.webmanifest
+          test -f sw.js
+          test -f docs/ip/IP_PROVENANCE_REGISTER.md
+          test -f docs/ip/ASSET_REGISTER.csv
+          test -f docs/ip/DEPENDENCY_LICENSE_REGISTER.md
+          test -f docs/ip/MUSIC_SFX_RIGHTS_REGISTER.md
+          test -f docs/ip/FONT_REGISTER.md
+          test -f docs/ip/TRADEMARK_NAME_CHECK.md
+          echo "PWA_IP_FILES=PASS"
 
       - name: Install browser
         run: |
           npm install --no-save playwright@1.55.0
           npx playwright install chromium
 
-      - name: Live first-use probe
+      - name: Local mobile smoke
         shell: bash
         run: |
+          node server.mjs > /tmp/color-dominion-server.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:8080/ >/dev/null; then break; fi
+            sleep 1
+          done
           node --input-type=module <<'NODE'
           import { chromium } from 'playwright';
-          const browser = await chromium.launch({headless:true});
-          const page = await browser.newPage({viewport:{width:390,height:844}});
+          const browser=await chromium.launch({headless:true});
+          const page=await browser.newPage({viewport:{width:390,height:844}});
           const errors=[];
           page.on('console',m=>{if(m.type()==='error')errors.push('console:'+m.text())});
           page.on('pageerror',e=>errors.push('page:'+String(e)));
-          const t0=Date.now();
-          const response=await page.goto('https://vinod3311951-dev.github.io/skill-aur-dhandha/',{waitUntil:'networkidle',timeout:60000});
-          await page.locator('#play-btn').click();
-          await page.locator('#game').waitFor({state:'visible',timeout:5000});
-          const elapsed=Date.now()-t0;
+          const response=await page.goto('http://127.0.0.1:8080/',{waitUntil:'networkidle'});
+          if(response?.status()!==200) throw new Error('home not 200');
+          await page.locator('#settings-btn').click();
+          await page.locator('#settings-screen').waitFor({state:'visible'});
+          await page.locator('[data-home]').first().click();
+          await page.locator('#map-btn').click();
+          await page.locator('#map-screen').waitFor({state:'visible'});
+          await page.locator('[data-home]').first().click();
+          await page.locator('#how-btn').click();
+          await page.locator('#how-screen').waitFor({state:'visible'});
+          await page.locator('#how-play-btn').click();
+          await page.locator('#game').waitFor({state:'visible'});
           const stage=await page.locator('#stage-label').textContent();
-          console.log('PAGE_HTTP='+(response?.status()??'NO'));
-          console.log('FIRST_PLAY_VISIBLE_MS='+elapsed);
-          console.log('STAGE_LABEL='+stage);
-          console.log('ERRORS='+JSON.stringify(errors));
-          if(response?.status()!==200) throw new Error('live page not 200');
           if(!stage?.includes('Stage 1')) throw new Error('stage 1 not reached');
-          if(errors.length) throw new Error('browser errors');
+          await page.locator('#pause-btn').click();
+          await page.locator('#pause-overlay').waitFor({state:'visible'});
+          await page.locator('#resume-btn').click();
+          if(errors.length) throw new Error(errors.join('\n'));
+          console.log('MOBILE_SMOKE=PASS');
           await browser.close();
           NODE
