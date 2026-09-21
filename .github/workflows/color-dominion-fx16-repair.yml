@@ -24,7 +24,7 @@ jobs:
           test -f src/integrations.js
           test -f docs/audit/FX16_AUDIT2_REPAIR_RECORD.md
           grep -q 'objective-label' index.html
-          grep -q 'color-dominion-v16' sw.js
+          grep -q 'color-dominion-v22-staging' sw.js
           grep -q 'FOUNDER DISPOSITION' docs/ip/TRADEMARK_NAME_CHECK.md
           echo "FX16_STATIC_REPAIR=PASS"
 
