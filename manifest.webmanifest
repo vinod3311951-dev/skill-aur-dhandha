@@ -1,0 +1,33 @@
+{
+  "id": "./",
+  "name": "Color Dominion",
+  "short_name": "Color Dominion",
+  "description": "Aim, match and restore a faded Dominion to colour.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#10172b",
+  "theme_color": "#18213A",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "./assets/pwa/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/pwa/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/pwa/CD-BRAND-004-maskable-icon-512-v1.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
