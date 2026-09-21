@@ -1,0 +1,1 @@
+import test from"node:test";import assert from"node:assert/strict";import{CORE_STAGE_COUNT}from"../src/config.js";import{STAGES,generateBoard,validateBoard}from"../src/stages.js";test("100 stages",()=>{assert.equal(CORE_STAGE_COUNT,100);assert.equal(STAGES.length,100)});test("all openings valid",()=>{for(const c of STAGES)assert.equal(validateBoard(generateBoard(c),c).ok,true)});
