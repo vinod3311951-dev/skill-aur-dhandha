@@ -1,0 +1,40 @@
+name: Color Dominion FX17 Factory X Automated QA
+
+on:
+  push:
+    branches:
+      - color-dominion-fx07-smoke-v2
+
+permissions:
+  contents: read
+
+jobs:
+  factory-x-automated-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run full Node regression suite
+        run: npm test
+
+      - name: Run FX-17 acceptance gate explicitly
+        run: node --test tests/fx17.test.mjs
+
+      - name: Verify production-critical files are non-empty
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in index.html styles.css manifest.webmanifest sw.js src/app.js src/engine.js src/stages.js src/integrations.js; do
+            test -s "$f"
+          done
+          echo "FX17_CRITICAL_FILES=PASS"
+
+      - name: Record deterministic asset inventory
+        shell: bash
+        run: |
+          set -euo pipefail
+          find assets -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/fx17-assets.sha256
+          test -s /tmp/fx17-assets.sha256
+          echo "FX17_ASSET_COUNT=$(wc -l < /tmp/fx17-assets.sha256)"
+          sha256sum /tmp/fx17-assets.sha256
