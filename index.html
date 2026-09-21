@@ -14,7 +14,21 @@
 <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-<main class="app-shell" id="app">
+<section id="preview-gate" class="preview-gate" aria-labelledby="preview-gate-title">
+  <div class="preview-gate-card">
+    <p class="kicker">Factory X Staging</p>
+    <img class="preview-gate-brand" src="./assets/brand/CD-BRAND-002-emblem-master-v1.svg" alt="">
+    <h1 id="preview-gate-title">Private Preview — Password Required</h1>
+    <p class="lead">This build is restricted to authorised Factory X review.</p>
+    <form id="preview-gate-form" class="preview-gate-form">
+      <label for="preview-password">Preview password</label>
+      <input id="preview-password" name="password" type="password" autocomplete="current-password" maxlength="256" required>
+      <button id="preview-unlock-btn" class="primary" type="submit">Unlock Preview</button>
+      <p id="preview-gate-status" class="preview-gate-status" role="status" aria-live="polite"></p>
+    </form>
+  </div>
+</section>
+<main class="app-shell" id="app" hidden>
   <section id="home-screen" class="screen home">
     <div class="top-actions">
       <button class="icon-btn" id="map-btn" type="button" aria-label="Open Dominion map">Map</button>

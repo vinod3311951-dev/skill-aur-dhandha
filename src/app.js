@@ -3,6 +3,7 @@ import{cellCenter,fromKey}from"./grid.js";
 import{STAGES,generateValidBoard}from"./stages.js";
 import{GameEngine}from"./engine.js";
 import{AnalyticsAdapter,AdPolicyAdapter,CrossPromoAdapter}from"./integrations.js";
+import{enforceStagingGate}from"./staging-gate.js";
 
 const $=s=>document.querySelector(s);
 const $$=s=>[...document.querySelectorAll(s)];
@@ -86,4 +87,4 @@ document.addEventListener("visibilitychange",()=>{if(document.hidden)music.pause
 window.addEventListener("error",e=>{if(!screens.play.hidden)showError(e.error||new Error(e.message))});
 if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
 window.__CD_DIAGNOSTICS__={snapshot:()=>({stage:engine?.config.id||state.currentStage,status:engine?.status||"home",shotsLeft:engine?.shotsLeft??null,score:engine?.score??0,objective:engine?.objectiveStatus?.()||null,frameSampleCount:frameSamples.length,storageOk,online:navigator.onLine,adsEnabled:Boolean(adPolicy.provider),crossPromoChoices:crossPromo.choices("color-dominion").length}),frameSamples:()=>frameSamples.slice()};
-applySettings();refreshHome();show("home");resize();requestAnimationFrame(loop);
+await enforceStagingGate();applySettings();refreshHome();show("home");resize();requestAnimationFrame(loop);
