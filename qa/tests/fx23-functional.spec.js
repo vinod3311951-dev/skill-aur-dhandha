@@ -33,7 +33,7 @@ test('level 1 is playable and completion unlocks level 2', async ({ page }) => {
   await page.mouse.click(box.x + box.width * 0.68, box.y + box.height * 0.42);
   await page.locator('[data-action="fire"]').click();
 
-  await expect(page.getByText(/MISSION COMPLETE|Objective complete/i)).toBeVisible({ timeout: 4000 });
+  await expect(page.getByRole('heading', { name: /Objective complete/i })).toBeVisible({ timeout: 4000 });
   const scoreText = await page.locator('.result-score strong').textContent();
   expect(Number(scoreText)).toBeGreaterThan(0);
 
@@ -45,7 +45,7 @@ test('level 1 is playable and completion unlocks level 2', async ({ page }) => {
   await expect(mission2).toBeEnabled();
 });
 
-for (const level of [5, 10, 25, 50]) {
+for (const level of [5, 10, 25, 50, 100]) {
   test(`representative level ${level} opens into playable mission`, async ({ page }) => {
     await openLevel(page, level);
     const before = Number(await page.locator('#attempts').textContent());
