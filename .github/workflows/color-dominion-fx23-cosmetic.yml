@@ -1,0 +1,55 @@
+name: Color Dominion FX-23 Cosmetic QA
+
+on:
+  push:
+    branches: [color-dominion-fx07-smoke-v2]
+    paths:
+      - "src/app.js"
+      - "src/music-engine.js"
+      - "sw.js"
+      - "COLOR_DOMINION_FX05_ASSET_PACK_UPGRADE_2026-09-22.md"
+      - "qa/color-dominion-fx23.spec.mjs"
+      - "qa/color-dominion-playwright.config.mjs"
+      - ".github/workflows/color-dominion-fx23-cosmetic.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    env:
+      FACTORYX_PREVIEW_PASSWORD: fx-test-password
+      COLOR_DOMINION_URL: http://127.0.0.1:8080
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: color-dominion-fx07-smoke-v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Run existing automated tests
+        run: npm test
+      - name: Install Playwright
+        run: |
+          npm install --no-save --no-audit --no-fund @playwright/test
+          npx playwright install --with-deps chromium
+      - name: Start Color Dominion staging server
+        run: |
+          FACTORYX_PREVIEW_PASSWORD="$FACTORYX_PREVIEW_PASSWORD" node server.mjs > /tmp/color-dominion.log 2>&1 &
+          echo $! > /tmp/color-dominion.pid
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8080/ >/dev/null; then break; fi
+            sleep 1
+          done
+      - name: Run visual and audio runtime QA
+        run: npx playwright test --config=qa/color-dominion-playwright.config.mjs
+      - name: Record cosmetic QA pass
+        if: success()
+        run: |
+          printf 'COLOR DOMINION FX-23 COSMETIC QA PASS\ncommit=%s\nchecks=jelly-glass-runtime,trance-v2-runtime,stages-1-5-25-50-100,canvas-render,idle-reflection\n' "$GITHUB_SHA" > COLOR_DOMINION_FX23_COSMETIC_QA_PASS.txt
+          git config user.name "factory-x-qa"
+          git config user.email "factory-x-qa@users.noreply.github.com"
+          git add COLOR_DOMINION_FX23_COSMETIC_QA_PASS.txt
+          git commit -m "qa: record Color Dominion FX-23 cosmetic pass"
+          git push origin HEAD:color-dominion-fx07-smoke-v2
