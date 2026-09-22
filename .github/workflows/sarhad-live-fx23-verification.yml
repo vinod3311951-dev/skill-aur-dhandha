@@ -1,0 +1,28 @@
+name: Sarhad Live FX-23 Verification
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/sarhad-live-fx23-verification.yml"
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: sarhad-sniper-deploy
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install Playwright
+        working-directory: qa
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium webkit
+      - name: Run functional + smoke against live Vercel alias
+        working-directory: qa
+        env:
+          GAME_URL: https://sarhad-sniper.vercel.app
+        run: npx playwright test tests/fx23-functional.spec.js tests/smoke.spec.js --project=local-android-chrome --project=local-iphone-webkit --reporter=line
