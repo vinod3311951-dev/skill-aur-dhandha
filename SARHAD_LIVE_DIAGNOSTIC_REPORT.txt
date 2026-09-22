@@ -1,55 +1,372 @@
 
 === home ===
-URL: https://sarhad-sniper.vercel.app/
-BUTTONS: ["Go back","\nCopy Debug Prompt"]
-STATE: null
+URL: https://sarhad-sniper-production.up.railway.app/
+BUTTONS: ["⚙","Start Campaign","Mission Map","Scenic Archive"]
+STATE: "{\"screen\":\"home\",\"selectedMissionId\":\"w1-m1-relay-core\",\"selectedWorldId\":1,\"paused\":false,\"missionEnded\":false,\"attemptsLeft\":3,\"missionScore\":0,\"civilianHits\":0,\"viewMode\":\"scope\",\"visualPerformanceTier\":\"low\"}"
 TEXT:
-This page doesn’t exist
+PRECISION MISSIONS
 
-It may have been moved, removed, or never existed.
+Sarhad Sniper
+Best 0
+⚙
 
-Go back
+CAPTAIN RUDRAA
 
-404 NOT_FOUND
+Precision over force.
+Observe first. Protect civilians. Act only on a clean objective.
+Observe. Decide. Fire once.
 
-sfo1::khljb-1790069533429-d2b08d45c35f
+Short precision and tactical puzzle missions across seven fictional scenic worlds.
 
-VIEW DOCUMENTATION
-COPY DEBUG PROMPT
+0/105 MISSIONS
+MASTERY
+0/315 ★
+Observer
+WORLD POSTCARDS
+0/7
+Earned by clearing routes
+Precision
+0/147
+Timing
+0/84
+Intelligence
+0/84
+1
+2
+3
+4
+5
+6
+7
+Start Campaign
+Mission Map
+Scenic Archive
+Fictional worlds • Object targets • No real conflicts
 
-CLICK primary CTA: count=0
+CLICK primary CTA: count=1
+
+=== after primary CTA ===
+URL: https://sarhad-sniper-production.up.railway.app/
+BUTTONS: ["⚙","← Missions","Begin"]
+STATE: "{\"screen\":\"briefing\",\"selectedMissionId\":\"w1-m1-relay-core\",\"selectedWorldId\":1,\"paused\":false,\"missionEnded\":false,\"attemptsLeft\":3,\"missionScore\":0,\"civilianHits\":0,\"viewMode\":\"scope\",\"visualPerformanceTier\":\"low\"}"
+TEXT:
+PRECISION MISSIONS
+
+Sarhad Sniper
+Best 0
+⚙
+← Missions
+
+WORLD 1 • MISSION 1
+
+SARHAD CLIFFS
+Silent Relay
+
+Objective: Disable the exposed relay core with one precise shot.
+
+SARHAD CLIFFSCold ridge air • long clear sightlines
+R
+
+Rudraa field note: Settle the sight. The clean shot is the fast shot.
+
+Mission
+Precision
+Attempts
+3
+Loadout
+Precision class
+Input
+Drag + Fire
+Begin
+Fictional worlds • Object targets • No real conflicts
+
+CLICK briefing start: count=1
+
+=== after briefing start ===
+URL: https://sarhad-sniper-production.up.railway.app/
+BUTTONS: ["OVERVIEW","Resume","Missions","Pause","FIRE"]
+STATE: "{\"screen\":\"mission\",\"selectedMissionId\":\"w1-m1-relay-core\",\"selectedWorldId\":1,\"paused\":false,\"missionEnded\":false,\"attemptsLeft\":3,\"missionScore\":0,\"civilianHits\":0,\"viewMode\":\"scope\",\"visualPerformanceTier\":\"low\"}"
+TEXT:
+PRECISION MISSIONS
+
+Sarhad Sniper
+Best 0
+WORLD 1
+Sarhad Cliffs
+Precision
+Mission
+1/15
+Attempts
+3
+Score
+0
+Fictional loadout
+Precision class
+PRECISION • SETTLE THE SIGHT
+OVERVIEW
+DRAG TO AIM
+Overview is one tap away • FIRE when the sight is settled
+Drag the sight onto Relay Core.
+Pause
+FIRE
+Fictional worlds • Object targets • No real conflicts
 
 === home before map ===
-URL: https://sarhad-sniper.vercel.app/
-BUTTONS: ["Go back","\nCopy Debug Prompt"]
-STATE: null
+URL: https://sarhad-sniper-production.up.railway.app/
+BUTTONS: ["⚙","Start Campaign","Mission Map","Scenic Archive"]
+STATE: "{\"screen\":\"home\",\"selectedMissionId\":\"w1-m1-relay-core\",\"selectedWorldId\":1,\"paused\":false,\"missionEnded\":false,\"attemptsLeft\":3,\"missionScore\":0,\"civilianHits\":0,\"viewMode\":\"scope\",\"visualPerformanceTier\":\"low\"}"
 TEXT:
-This page doesn’t exist
+PRECISION MISSIONS
 
-It may have been moved, removed, or never existed.
+Sarhad Sniper
+Best 0
+⚙
 
-Go back
+CAPTAIN RUDRAA
 
-404 NOT_FOUND
+Precision over force.
+Observe first. Protect civilians. Act only on a clean objective.
+Observe. Decide. Fire once.
 
-sfo1::d9qbs-1790069534686-a3870d846aeb
+Short precision and tactical puzzle missions across seven fictional scenic worlds.
 
-VIEW DOCUMENTATION
-COPY DEBUG PROMPT
+0/105 MISSIONS
+MASTERY
+0/315 ★
+Observer
+WORLD POSTCARDS
+0/7
+Earned by clearing routes
+Precision
+0/147
+Timing
+0/84
+Intelligence
+0/84
+1
+2
+3
+4
+5
+6
+7
+Start Campaign
+Mission Map
+Scenic Archive
+Fictional worlds • Object targets • No real conflicts
 
-CLICK mission map: count=0
+CLICK mission map: count=1
 
-WORLD ENABLED COUNT=0
+=== after mission map ===
+URL: https://sarhad-sniper-production.up.railway.app/
+BUTTONS: ["⚙","← Home","\n            1\n            Sarhad CliffsHigh ridges and clean sightlines0/15 complete\n            →\n          ","\n            2\n            Amber DesertHeat shimmer and timed windowsLocked\n            •\n          ","\n            3\n            Pine WatchForest cover and identificationLocked\n            •\n          ","\n            4\n            Monsoon PassRain, motion and visibilityLocked\n            •\n          ","\n            5\n            Glacier LineCold air and ricochet geometryLocked\n            •\n          ","\n            6\n            Red CanyonMechanical sequence puzzlesLocked\n            •\n          ","\n            7\n            Night RidgeMastery under low visibilityLocked\n            •\n          "]
+STATE: "{\"screen\":\"worldSelect\",\"selectedMissionId\":\"w1-m1-relay-core\",\"selectedWorldId\":1,\"paused\":false,\"missionEnded\":false,\"attemptsLeft\":3,\"missionScore\":0,\"civilianHits\":0,\"viewMode\":\"scope\",\"visualPerformanceTier\":\"low\"}"
+TEXT:
+PRECISION MISSIONS
 
-MISSION ENABLED COUNT=0
+Sarhad Sniper
+Best 0
+⚙
+← Home
 
-CANVAS COUNT=0
+SEVEN FICTIONAL WORLDS
 
-FIRE BUTTON COUNT=0
+Choose your route.
+1
+Sarhad Cliffs
+High ridges and clean sightlines
+0/15 complete
+→
+2
+Amber Desert
+Heat shimmer and timed windows
+Locked
+•
+3
+Pine Watch
+Forest cover and identification
+Locked
+•
+4
+Monsoon Pass
+Rain, motion and visibility
+Locked
+•
+5
+Glacier Line
+Cold air and ricochet geometry
+Locked
+•
+6
+Red Canyon
+Mechanical sequence puzzles
+Locked
+•
+7
+Night Ridge
+Mastery under low visibility
+Locked
+•
+Fictional worlds • Object targets • No real conflicts
 
-PAUSE BUTTON COUNT=0
+WORLD ENABLED COUNT=1
+
+WORLD DATA={"id":"1","text":"1\nSarhad Cliffs\nHigh ridges and clean sightlines\n0/15 complete\n→"}
+
+=== after world click ===
+URL: https://sarhad-sniper-production.up.railway.app/
+BUTTONS: ["⚙","← Worlds","\n            1\n            Silent RelayPrecision\n            →\n          ","\n            2\n            Crossing SignalTiming • LOCKED\n            •\n          ","\n            3\n            Power JunctionSequence • LOCKED\n            •\n          ","\n            4\n            Signal Match 04Identify • LOCKED\n            •\n          ","\n            5\n            Bank Angle 05Ricochet • LOCKED\n            •\n          ","\n            6\n            Core Breaker 06Disable • LOCKED\n            •\n          ","\n            7\n            Shield Watch 07Protect • LOCKED\n            •\n          ","\n            8\n            Silent Relay 08Precision • LOCKED\n            •\n          ","\n            9\n            Moving Window 09Timing • LOCKED\n            •\n          ","\n            10\n            Signal Match 10Identify • LOCKED\n            •\n          ","\n            11\n            Power Junction 11Sequence • LOCKED\n            •\n          ","\n            12\n            Mirror Line 12Ricochet • LOCKED\n            •\n          ","\n            13\n            System Lock 13Disable • LOCKED\n            •\n          ","\n            14\n            Guard Window 14Protect • LOCKED\n            •\n          ","\n            15\n            Beacon Pin 15Precision • LOCKED\n            •\n          "]
+STATE: "{\"screen\":\"missionSelect\",\"selectedMissionId\":\"w1-m1-relay-core\",\"selectedWorldId\":1,\"paused\":false,\"missionEnded\":false,\"attemptsLeft\":3,\"missionScore\":0,\"civilianHits\":0,\"viewMode\":\"scope\",\"visualPerformanceTier\":\"low\"}"
+TEXT:
+PRECISION MISSIONS
+
+Sarhad Sniper
+Best 0
+⚙
+← Worlds
+
+WORLD 1 • SARHAD CLIFFS
+
+High ridges and clean sightlines
+SARHAD CLIFFS
+1
+Silent Relay
+Precision
+→
+2
+Crossing Signal
+Timing • LOCKED
+•
+3
+Power Junction
+Sequence • LOCKED
+•
+4
+Signal Match 04
+Identify • LOCKED
+•
+5
+Bank Angle 05
+Ricochet • LOCKED
+•
+6
+Core Breaker 06
+Disable • LOCKED
+•
+7
+Shield Watch 07
+Protect • LOCKED
+•
+8
+Silent Relay 08
+Precision • LOCKED
+•
+9
+Moving Window 09
+Timing • LOCKED
+•
+10
+Signal Match 10
+Identify • LOCKED
+•
+11
+Power Junction 11
+Sequence • LOCKED
+•
+12
+Mirror Line 12
+Ricochet • LOCKED
+•
+13
+System Lock 13
+Disable • LOCKED
+•
+14
+Guard Window 14
+Protect • LOCKED
+•
+15
+Beacon Pin 15
+Precision • LOCKED
+•
+Fictional worlds • Object targets • No real conflicts
+
+MISSION ENABLED COUNT=1
+
+MISSION DATA={"id":"w1-m1-relay-core","text":"1\nSilent Relay\nPrecision\n→"}
+
+=== after mission click ===
+URL: https://sarhad-sniper-production.up.railway.app/
+BUTTONS: ["⚙","← Missions","Begin"]
+STATE: "{\"screen\":\"briefing\",\"selectedMissionId\":\"w1-m1-relay-core\",\"selectedWorldId\":1,\"paused\":false,\"missionEnded\":false,\"attemptsLeft\":3,\"missionScore\":0,\"civilianHits\":0,\"viewMode\":\"scope\",\"visualPerformanceTier\":\"low\"}"
+TEXT:
+PRECISION MISSIONS
+
+Sarhad Sniper
+Best 0
+⚙
+← Missions
+
+WORLD 1 • MISSION 1
+
+SARHAD CLIFFS
+Silent Relay
+
+Objective: Disable the exposed relay core with one precise shot.
+
+SARHAD CLIFFSCold ridge air • long clear sightlines
+R
+
+Rudraa field note: Settle the sight. The clean shot is the fast shot.
+
+Mission
+Precision
+Attempts
+3
+Loadout
+Precision class
+Input
+Drag + Fire
+Begin
+Fictional worlds • Object targets • No real conflicts
+
+CLICK mission begin: count=1
+
+=== after mission begin ===
+URL: https://sarhad-sniper-production.up.railway.app/
+BUTTONS: ["OVERVIEW","Resume","Missions","Pause","FIRE"]
+STATE: "{\"screen\":\"mission\",\"selectedMissionId\":\"w1-m1-relay-core\",\"selectedWorldId\":1,\"paused\":false,\"missionEnded\":false,\"attemptsLeft\":3,\"missionScore\":0,\"civilianHits\":0,\"viewMode\":\"scope\",\"visualPerformanceTier\":\"low\"}"
+TEXT:
+PRECISION MISSIONS
+
+Sarhad Sniper
+Best 0
+WORLD 1
+Sarhad Cliffs
+Precision
+Mission
+1/15
+Attempts
+3
+Score
+0
+Fictional loadout
+Precision class
+PRECISION • SETTLE THE SIGHT
+OVERVIEW
+DRAG TO AIM
+Overview is one tap away • FIRE when the sight is settled
+Drag the sight onto Relay Core.
+Pause
+FIRE
+Fictional worlds • Object targets • No real conflicts
+
+CANVAS COUNT=1
+
+FIRE BUTTON COUNT=1
+
+PAUSE BUTTON COUNT=1
 
 
 === ERRORS ===
-console: Failed to load resource: the server responded with a status of 404 ()
-console: Failed to load resource: the server responded with a status of 404 ()
+NONE
