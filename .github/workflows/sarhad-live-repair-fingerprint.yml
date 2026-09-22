@@ -1,0 +1,21 @@
+name: Sarhad Live Repair Fingerprint
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/sarhad-live-repair-fingerprint.yml"
+
+jobs:
+  fingerprint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch live Sarhad main.js
+        run: |
+          set -euxo pipefail
+          curl -L --fail --max-time 25 -D /tmp/headers.txt https://sarhad-sniper.vercel.app/src/main.js -o /tmp/main.js
+          wc -c /tmp/main.js
+          grep -q "FX23_VERIFICATION_MODE" /tmp/main.js
+          grep -q "handleMissionMapDelegatedClick" /tmp/main.js
+          printf 'LIVE_REPAIR_FINGERPRINT=PASS\n' > /tmp/result.txt
+          cat /tmp/result.txt
