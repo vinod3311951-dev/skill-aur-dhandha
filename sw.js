@@ -1,7 +1,7 @@
-const CACHE="color-dominion-v22-staging-gate-v1";
+const CACHE="color-dominion-v23-jelly-trance-v2";
 const CORE=[
   "./","./index.html","./styles.css","./manifest.webmanifest","./robots.txt",
-  "./src/app.js","./src/staging-gate.js","./src/config.js","./src/grid.js","./src/rng.js","./src/stages.js","./src/engine.js","./src/integrations.js",
+  "./src/app.js","./src/music-engine.js","./src/staging-gate.js","./src/config.js","./src/grid.js","./src/rng.js","./src/stages.js","./src/engine.js","./src/integrations.js",
   "./assets/brand/CD-BRAND-002-emblem-master-v1.svg","./assets/pwa/icon-192.png","./assets/pwa/icon-512.png",
   "./assets/worlds/dawn-gardens/CD-WORLD-dawn-gardens-faded-v1.svg","./assets/worlds/dawn-gardens/CD-WORLD-dawn-gardens-restored-v1.svg",
   "./assets/worlds/river-lights/CD-WORLD-river-lights-faded-v1.svg","./assets/worlds/river-lights/CD-WORLD-river-lights-restored-v1.svg",
