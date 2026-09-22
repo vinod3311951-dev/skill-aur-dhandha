@@ -17,6 +17,8 @@ Scope: All current and future Factory X stages
 | 8 | Used CURRENT_WORK.md as override without formal authority | 2026-09-22 | Informal override | Every override must be logged in Authority Index |
 | 9 | Business Sudhaar branch carried Skill Aur Dhandha provenance files (SAD-ICON-001) | 2026-09-21 | Repository reused without checking inherited files | Verify all files in docs/ip/ belong to the specific product before declaring register complete |
 
+| 10 | Vercel served an older Production build after the repaired branch showed a successful Preview deployment | 2026-09-22 | Preview Ready status did not automatically update the Production alias; the public URL still returned 404 until the intended Preview was promoted | Verify the exact Production deployment source SHA and alias assignment; check live `/src/main.js` HTTP 200 and repaired-code fingerprint; rerun live public-URL Playwright before declaring deployment/QA success |
+
 ## HOW THIS LOG IS USED
 
 Before producing any completion packet that claims:
