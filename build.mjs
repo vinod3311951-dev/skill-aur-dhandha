@@ -92,6 +92,34 @@ app.addEventListener('click', handleMissionMapDelegatedClick);
 `;
 main=main.replace(bindAnchor,fallback+bindAnchor);
 
+// Home-scene CSS background deferred until after first paint so
+// WebKit does not decode the webp synchronously during CSS paint.
+const homeSceneBefore =
+  "const appElement = document.querySelector('#app');";
+
+const homeSceneAfter =
+  "const appElement = document.querySelector('#app');\n" +
+  "let __sarhadHomeSceneScheduled = false;\n" +
+  "function __sarhadApplyHomeScene() {\n" +
+  "  if (__sarhadHomeSceneScheduled) return;\n" +
+  "  __sarhadHomeSceneScheduled = true;\n" +
+  "  const apply = () => {\n" +
+  "    const homeCard = document.querySelector('.home-card');\n" +
+  "    if (homeCard) {\n" +
+  "      homeCard.style.setProperty(\n" +
+  "        '--home-scene',\n" +
+  "        \"url('/assets/worlds/sarhad-cliffs.webp')\"\n" +
+  "      );\n" +
+  "    }\n" +
+  "  };\n" +
+  "  requestAnimationFrame(() => requestAnimationFrame(apply));\n" +
+  "}\n" +
+  "window.addEventListener('load', __sarhadApplyHomeScene, { once: true });";
+
+if (main.split(homeSceneBefore).length !== 2)
+  throw new Error("Sarhad home-scene patch anchor missing or ambiguous");
+main = main.replace(homeSceneBefore, homeSceneAfter);
+
 writeFileSync(mainPath,main);
 console.log("Sarhad FX-23 functional repair applied: delegated mission-map taps + verification mode");
 console.log(`Sarhad Sniper static build generated ${count} files from ${files.length} payload chunks`);
