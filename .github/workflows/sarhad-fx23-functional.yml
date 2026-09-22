@@ -7,6 +7,7 @@ on:
       - "build.mjs"
       - "qa/fx23-functional.spec.js"
       - "qa/static-server.mjs"
+      - "qa/tests/smoke.spec.js"
       - ".github/workflows/sarhad-fx23-functional.yml"
 
 permissions:
@@ -28,7 +29,7 @@ jobs:
         working-directory: qa
         run: |
           npm install --no-audit --no-fund
-          npx playwright install --with-deps chromium
+          npx playwright install --with-deps chromium webkit
       - name: Start static QA server
         run: |
           node qa/static-server.mjs > /tmp/sarhad-static.log 2>&1 &
@@ -38,13 +39,4 @@ jobs:
         working-directory: qa
         env:
           GAME_URL: http://127.0.0.1:4173
-        run: npx playwright test fx23-functional.spec.js --project=chromium --reporter=line
-      - name: Record QA pass
-        if: success()
-        run: |
-          printf 'SARHAD FX-23 FUNCTIONAL QA PASS\ncommit=%s\nchecks=level1-play-score,progression-level2,levels5-10-25-50-open-play\n' "$GITHUB_SHA" > SARHAD_FX23_FUNCTIONAL_QA_PASS.txt
-          git config user.name "factory-x-qa"
-          git config user.email "factory-x-qa@users.noreply.github.com"
-          git add SARHAD_FX23_FUNCTIONAL_QA_PASS.txt
-          git commit -m "qa: record Sarhad FX-23 functional pass"
-          git push origin HEAD:sarhad-sniper-deploy
+        run: npx playwright test tests/fx23-functional.spec.js tests/smoke.spec.js --project=local-android-chrome --project=local-iphone-webkit --reporter=line
