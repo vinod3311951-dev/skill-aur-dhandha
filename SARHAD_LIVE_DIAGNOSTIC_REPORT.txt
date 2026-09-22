@@ -1,0 +1,55 @@
+
+=== home ===
+URL: https://sarhad-sniper.vercel.app/
+BUTTONS: ["Go back","\nCopy Debug Prompt"]
+STATE: null
+TEXT:
+This page doesn’t exist
+
+It may have been moved, removed, or never existed.
+
+Go back
+
+404 NOT_FOUND
+
+sfo1::khljb-1790069533429-d2b08d45c35f
+
+VIEW DOCUMENTATION
+COPY DEBUG PROMPT
+
+CLICK primary CTA: count=0
+
+=== home before map ===
+URL: https://sarhad-sniper.vercel.app/
+BUTTONS: ["Go back","\nCopy Debug Prompt"]
+STATE: null
+TEXT:
+This page doesn’t exist
+
+It may have been moved, removed, or never existed.
+
+Go back
+
+404 NOT_FOUND
+
+sfo1::d9qbs-1790069534686-a3870d846aeb
+
+VIEW DOCUMENTATION
+COPY DEBUG PROMPT
+
+CLICK mission map: count=0
+
+WORLD ENABLED COUNT=0
+
+MISSION ENABLED COUNT=0
+
+CANVAS COUNT=0
+
+FIRE BUTTON COUNT=0
+
+PAUSE BUTTON COUNT=0
+
+
+=== ERRORS ===
+console: Failed to load resource: the server responded with a status of 404 ()
+console: Failed to load resource: the server responded with a status of 404 ()
