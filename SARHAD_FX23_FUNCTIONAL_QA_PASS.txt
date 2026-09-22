@@ -1,0 +1,4 @@
+SARHAD FX-23 FUNCTIONAL QA PASS
+source_branch=sarhad-sniper-deploy
+repair_commit=251fb803d414d41cc801748ed45ebba8be232d4d
+checks=level1-play-score,progression-level2,levels5-10-25-50-100-open-play,android-chrome-smoke,iphone-webkit-smoke
