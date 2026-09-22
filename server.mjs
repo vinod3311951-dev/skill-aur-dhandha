@@ -14,6 +14,25 @@ const actual = createHash('sha256').update(gz).digest('hex');
 if (actual !== expected) throw new Error('SARHAD payload checksum mismatch');
 
 const manifest = JSON.parse(gunzipSync(gz).toString('utf8'));
+
+// SARHAD_DIAG_FUNCTIONS — temporary repair diagnostics only.
+try {
+  const mainItem = manifest['/src/main.js'];
+  if (mainItem?.b64) {
+    const src = Buffer.from(mainItem.b64, 'base64').toString('utf8');
+    const names = ['renderBriefing', 'startMission', 'renderMission', 'missionUnlocked', 'bindActions'];
+    for (const name of names) {
+      const start = src.indexOf('function ' + name + '(');
+      if (start >= 0) {
+        const next = src.indexOf('\nfunction ', start + 10);
+        const end = next >= 0 ? next : Math.min(src.length, start + 8000);
+        console.log('\n[SARHAD-DIAG:' + name + ']\n' + src.slice(start, end).slice(0, 12000));
+      }
+    }
+  }
+} catch (e) {
+  console.error('[SARHAD-DIAG] extract failed', e);
+}
 const port = Number(process.env.PORT || 3000);
 
 const server = http.createServer((req, res) => {
