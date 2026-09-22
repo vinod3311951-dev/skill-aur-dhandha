@@ -38,7 +38,7 @@ jobs:
         working-directory: qa
         env:
           GAME_URL: http://127.0.0.1:4173
-        run: npx playwright test fx23-functional.spec.js --project=chromium --reporter=line
+        run: npx playwright test tests/fx23-functional.spec.js tests/smoke.spec.js --project=local-android-chrome --project=local-iphone-webkit --reporter=line
       - name: Record pass evidence on Sarhad branch
         if: success()
         run: |
