@@ -43,3 +43,12 @@ This reduces recurring cross-product routing, alias, environment-variable, and r
 - No password gate is part of this migration.
 - Next account-level steps: create dedicated Vercel project from the existing GitHub repo, set production branch to `sarhad-sniper-deploy`, move `sarhadsniper.thinkingapps.in` from the shared project to the new project, deploy, then verify in a clean session.
 - Color Dominion FX-23 remains unchanged.
+
+
+## Railway stale-snapshot prevention
+- Prevention note: `FACTORY_X_RAILWAY_STALE_SNAPSHOT_PREVENTION_2026-09-22.md`.
+- Railway may redeploy an older source snapshot instead of the intended latest commit.
+- Before any "deploy successful" claim, verify the Railway deployment commit SHA exactly matches the intended Git commit SHA.
+- If the SHA is stale/mismatched, deployment success is NOT valid release evidence.
+- Applies to any current/future Factory X product deployed on Railway.
+- Retrofit-batch consideration only for other products; do NOT act on them now.
