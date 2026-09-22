@@ -15,7 +15,7 @@ jobs:
       run:
         working-directory: qa
     env:
-      GAME_URL: https://sarhad-sniper.vercel.app/
+      GAME_URL: https://sarhad-sniper-production.up.railway.app/
     steps:
       - uses: actions/checkout@v4
         with:
