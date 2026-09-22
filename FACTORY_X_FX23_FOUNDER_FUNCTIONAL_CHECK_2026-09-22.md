@@ -52,7 +52,7 @@ If any check fails:
 - only founder VERIFIED clears this gate.
 
 ## Current Product Application
-- Sarhad Sniper: BLOCKED until mission-open/gameplay/progression fix passes automated QA and founder verification.
+- Sarhad Sniper V1 (founder decision, 2026-09-23): SHIP AS-IS; six presentation/interaction enhancements are deferred to the founder-locked V2 backlog. Public-URL automated QA evidence records 14/14 Playwright PASS on Chromium and WebKit emulation on 2026-09-22; founder reports basic functionality works. The seven-family founder sample in this amended matrix was not evidenced by that earlier level-number sample. Do not represent all seven families as manually verified without a completed matrix; a current deployed-SHA/live-URL check remains separate from this historical QA record.
 - Color Dominion: must pass this checklist after cosmetic fixes before FX-23 closes.
 - Business Sudhaar: apply in retrofit batch before returning to staging.
 - Skill Aur Dhandha: apply in retrofit batch before returning to staging.
