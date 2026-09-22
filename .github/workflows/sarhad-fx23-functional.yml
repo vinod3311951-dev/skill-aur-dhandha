@@ -1,0 +1,50 @@
+name: Sarhad FX-23 Functional QA
+
+on:
+  push:
+    branches: [sarhad-sniper-deploy]
+    paths:
+      - "build.mjs"
+      - "qa/fx23-functional.spec.js"
+      - "qa/static-server.mjs"
+      - ".github/workflows/sarhad-fx23-functional.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  functional:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: sarhad-sniper-deploy
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Build repaired static PWA
+        run: node build.mjs
+      - name: Install Playwright
+        working-directory: qa
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Start static QA server
+        run: |
+          node qa/static-server.mjs > /tmp/sarhad-static.log 2>&1 &
+          echo $! > /tmp/sarhad-static.pid
+          sleep 2
+      - name: Run FX-23 functional tests
+        working-directory: qa
+        env:
+          GAME_URL: http://127.0.0.1:4173
+        run: npx playwright test fx23-functional.spec.js --project=chromium --reporter=line
+      - name: Record QA pass
+        if: success()
+        run: |
+          printf 'SARHAD FX-23 FUNCTIONAL QA PASS\ncommit=%s\nchecks=level1-play-score,progression-level2,levels5-10-25-50-open-play\n' "$GITHUB_SHA" > SARHAD_FX23_FUNCTIONAL_QA_PASS.txt
+          git config user.name "factory-x-qa"
+          git config user.email "factory-x-qa@users.noreply.github.com"
+          git add SARHAD_FX23_FUNCTIONAL_QA_PASS.txt
+          git commit -m "qa: record Sarhad FX-23 functional pass"
+          git push origin HEAD:sarhad-sniper-deploy
