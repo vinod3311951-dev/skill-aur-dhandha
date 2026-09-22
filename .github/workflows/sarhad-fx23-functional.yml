@@ -25,6 +25,12 @@ jobs:
           node-version: 20
       - name: Build repaired static PWA
         run: node build.mjs
+      - name: Upload reconstructed public build
+        uses: actions/upload-artifact@v4
+        with:
+          name: sarhad-public-build
+          path: public/
+          retention-days: 7
       - name: Install Playwright
         working-directory: qa
         run: |
