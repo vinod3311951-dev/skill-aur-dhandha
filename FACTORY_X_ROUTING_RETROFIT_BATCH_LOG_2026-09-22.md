@@ -32,3 +32,14 @@ This reduces recurring cross-product routing, alias, environment-variable, and r
 
 ## Color Dominion
 - Do not change current FX-23 status as part of this batch.
+
+
+## Sarhad Sniper dedicated-project migration
+- Shared-project alias fix was insufficient; live domain still resolved to Skill Aur Dhandha.
+- Decision: move Sarhad Sniper to its own Vercel project.
+- Sarhad branch: `sarhad-sniper-deploy`.
+- Branch-level custom-domain alias removed so the old shared project cannot reclaim the domain on later branch redeploys.
+- Commit: `830e79c4ba0201977887fa0e350c053784ff43e2`.
+- No password gate is part of this migration.
+- Next account-level steps: create dedicated Vercel project from the existing GitHub repo, set production branch to `sarhad-sniper-deploy`, move `sarhadsniper.thinkingapps.in` from the shared project to the new project, deploy, then verify in a clean session.
+- Color Dominion FX-23 remains unchanged.
