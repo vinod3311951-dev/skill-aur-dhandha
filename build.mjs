@@ -120,14 +120,14 @@ if (main.split(homeSceneBefore).length !== 2)
   throw new Error("Sarhad home-scene patch anchor missing or ambiguous");
 main = main.replace(homeSceneBefore, homeSceneAfter);
 
-// Diagnostic defaults: no inline home scene and no eager world preloads.
-// Either original behavior can be restored independently with a query flag.
+// Run B diagnostic: inline home scene enabled by default; world preloads disabled.
+// Query flags independently override those defaults.
 // TEMPORARY DIAGNOSTIC — remove after FX-23 cause identified.
 const inlineHomeBefore =
   `<section class="home-card market-home" style="--home-scene:url('/assets/worlds/sarhad-cliffs.webp')">`;
 const inlineHomeAfter =
   '<section class="home-card market-home"${' +
-  'new URLSearchParams(location.search).get("diag_inline_home") === "1" ? ' +
+  'new URLSearchParams(location.search).get("diag_inline_home") !== "0" ? ' +
   JSON.stringify(` style="--home-scene:url('/assets/worlds/sarhad-cliffs.webp')"`) +
   ' : ""}>';
 
