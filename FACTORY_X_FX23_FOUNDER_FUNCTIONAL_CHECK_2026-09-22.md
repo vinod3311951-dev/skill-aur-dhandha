@@ -1,6 +1,7 @@
 # FACTORY X — FX-23 FOUNDER FUNCTIONAL CHECK
 Effective: 2026-09-22
-Status: LOCKED FOUNDER-SIDE RELEASE GATE
+Status: LOCKED
+Gate Type: FOUNDER-SIDE RELEASE GATE
 Scope: ALL current and future Factory X products
 
 ## Purpose
