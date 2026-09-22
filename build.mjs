@@ -120,6 +120,34 @@ if (main.split(homeSceneBefore).length !== 2)
   throw new Error("Sarhad home-scene patch anchor missing or ambiguous");
 main = main.replace(homeSceneBefore, homeSceneAfter);
 
+// Diagnostic defaults: no inline home scene and no eager world preloads.
+// Either original behavior can be restored independently with a query flag.
+// TEMPORARY DIAGNOSTIC — remove after FX-23 cause identified.
+const inlineHomeBefore =
+  `<section class="home-card market-home" style="--home-scene:url('/assets/worlds/sarhad-cliffs.webp')">`;
+const inlineHomeAfter =
+  '<section class="home-card market-home"${' +
+  'new URLSearchParams(location.search).get("diag_inline_home") === "1" ? ' +
+  JSON.stringify(` style="--home-scene:url('/assets/worlds/sarhad-cliffs.webp')"`) +
+  ' : ""}>';
+
+if (main.split(inlineHomeBefore).length !== 2)
+  throw new Error("Sarhad inline home-scene patch anchor missing or ambiguous");
+main = main.replace(inlineHomeBefore, inlineHomeAfter);
+
+// TEMPORARY DIAGNOSTIC — remove after FX-23 cause identified.
+const preloadBefore =
+  "registerServiceWorker();\npreloadWorldScenes();\nrenderHome();";
+const preloadAfter =
+  "registerServiceWorker();\n" +
+  "if (new URLSearchParams(location.search).get('diag_preload_worlds') === '1')\n" +
+  "    preloadWorldScenes();\n" +
+  "renderHome();";
+
+if (main.split(preloadBefore).length !== 2)
+  throw new Error("Sarhad world-preload patch anchor missing or ambiguous");
+main = main.replace(preloadBefore, preloadAfter);
+
 writeFileSync(mainPath,main);
 console.log("Sarhad FX-23 functional repair applied: delegated mission-map taps + verification mode");
 console.log(`Sarhad Sniper static build generated ${count} files from ${files.length} payload chunks`);
