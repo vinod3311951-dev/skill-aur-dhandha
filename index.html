@@ -93,7 +93,11 @@
       <div class="objective-strip" aria-live="polite"><span id="objective-label">Clear the board</span><span id="combo-label"></span></div>
     </header>
     <div class="game-wrap">
-      <div id="bloom-layer" class="bloom-layer" aria-hidden="true"></div>
+<div id="cascade-restore" class="cascade-restore" aria-hidden="true">
+  <img id="cascade-faded" class="cascade-world cascade-faded" alt="">
+  <img id="cascade-color" class="cascade-world cascade-color" alt="">
+</div>      
+<div id="bloom-layer" class="bloom-layer" aria-hidden="true"></div>
       <canvas id="game" aria-label="Color Dominion gameplay board"></canvas>
       <div id="pause-overlay" class="result" hidden>
         <div class="result-card">
