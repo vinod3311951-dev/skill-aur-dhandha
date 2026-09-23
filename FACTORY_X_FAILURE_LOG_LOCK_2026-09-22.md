@@ -38,6 +38,17 @@ Long-running diagnostic chats in the Factory X Project failed with "Error in mes
 
 **Numbering reconciliation note:** The accessible GitHub version of this log contains entries #1–#10 followed by the founder-requested #15–#17. Entries #11–#14 were not present in that version and have not been invented, deleted, or silently renumbered. Reconcile against any newer canonical record before assuming the series is complete.
 
+### ENTRY #18 — Color Dominion FX-23 objective-family and signature gaps
+Date: 2026-09-23
+
+**Failure:** The founder's manual FX-23 sample failed or was inconclusive for Target Colours, Required Clusters, Drop Anchors, Rescue Marked, Dominion Claim and Limited Shots. The grey-world-to-colour cascade signature moment failed; Reduced Motion appeared partial. Progression/navigation was not tested because the founder stopped after the early failures. FX-23 status: FAIL; no closure.
+
+**Repository diagnosis:** On branch `color-dominion-fx07-smoke-v2` at `3f75e23a9147124dc5ab41d2e6aceba2997b9c81`, all six named objectives have configuration and engine completion logic, but Required Clusters counts removed bubbles rather than cleared clusters; Drop Anchors and Rescue Marked use generic removal/drop with decorative markers; Dominion Claim uses a score threshold and generic success presentation; Limited Shots is enforced with only a three-shot modifier; Target Colours has a target-colour win condition but no distinctive target presentation in the inspected renderer. Match-triggered bloom is cosmetic, with faded/restored imagery switched in a generic completion preview rather than an in-game cascade transformation. Reduced Motion suppresses certain app-level effects; full stylesheet behaviour was not inspected. Stage 25 config provides 25 shots, differing from the founder's observed 22; actual deployed commit was inaccessible and remains unverified.
+
+**Root cause:** Existing objective-presence and renderer-identity checks did not establish differentiated in-play mechanics or founder-recognizable signature quality.
+
+**Prevention:** At FX-23 test each promised objective family through its distinct observable outcome; verify the actual V1 signature moment as experienced by a first-time player. Distinguish family-definition tests from mechanics and visual acceptance tests. Preserve founder failure evidence even where partial code exists.
+
 ## HOW THIS LOG IS USED
 
 Before producing any completion packet that claims:
