@@ -89,6 +89,26 @@ Date: 2026-09-23
 
 **Prevention:** At FX-23 test each promised objective family through its distinct observable outcome; verify the actual V1 signature moment as experienced by a first-time player. Distinguish family-definition tests from mechanics and visual acceptance tests. Preserve founder failure evidence even where partial code exists.
 
+### ENTRY #19 — Sarhad Sniper Reduced effects toggle has incomplete visible coverage
+Date: 2026-09-23
+Status: FOUNDER-REPORTED; source diagnosis CONFIRMS PARTIAL COVERAGE. Deployed runtime not independently tested.
+
+**Failure:** The founder toggled Reduced effects ON and OFF from Settings during a mission and observed no discernible change to ambient motion on returning to play.
+
+**Root cause / repository diagnosis:** On `sarhad-sniper-deploy`, `sarhad-inspect/src/main.js` lines 381–424 persists `save.settings.reducedEffects`; lines 1952–1954 calculate the effective state as the game setting OR the browser `prefers-reduced-motion`. Actual canvas atmosphere, character movement and impact/world activation effects consult the effective state (e.g. lines 967–1054, 1168–1177, 1830–1847). However `sarhad-inspect/src/styles.css` lines 144–146 applies general CSS animation/transition reduction only through the browser preference, not the in-game toggle. Many visible elements remain static or have subtle conditional movement, so the setting may lack a recognizable live before/after. If the browser preference already requests reduction, switching the game setting OFF does not restore motion. `build.mjs` reconstructs the public runtime from packaged payloads, so precise deployed behaviour was not independently established.
+
+**Prevention:** FX-23 must compare the same live mission with Reduced effects OFF and ON under both browser preference states; verify a clearly observable reduction without impairing gameplay. Report configuration-specific results and verify the tested deployed SHA before PASS.
+
+### ENTRY #20 — Sarhad Sniper Settings loses return path to active mission
+Date: 2026-09-23
+Status: FOUNDER-REPORTED; missing direct resume path CONFIRMED in source. Deployed display of Home button not independently tested.
+
+**Failure:** During an active mission, the founder entered Settings and could not navigate back to that paused mission without closing and reopening the browser.
+
+**Root cause / repository diagnosis:** In `sarhad-inspect/src/main.js`, `renderSettings()` lines 381–383 invokes `stopMissionLoop()` and changes `screen` to `settings`. `stopMissionLoop()` lines 1955–1960 clears mission-loop/canvas/paused state. `resumeMission()` lines 1796–1804 only operates when `screen === 'mission'` and `paused` remains true. Settings markup contains a `← Home` control at line 387, but no return-to-interrupted-mission route; a later campaign entry is not preservation of the active mission. The founder-reported absence of the Home control in the deployed UI remains unverified against its deployed SHA.
+
+**Prevention:** FX-23 must traverse Pause → Settings → return to the SAME active mission and verify retained mission state, usable controls and no forced restart; do not treat a Settings-page render or separate Home route as proof of mission-resume navigation.
+
 ## HOW THIS LOG IS USED
 
 Before producing any completion packet that claims:
