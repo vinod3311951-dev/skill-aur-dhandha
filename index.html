@@ -163,5 +163,22 @@
 <audio id="sfx-fail" src="./assets/audio/sfx/CD-SFX-012-failure-v1.wav" preload="none"></audio>
 
 <script type="module" src="./src/app.js"></script>
+<div id="debug-hud" style="position:fixed;top:0;left:0;right:0;z-index:9999;background:rgba(0,0,0,.85);color:#0f0;font:11px monospace;padding:4px 6px;pointer-events:none;white-space:pre-wrap"></div>
+<script>
+setInterval(()=>{
+  const ids=['bloom-layer','cascade-restore','result-overlay','pause-overlay'];
+  const lines=ids.map(id=>{
+    const el=document.getElementById(id);
+    if(!el)return id+': MISSING';
+    const cs=getComputedStyle(el);
+    return id+': '+(el.hidden?'hidden':'vis')
+      +' disp='+cs.display
+      +' op='+cs.opacity
+      +' z='+cs.zIndex
+      +' bg='+cs.backgroundColor;
+  });
+  document.getElementById('debug-hud').textContent=lines.join('\n');
+},500);
+</script>
 </body>
 </html>
