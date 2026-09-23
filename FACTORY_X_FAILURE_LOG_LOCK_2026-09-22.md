@@ -19,6 +19,46 @@ Scope: All current and future Factory X stages
 
 | 10 | Vercel served an older Production build after the repaired branch showed a successful Preview deployment | 2026-09-22 | Preview Ready status did not automatically update the Production alias; the public URL still returned 404 until the intended Preview was promoted | Verify the exact Production deployment source SHA and alias assignment; check live `/src/main.js` HTTP 200 and repaired-code fingerprint; rerun live public-URL Playwright before declaring deployment/QA success |
 
+### ENTRY #11 — Public URL returned 404 after PASS claim
+Date: 2026-09-22
+
+**Failure:** Deployment reported PASS for Sarhad Sniper, but the public URL returned 404. No QA evidence file existed.
+
+**Root cause:** PASS declared without a live URL check. Production Branch was set to `main` instead of `sarhad-sniper-deploy`.
+
+**Prevention:** No PASS without a live URL check in a clean session. No PASS without a QA evidence file.
+
+### ENTRY #12 — Unverified QA result treated as current
+Date: 2026-09-22
+
+**Failure:** "13/14 with WebKit freeze" was cited from CI run 35716508506 on commit `e3cb4b8d`, but applied to production commit `20d92e3`, which had never been tested.
+
+**Root cause:** A result from one commit was carried forward as though it applied to a different commit.
+
+**Prevention:** Before citing any QA result, verify that the run's commit SHA matches the commit under discussion. Add a SHA-match check to the Opening Protocol.
+
+### ENTRY #13 — CI ran Chromium only, never WebKit
+Date: 2026-09-22
+
+**Failure:** `sarhad-fx23-functional.yml` ran only `fx23-functional.spec.js` with `--project=chromium`. The smoke test and WebKit project never executed in CI.
+
+**Result:** "QA green" for days while iPhone users froze.
+
+**Root cause:** Workflow configuration did not match the Playwright projects supported by the product.
+
+**Prevention:** Every product's CI must run all Playwright projects the product supports. Add an audit checklist item.
+
+### ENTRY #14 — WebKit synchronous webp decode on CSS background
+Date: 2026-09-22
+
+**Failure:** The iPhone WebKit smoke test froze one frame for 4076ms. Android Chromium was unaffected. The freeze occurred during home-screen idle, before any mission.
+
+**Root cause:** `.market-home` CSS applied `var(--home-scene)` as `background-image` on first paint. WebKit decoded the referenced webp synchronously on the main thread during CSS paint. Chromium decoded off-thread.
+
+**Fix applied:** A `build.mjs` post-extraction patch defers the CSS variable assignment until after first paint.
+
+**Prevention:** No large image (>200KB) may be referenced as a CSS background on the first-painted screen without deferral past the load event.
+
 ## APPENDED ENTRIES — 2026-09-23
 
 ### ENTRY #15 — Blueprint-to-build gap not audited
