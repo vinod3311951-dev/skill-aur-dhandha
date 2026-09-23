@@ -61,7 +61,11 @@ cascadeColor.src=a.restored;
 cascadeRestore.classList.remove("active");
 void cascadeRestore.offsetWidth;
 cascadeRestore.classList.add("active");
-sfx(bloomSfx);
+sfx(bloomSfx);         clearTimeout(showCascadeRestore.cleanupTimer);
+showCascadeRestore.cleanupTimer=setTimeout(()=>{
+cascadeRestore.classList.remove("active");
+},1100);                   
+
 }
 function isSignatureCascade(e){
 return e?.type==="attached"&&e.removed?.length>=3&&e.dropped?.length>=1;
