@@ -21,9 +21,10 @@
 .preview-gate-status{min-height:22px;margin:0;color:#f6d87a;font-size:14px;line-height:1.45;text-align:center}
 .preview-gate-status[data-state="error"]{color:#ffaaa6}
 .preview-gate-status[data-state="ok"]{color:#a5f0d4}
-@media(min-width:600px){.preview-gate{min-height:min(880px,calc(100dvh - 48px));border-radius:28px}}/* cascade-restore: signature moment */
-.game-wrap{position:relative;min-height:0;overflow:hidden}
-.cascade-restore{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;opacity:0}
+@media(min-width:600px){.preview-gate{min-height:min(880px,calc(100dvh - 48px));border-radius:28px}}
+
+/* cascade-restore: signature moment — fixed so it can never get stuck */
+.cascade-restore{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;opacity:0;transition:opacity .35s ease}
 .cascade-world{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .cascade-color{clip-path:inset(0 100% 0 0)}
 .cascade-restore.active{opacity:1}
