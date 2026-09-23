@@ -131,5 +131,29 @@ main = main.replace(homeSceneInlineBefore, homeSceneInlineAfter);
 
 
 writeFileSync(mainPath,main);
+
+// Founder-approved early-build notice: patch only the generated static entry page.
+const indexPath=path.join(outDir,"index.html");
+let indexHtml=readFileSync(indexPath,"utf8");
+if(indexHtml.split("</main>").length!==2||indexHtml.split("</head>").length!==2)
+  throw new Error("SARHAD early-build footer insertion anchor missing or ambiguous");
+const footer=`<p id="fx-early-build" style="
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  margin:0;
+  padding:6px 0;
+  text-align:center;
+  font:11px system-ui,sans-serif;
+  color:rgba(255,255,255,0.55);
+  background:rgba(0,0,0,0.35);
+  z-index:1;
+  pointer-events:none;
+  ">Early build — not for public release.</p>`;
+indexHtml=indexHtml.replace("</head>","<style>body { padding-bottom: 32px; }</style>\n</head>");
+indexHtml=indexHtml.replace("</main>","</main>\n"+footer);
+writeFileSync(path.join(outDir,"robots.txt"),"User-agent: *\nDisallow: /\n");
+writeFileSync(indexPath,indexHtml);
 console.log("Sarhad FX-23 functional repair applied: delegated mission-map taps + verification mode");
 console.log(`Sarhad Sniper static build generated ${count} files from ${files.length} payload chunks`);
