@@ -1,4 +1,4 @@
-const CACHE="color-dominion-v23-jelly-trance-v2";
+const CACHE="color-dominion-v23-signature-moment-v1";
 const CORE=[
   "./","./index.html","./styles.css","./manifest.webmanifest","./robots.txt",
   "./src/app.js","./src/music-engine.js","./src/staging-gate.js","./src/config.js","./src/grid.js","./src/rng.js","./src/stages.js","./src/engine.js","./src/integrations.js",
