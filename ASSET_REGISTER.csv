@@ -1,0 +1,2 @@
+asset_id,path,type,source,creator_provider,license,commercial_use,modification,attribution,date_obtained,proof_status
+SAD-ICON-001,public/icon.svg,install_icon,original_project_asset,OpenAI-assisted project generation,project-owned_original,yes,yes,none_required,2026-09-17,source_committed_in_repository

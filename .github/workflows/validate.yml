@@ -1,0 +1,64 @@
+name: Validate Factory X
+
+on:
+  push:
+    branches: [factory-x/vertical-slice-01]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Run Factory X quality gate
+        run: npm run check:build
+      - name: Install WebKit test browser
+        run: npx playwright install --with-deps webkit
+      - name: Run iPhone WebKit PWA smoke test
+        run: npm run test:webkit
+      - name: Validate founder correction architecture
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -Fq '/src/navigation-runtime.ts' index.html
+          grep -Fq '/src/choice-experience.ts' index.html
+          ! grep -Fq '/src/research-lens.ts' index.html
+          ! grep -Fq '/src/self-marketing.ts' index.html
+          ! grep -Fq '/src/home-business-tips.ts' index.html
+          grep -Fq '5-step plan for' src/choice-experience.ts
+          grep -Fq 'Quick reality filters' src/choice-experience.ts
+          grep -Fq 'Research centred on' src/choice-experience.ts
+          ! grep -Fq "key==='compare'" src/choice-experience.ts
+          ! grep -Fq 'new MutationObserver' src/choice-experience.ts
+          grep -Fq 'Share app' src/main.ts
+      - name: Validate privacy and safety boundaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -R -Fq 'type="password"' src
+          ! grep -R -Fq 'type="email"' src
+          grep -Fq 'No profile form is required before you explore.' src/guided-filters.ts
+          grep -Fq 'No account or sensitive personal/financial data is required' src/main.ts
+          grep -Fq 'does not broker' src/path-routes.ts
+          grep -Fq 'does not submit applications' src/gov.ts
+      - name: Validate PWA release shell
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in dist/index.html dist/manifest.webmanifest dist/sw.js dist/icon.svg dist/icon-192.png dist/icon-512.png; do test -f "$f"; done
+          grep -Fq "skill-aur-dhandha-v9" dist/sw.js
+          grep -Fq "window-controls-overlay" dist/manifest.webmanifest
+          grep -Fq '"display": "standalone"' dist/manifest.webmanifest
