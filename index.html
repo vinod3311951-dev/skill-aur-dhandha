@@ -12,22 +12,10 @@
 <link rel="icon" href="./assets/pwa/icon-192.png">
 <link rel="apple-touch-icon" href="./assets/pwa/icon-192.png">
 <link rel="stylesheet" href="./styles.css">
+<style>body { padding-bottom: 32px; }</style>
 </head>
 <body>
-<section id="preview-gate" class="preview-gate" aria-labelledby="preview-gate-title">
-  <div class="preview-gate-card">
-    <p class="kicker">Factory X Staging</p>
-    <img class="preview-gate-brand" src="./assets/brand/CD-BRAND-002-emblem-master-v1.svg" alt="">
-    <h1 id="preview-gate-title">Private Preview — Password Required</h1>
-    <p class="lead">This build is restricted to authorised Factory X review.</p>
-    <form id="preview-gate-form" class="preview-gate-form">
-      <label for="preview-password">Preview password</label>
-      <input id="preview-password" name="password" type="password" autocomplete="current-password" maxlength="256" required>
-      <button id="preview-unlock-btn" class="primary" type="submit">Unlock Preview</button>
-      <p id="preview-gate-status" class="preview-gate-status" role="status" aria-live="polite"></p>
-    </form>
-  </div>
-</section>
+<section id="preview-gate" hidden></section>
 <main class="app-shell" id="app" hidden>
   <section id="home-screen" class="screen home">
     <div class="top-actions">
@@ -35,7 +23,6 @@
       <button class="icon-btn" id="settings-btn" type="button" aria-label="Open settings">Settings</button>
     </div>
     <img class="brand" src="./assets/brand/CD-BRAND-002-emblem-master-v1.svg" alt="Color Dominion emblem">
-    <p class="staging-badge" aria-label="Private preview">Private Preview</p>
     <p class="kicker">Restore the faded Dominion</p>
     <h1>Color Dominion</h1>
     <p class="lead">Aim. Match 3+. Trigger cascades. Bring each world back to colour.</p>
@@ -147,6 +134,20 @@
     <button class="secondary" data-home type="button">Home</button>
   </section>
 </main>
+<p id="fx-early-build" style="
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  margin:0;
+  padding:6px 0;
+  text-align:center;
+  font:11px system-ui,sans-serif;
+  color:rgba(255,255,255,0.55);
+  background:rgba(0,0,0,0.35);
+  z-index:1;
+  pointer-events:none;
+  ">Early build — not for public release.</p>
 
 <audio id="music" src="./assets/audio/music/CD-MUS-001-main-gameplay-loop-v1.wav" loop preload="none"></audio>
 <audio id="restoration-sting" src="./assets/audio/music/CD-MUS-002-restoration-sting-v1.wav" preload="none"></audio>

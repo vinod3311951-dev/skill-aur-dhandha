@@ -1,3 +1,3 @@
 export const CORE_STAGE_COUNT=100;export const ROWS=12;export const COLS=8;export const COLORS=["cyan","magenta","yellow","lime","violet","coral"];export const COLOR_HEX={cyan:"#19BFD3",magenta:"#D94BCB",yellow:"#F2C94C",lime:"#79C84A",violet:"#8064E8",coral:"#F26B67"};export const SYMBOLS={cyan:"◎",magenta:"╱",yellow:"☀",lime:"⌄",violet:"◇",coral:"≈"};export const WORLDS=["Dawn Gardens","River Lights","Festival Streets","Sky Courtyards","Prism Fort"];export const SAVE_KEY="color-dominion-fx07-v1";export const SAVE_VERSION=2;
 
-export const STAGING_ACCESS=Object.freeze({enabled:true,unlockKey:"factoryx_unlocked",authEndpoint:"/api/factoryx-auth"});
+export const STAGING_ACCESS=Object.freeze({enabled:false,unlockKey:"factoryx_unlocked",authEndpoint:"/api/factoryx-auth"});
