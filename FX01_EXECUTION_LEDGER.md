@@ -154,24 +154,42 @@ For Sarhad:
 - no subscription/ad/account gate blocks normal progression in the current phase;
 - future monetisation requires a later explicit founder-approved implementation phase.
 
+## Open-access runtime implementation
+
+Commit `747a77f29dff70fbae8616a039ec94acc06b075b` implements the current launch law in Sarhad's ordinary consumer runtime:
+
+- all 7 worlds selectable from first launch;
+- all 105 missions selectable from first launch;
+- no `?fx23=1` debug bypass required for access;
+- scores, mastery, records and postcards still track completion;
+- a browser regression proves World 7 / Mission 15 is selectable on a fresh ordinary session.
+
+Evidence state:
+- build + deterministic mission/combat/loadout validators are green on this head;
+- Android/WebKit functional + smoke + visual-slice certification is still in progress and must finish before this head is called fully green.
+
+## Cross-promotion implementation timing
+
+`FACTORY_X_CROSS_PROMOTION_DISCOVERY_LAW.md` is documented portfolio-wide, but **no cross-promotion runtime code should be added yet**.
+
+Wait until the relevant Factory X production URLs are all real, verified and stable. Then create the central registry and integrate 1–2 post-result recommendations in one portfolio-wide pass.
+
 ## Next bounded task
 
-**Do not start another patch loop until the latest deterministic QA/combat-profile CI result is read.**
-
-If green:
-1. create a clean pure combat-state module (health, armour, blast resistance, first aid, waves);
-2. add pure deterministic unit validation;
-3. integrate that module into protection missions as the World-1 long-form combat prototype;
-4. preserve one-thumb Environmental / Telescopic / Binocular controls;
-5. add genre-safe combat audio/reward hooks under the portfolio audio law;
-6. run one consolidated Android/WebKit + mission-config + combat regression batch;
-7. capture fresh built visual evidence.
-
-If red:
-- classify the failure first;
-- research the shared cause;
-- repair the root cause in one bounded batch;
-- do not resume symptom-by-symptom HTML/CSS/JS patching.
+1. Wait for browser certification of open-access head `747a77f29dff70fbae8616a039ec94acc06b075b`.
+2. If green, integrate certified combat/loadout state into the live consumer layer in one bounded batch:
+   - 11-loadout briefing/runtime including Siege Rocket;
+   - ammo/charge HUD;
+   - reload countdown/readiness;
+   - one-thumb loadout swap;
+   - first-aid readiness;
+   - armour + armour-plate readiness;
+   - deterministic live hostile waves;
+   - distinct original/licence-clean firing/launch signatures;
+   - protection combat without the old tiny global shot cap.
+3. Add focused Android/WebKit regressions for the above.
+4. Only after that gate is green, capture fresh built visual evidence.
+5. Cross-promotion remains deferred until all relevant Factory X production URLs are ready and verified.
 
 ## Founder interruption policy
 
