@@ -31,6 +31,24 @@ test('capture FX-01 World-1 vertical slice surfaces', async ({ page }, testInfo)
     fullPage: true,
   });
 
+  // Capture the signature Level-1 success activation before the result card replaces the playfield.
+  const playfield = page.locator('#playfield');
+  const box = await playfield.boundingBox();
+  if (!box) throw new Error('Mission 1 playfield bounding box missing');
+  await page.locator('[data-action="viewToggle"]').click();
+  await page.mouse.click(box.x + box.width * 0.68, box.y + box.height * 0.42);
+  await page.locator('[data-action="fire"]').click();
+  await page.waitForTimeout(220);
+  await page.screenshot({
+    path: testInfo.outputPath('fx01-mission-success-activation.png'),
+    fullPage: true,
+  });
+  await expect(page.getByRole('heading', { name: /Objective complete/i })).toBeVisible({ timeout: 4000 });
+  await page.screenshot({
+    path: testInfo.outputPath('fx01-result.png'),
+    fullPage: true,
+  });
+
   // Founder-relevant combat evidence: World 1 Mission 7 is the first protection/combat mission.
   await page.goto(BASE, { waitUntil: 'domcontentloaded' });
   await page.getByRole('button', { name: 'Mission Map' }).click();
