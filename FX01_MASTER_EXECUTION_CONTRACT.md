@@ -304,6 +304,12 @@ The player should quickly understand:
 
 The first minute must feel like a real marketable gameplay moment.
 
+## 16A. Factory X internal discovery
+
+FX-01 inherits `FACTORY_X_CROSS_PROMOTION_DISCOVERY_LAW.md`.
+
+After a genuine Sarhad mission result, keep **Next / Retry / Replay** dominant, then show at most 1–2 other Factory X game recommendations plus **See all games**. Never show the module during aiming, before the mission, over the result, or as a forced/full-screen interruption.
+
 ## 17. Marketing truth
 
 Marketing screenshots/video must come from finished playable behavior.
