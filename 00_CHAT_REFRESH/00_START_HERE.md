@@ -5,12 +5,13 @@
 ## Read in this order
 
 1. User-supplied **AMIT FINAL — FACTORY X MARKET-RELEASE PWA STANDARD** ZIP/package.
-2. `FX01_MASTER_EXECUTION_CONTRACT.md`.
-3. `FX01_FOUNDER_COMBAT_AMENDMENT_2026-10-01.md`.
-4. `FX01_WORLD1_VERTICAL_SLICE_CONSTITUTION.md`.
-5. `FX01_EXECUTION_LEDGER.md`.
-6. `00_CHAT_REFRESH/03_CURRENT_WORK.md`.
-7. Actual `fx-01-audit1` repository head + current CI evidence.
+2. `FACTORY_X_ONE_THUMB_GAMEPLAY_LAW.md` — mandatory for every Factory X game.
+3. `FX01_MASTER_EXECUTION_CONTRACT.md`.
+4. `FX01_FOUNDER_COMBAT_AMENDMENT_2026-10-01.md`.
+5. `FX01_WORLD1_VERTICAL_SLICE_CONSTITUTION.md`.
+6. `FX01_EXECUTION_LEDGER.md`.
+7. `00_CHAT_REFRESH/03_CURRENT_WORK.md`.
+8. Actual `fx-01-audit1` repository head + current CI evidence.
 
 ## Authority law
 
