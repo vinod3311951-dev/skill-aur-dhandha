@@ -38,6 +38,7 @@ jobs:
         run: |
           node qa/tests/mission-config.test.mjs
           node qa/tests/combat-state.test.mjs
+          node qa/tests/loadout-state.test.mjs
       - name: Install Playwright
         working-directory: qa
         run: |
