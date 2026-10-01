@@ -1,0 +1,17 @@
+# Factory X — Master Execution Contract Index
+
+Do not duplicate full master prompts inside this index.
+
+## FX-01
+
+Product: **Sarhad Sniper — Precision Missions**  
+Canonical contract: `FX01_MASTER_EXECUTION_CONTRACT.md`  
+Latest combat/interaction authority: `FX01_FOUNDER_COMBAT_AMENDMENT_2026-10-01.md`  
+World-1 slice authority: `FX01_WORLD1_VERTICAL_SLICE_CONSTITUTION.md`  
+Execution truth: `FX01_EXECUTION_LEDGER.md`
+
+## FX-02 through FX-15
+
+Canonical single master contracts are not registered in this repository yet. Generate/store each once when that product becomes active, then add its exact file/version pointer here.
+
+AMIT FINAL Section 14 remains the portfolio-level single-master-execution law.
