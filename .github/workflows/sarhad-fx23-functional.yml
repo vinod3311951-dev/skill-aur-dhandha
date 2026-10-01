@@ -35,6 +35,8 @@ jobs:
         run: |
           npm install --no-audit --no-fund
           npx playwright install --with-deps chromium webkit
+      - name: Validate all 105 mission configurations
+        run: node qa/tests/mission-config.test.mjs
       - name: Start static QA server
         run: |
           node qa/static-server.mjs > /tmp/sarhad-static.log 2>&1 &
