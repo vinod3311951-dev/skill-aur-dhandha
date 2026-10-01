@@ -39,11 +39,23 @@ jobs:
           node qa/tests/mission-config.test.mjs
           node qa/tests/combat-state.test.mjs
           node qa/tests/loadout-state.test.mjs
-      - name: Install Playwright
+      - name: Install QA dependencies
         working-directory: qa
-        run: |
-          npm install --no-audit --no-fund
-          npx playwright install --with-deps chromium webkit
+        timeout-minutes: 3
+        run: npm install --no-audit --no-fund
+      - name: Restore Playwright browser cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('qa/package.json') }}
+      - name: Install Playwright OS dependencies
+        working-directory: qa
+        timeout-minutes: 5
+        run: npx playwright install-deps chromium webkit
+      - name: Install Playwright browsers
+        working-directory: qa
+        timeout-minutes: 5
+        run: npx playwright install chromium webkit
       - name: Start static QA server
         run: |
           node qa/static-server.mjs > /tmp/sarhad-static.log 2>&1 &
