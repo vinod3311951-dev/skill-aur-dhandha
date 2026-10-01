@@ -143,6 +143,19 @@ if (FX23_VERIFICATION_MODE) {
                 fire();
                 return true;
             },
+            shotTruthAtCurrentTarget() {
+                if (screen !== 'mission')
+                    return null;
+                const elapsed = currentElapsed();
+                const target = currentTarget(elapsed);
+                const result = evaluateShot(target, target.x, target.y);
+                return {
+                    loadoutId: selectedLoadoutId,
+                    hit: result.hit,
+                    score: result.score,
+                    distance: result.distance
+                };
+            },
             aimAtProtectedFigure(index = 0) {
                 if (screen !== 'mission' || selectedMission.kind !== 'protection')
                     return false;
