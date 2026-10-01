@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 960" role="img" aria-labelledby="title desc">
+<title id="title">Glacier Reach</title>
+<desc id="desc">Stylised fictional glacier canyon with cyan ice, slate ridges, distant cloud movement cues and small fictional mechanical beacons.</desc>
+<defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#dff7fb"/>
+    <stop offset=".38" stop-color="#a9dce6"/>
+    <stop offset="1" stop-color="#5c7f8c"/>
+  </linearGradient>
+  <linearGradient id="far" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#d6f0f5"/>
+    <stop offset="1" stop-color="#7898a4"/>
+  </linearGradient>
+  <linearGradient id="mid" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#8bbac6"/>
+    <stop offset=".55" stop-color="#4e6c77"/>
+    <stop offset="1" stop-color="#263c45"/>
+  </linearGradient>
+  <linearGradient id="ice" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#eafcff"/>
+    <stop offset=".4" stop-color="#a9e9ef"/>
+    <stop offset=".75" stop-color="#5bb7c1"/>
+    <stop offset="1" stop-color="#245b68"/>
+  </linearGradient>
+  <linearGradient id="river" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#88e4eb"/>
+    <stop offset=".5" stop-color="#3a9dac"/>
+    <stop offset="1" stop-color="#153d4a"/>
+  </linearGradient>
+  <linearGradient id="shade" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#142b34" stop-opacity=".78"/>
+    <stop offset=".5" stop-color="#142b34" stop-opacity=".05"/>
+    <stop offset="1" stop-color="#142b34" stop-opacity=".56"/>
+  </linearGradient>
+</defs>
+<rect width="720" height="960" fill="url(#sky)"/>
+<!-- soft distant cloud banks -->
+<g fill="#f3fdff" opacity=".72">
+  <ellipse cx="122" cy="190" rx="144" ry="46"/>
+  <ellipse cx="286" cy="164" rx="170" ry="54"/>
+  <ellipse cx="515" cy="207" rx="185" ry="56"/>
+  <ellipse cx="677" cy="171" rx="118" ry="42"/>
+</g>
+<!-- far glacier peaks -->
+<path d="M0 322L58 246L113 282L182 154L244 247L315 118L392 244L463 171L531 255L604 136L674 254L720 217V390H0Z" fill="url(#far)"/>
+<g fill="#f7feff" opacity=".92">
+  <path d="M148 201L182 154L214 202L184 188Z"/>
+  <path d="M278 173L315 118L350 179L316 157Z"/>
+  <path d="M574 181L604 136L637 190L606 167Z"/>
+</g>
+<!-- middle ridges -->
+<path d="M0 390L103 337L185 358L256 309L331 347L409 286L492 336L574 302L651 350L720 318V563H0Z" fill="#668895"/>
+<path d="M0 462L86 405L170 429L247 377L330 420L421 363L519 419L612 369L720 412V622H0Z" fill="url(#mid)"/>
+<!-- ice shelves -->
+<path d="M0 516L92 483L173 505L258 468L333 503L417 455L502 500L589 470L720 503V687H0Z" fill="url(#ice)"/>
+<path d="M0 600L96 566L178 595L257 553L341 598L432 548L523 589L617 556L720 589V742H0Z" fill="#5f9aa6" opacity=".86"/>
+<!-- river / frozen channel -->
+<path d="M304 960C296 884 314 822 343 768C364 730 391 700 402 666C420 611 393 576 377 545C424 566 457 606 458 660C459 714 422 760 395 804C368 848 355 899 360 960Z" fill="url(#river)"/>
+<path d="M329 960C323 889 341 834 365 791C387 750 411 717 418 680" fill="none" stroke="#d7fbff" stroke-width="12" stroke-linecap="round" opacity=".68"/>
+<!-- foreground slate ice cliffs -->
+<path d="M0 662L115 608L202 655L261 618L298 691L251 960H0Z" fill="#1b3540"/>
+<path d="M720 624L623 598L545 648L474 620L438 699L493 960H720Z" fill="#18313a"/>
+<path d="M0 706L83 663L161 687L213 665L253 714L217 960H0Z" fill="#294c58"/>
+<path d="M720 676L645 642L579 674L519 655L472 713L506 960H720Z" fill="#264955"/>
+<!-- snow ledges -->
+<path d="M16 690L86 656L160 678L204 660L238 695L204 704L160 692L93 673L28 704Z" fill="#d8f3f6" opacity=".82"/>
+<path d="M704 692L650 655L583 682L528 663L490 704L526 711L580 695L645 674L696 710Z" fill="#d8f3f6" opacity=".78"/>
+<!-- fictional relay line / beacons -->
+<g stroke="#8fe0df" stroke-width="4" fill="#163b45">
+  <path d="M160 522L278 492L431 512L555 479" fill="none" opacity=".72"/>
+  <g transform="translate(160 522)">
+    <rect x="-7" y="-32" width="14" height="32" rx="4"/>
+    <circle cx="0" cy="-38" r="8" fill="#b9fbf7"/>
+  </g>
+  <g transform="translate(278 492)">
+    <rect x="-7" y="-38" width="14" height="38" rx="4"/>
+    <circle cx="0" cy="-44" r="8" fill="#b9fbf7"/>
+  </g>
+  <g transform="translate(431 512)">
+    <rect x="-7" y="-34" width="14" height="34" rx="4"/>
+    <circle cx="0" cy="-40" r="8" fill="#b9fbf7"/>
+  </g>
+  <g transform="translate(555 479)">
+    <rect x="-7" y="-40" width="14" height="40" rx="4"/>
+    <circle cx="0" cy="-46" r="8" fill="#b9fbf7"/>
+  </g>
+</g>
+<!-- small bridge mechanism -->
+<g transform="translate(332 610)" opacity=".92">
+  <rect x="-88" y="-8" width="176" height="16" rx="8" fill="#1e424b" stroke="#76c8cb" stroke-width="3"/>
+  <path d="M-67 -8L-38 -43L-8 -8M8 -8L38 -43L67 -8" fill="none" stroke="#456d77" stroke-width="6" stroke-linejoin="round"/>
+</g>
+<!-- vignette -->
+<rect width="720" height="960" fill="url(#shade)" opacity=".24"/>
+</svg>
