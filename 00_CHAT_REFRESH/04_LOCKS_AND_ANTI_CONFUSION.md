@@ -48,3 +48,8 @@ Every Factory X **game** inherits `FACTORY_X_ONE_THUMB_GAMEPLAY_LAW.md`: all ess
 ## Portfolio-wide pre-edit stability lock
 
 Every Factory X PWA inherits `FACTORY_X_ROOT_CAUSE_AND_WEBKIT_STABILITY_LAW.md`. Research repeated failures and reverse-risk Apple/WebKit/media stability **before** another legacy HTML/CSS/JS/service-worker/asset edit.
+
+
+## Portfolio-wide audio/reward lock
+
+Every Factory X PWA inherits `FACTORY_X_AUDIO_REWARD_CELEBRATION_LAW.md`: genre-specific original/licence-cleared music, copyright provenance, premium celebratory reward feedback, Reduced Motion/no-strobe safety, WebKit audio lifecycle testing, and truthful reward callouts only.
