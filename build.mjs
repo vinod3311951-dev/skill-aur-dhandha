@@ -75,20 +75,15 @@ let indexHtml=readFileSync(indexPath,"utf8");
 if(indexHtml.split("</main>").length!==2||indexHtml.split("</head>").length!==2)
   throw new Error("SARHAD early-build footer insertion anchor missing or ambiguous");
 const footer=`<p id="fx-early-build" style="
-  position:fixed;
-  bottom:0;
-  left:0;
-  right:0;
+  position:relative;
   margin:0;
-  padding:6px 0;
+  padding:7px 10px 9px;
   text-align:center;
   font:11px system-ui,sans-serif;
-  color:rgba(255,255,255,0.55);
-  background:rgba(0,0,0,0.35);
-  z-index:1;
+  color:rgba(255,255,255,0.48);
+  background:#08100d;
   pointer-events:none;
   ">Early build — not for public release.</p>`;
-indexHtml=indexHtml.replace("</head>","<style>body { padding-bottom: 32px; }</style>\n</head>");
 indexHtml=indexHtml.replace("</main>","</main>\n"+footer);
 writeFileSync(path.join(outDir,"robots.txt"),"User-agent: *\nDisallow: /\n");
 writeFileSync(indexPath,indexHtml);
