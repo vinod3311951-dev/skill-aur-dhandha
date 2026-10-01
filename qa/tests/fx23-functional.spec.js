@@ -9,7 +9,7 @@ async function openLevel(page, globalLevel) {
   await page.goto(`${BASE}/?fx23=1`, { waitUntil: 'domcontentloaded' });
   await page.getByRole('button', { name: /Mission Map/i }).click();
   await page.locator(`[data-world-id="${worldId}"]`).click();
-  await page.locator(`[data-mission-id]`).filter({ has: page.locator(`.mission-order:text-is("${order}")`) }).first().click();
+  await page.locator('[data-mission-id]').filter({ has: page.locator(`.mission-order:text-is("${order}")`) }).first().click();
   await expect(page.getByRole('button', { name: /^Begin$/i })).toBeVisible();
   await page.getByRole('button', { name: /^Begin$/i }).click();
   await expect(page.locator('#scene')).toBeVisible();
@@ -55,7 +55,6 @@ for (const level of [5, 10, 25, 50, 100]) {
   });
 }
 
-
 test('World 1 presents Glacier Reach and Captain Rudraa briefing identity', async ({ page }) => {
   await page.goto(BASE, { waitUntil: 'domcontentloaded' });
   await page.getByRole('button', { name: /Start Campaign|Continue Campaign/i }).click();
@@ -73,7 +72,6 @@ test('Reduced effects setting visibly binds to the document presentation state',
   await expect(toggle).toHaveAttribute('aria-pressed', 'true');
   await expect.poll(() => page.evaluate(() => document.documentElement.dataset.reducedEffects)).toBe('true');
 });
-
 
 test('Pause → Settings preserves the active mission and returns to the same state', async ({ page }) => {
   await page.goto(BASE, { waitUntil: 'domcontentloaded' });
@@ -99,7 +97,6 @@ test('Pause → Settings preserves the active mission and returns to the same st
   expect(missionAfter).toBe(missionBefore);
   expect(attemptsAfter).toBe(attemptsBefore);
 });
-
 
 test('Binoculars scout without consuming an attempt and return to aim in one tap', async ({ page }) => {
   await page.goto(BASE, { waitUntil: 'domcontentloaded' });
@@ -172,7 +169,7 @@ test('briefing exposes ten fictional loadouts including Field Catapult', async (
 
 test('Field Catapult and Vector Needle preserve identical precision hit truth', async ({ page }) => {
   async function run(loadoutId) {
-    await page.goto(BASE, { waitUntil: 'domcontentloaded' });
+    await page.goto(`${BASE}/?fx23=1`, { waitUntil: 'domcontentloaded' });
     await page.getByRole('button', { name: /Start Campaign|Continue Campaign/i }).click();
     await page.locator(`[data-loadout-id="${loadoutId}"]`).click();
     await page.getByRole('button', { name: /^Begin$/i }).click();

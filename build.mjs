@@ -38,10 +38,6 @@ for(const [urlPath,item] of Object.entries(manifest)){
 
 if(!count||!readFileSync(path.join(outDir,"index.html")))throw new Error("SARHAD static output was not generated");
 
-// FX-01 source-of-truth overlay.
-// The historical compressed payload remains the binary asset reservoir during the Audit-1 rebuild,
-// while editable application source under sarhad-inspect becomes authoritative for HTML/CSS/JS/SW.
-// This removes the need to keep patching generated output while preserving current production assets.
 const editableRoot=path.join(root,"sarhad-inspect");
 const editableFiles=[
   "index.html",
@@ -49,6 +45,7 @@ const editableFiles=[
   "src/main.js",
   "src/styles.css",
   "src/game/config.js",
+  "src/game/combat-state.js",
   "src/game/diagnostics.js",
   "src/game/engine.js",
   "src/game/storage.js",
@@ -64,12 +61,8 @@ for(const relative of editableFiles){
   copyFileSync(source,target);
 }
 console.log(`FX-01 editable source overlay applied (${editableFiles.length} files)`);
-
-// FX-01: runtime fixes now live in editable sarhad-inspect source.
 console.log("FX-01 editable runtime source is authoritative");
 
-
-// Founder-approved early-build notice: patch only the generated static entry page.
 const indexPath=path.join(outDir,"index.html");
 let indexHtml=readFileSync(indexPath,"utf8");
 if(indexHtml.split("</main>").length!==2||indexHtml.split("</head>").length!==2)

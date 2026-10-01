@@ -9,6 +9,10 @@ on:
       - "qa/**"
       - ".github/workflows/sarhad-fx23-functional.yml"
 
+concurrency:
+  group: sarhad-fx23-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -30,13 +34,15 @@ jobs:
           name: sarhad-public-build
           path: public/
           retention-days: 7
+      - name: Validate deterministic mission and combat state
+        run: |
+          node qa/tests/mission-config.test.mjs
+          node qa/tests/combat-state.test.mjs
       - name: Install Playwright
         working-directory: qa
         run: |
           npm install --no-audit --no-fund
           npx playwright install --with-deps chromium webkit
-      - name: Validate all 105 mission configurations
-        run: node qa/tests/mission-config.test.mjs
       - name: Start static QA server
         run: |
           node qa/static-server.mjs > /tmp/sarhad-static.log 2>&1 &
