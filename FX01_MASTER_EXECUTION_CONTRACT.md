@@ -243,6 +243,14 @@ Animation categories:
 
 Weak devices may reduce decoration but never gameplay truth.
 
+## 14A. Portfolio audio/reward inheritance
+
+FX-01 inherits `FACTORY_X_AUDIO_REWARD_CELEBRATION_LAW.md`.
+
+Sarhad's specific audio identity: original industrial sci-fi/mechanical pulse, restrained tension during observation, stronger release on precision success, and no recognizable copied melody/motif from Terminator or any other protected work.
+
+Sarhad reward language may use contextually earned callouts such as **PERFECT SHOT**, **BANG ON**, **LEVEL CLEAR**, **WORLD CLEAR**, electric colour bursts, restrained particles/coins/badges and other premium celebrations that respect Reduced Motion, never obscure one-thumb controls and remain within WebKit/mobile performance budgets.
+
 ## 15. Audio
 
 Audio is first-class.
