@@ -53,6 +53,8 @@ function combatProfileFor(worldId, order, tier, targetRadius) {
         initialArmor: 100,
         firstAidKits: worldId >= 6 ? 1 : 2,
         firstAidRestore: 42,
+        armorPlates: worldId >= 6 ? 1 : 2,
+        armorRestore: 48,
         blastResistance: 0.35,
         waves: Array.from({ length: waveCount }, (_, waveIndex) => {
             const hostileCount = Math.min(8, 4 + waveIndex + Math.floor((worldId - 1) / 3));
