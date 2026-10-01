@@ -24,7 +24,8 @@ class GlacierReferenceScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.svg('glacier-world', '/assets/worlds/glacier-reach.svg', { width: 1600, height: 900 });
+    this.load.svg('glacier-world', '/assets/worlds/glacier-reach.svg', { width: 1920, height: 1080 });
+    this.load.svg('captain-rudraa', '/assets/characters/captain-rudraa.svg', { width: 512, height: 512 });
   }
 
   create() {
@@ -36,151 +37,137 @@ class GlacierReferenceScene extends Phaser.Scene {
     const bg = this.add.image(w * 0.5, h * 0.5, 'glacier-world').setOrigin(0.5).setDepth(0);
     cover(bg, w, h);
 
-    const skyWash = this.add.rectangle(w * 0.5, h * 0.5, w, h, 0xb9d6df, 0.09).setDepth(1);
+    // Subtle light/fog layers add motion without disturbing deterministic aim geometry.
+    const dawn = this.add.ellipse(152, 88, 360, 190, 0xffc98b, 0.09).setDepth(1);
+    const hazeA = this.add.ellipse(315, 222, 500, 74, 0xe5fbff, 0.08).setDepth(2);
+    const hazeB = this.add.ellipse(720, 244, 610, 86, 0xd9f5f7, 0.06).setDepth(2);
 
-    // Deep glacier silhouettes establish foreground / midground separation.
-    const mid = this.add.graphics().setDepth(2);
-    mid.fillStyle(0x18343e, 0.36);
-    mid.fillTriangle(0, 430, 175, 245, 350, 430);
-    mid.fillTriangle(230, 430, 500, 205, 720, 430);
-    mid.fillTriangle(575, 430, 820, 235, 960, 430);
+    // Captain Rudraa is decorative presentation only; gameplay truth remains independent.
+    const rudraa = this.add.image(92, 416, 'captain-rudraa')
+      .setOrigin(0.5, 0.5)
+      .setDisplaySize(184, 184)
+      .setDepth(9)
+      .setAlpha(0.97);
+    const heroShadow = this.add.ellipse(92, 506, 145, 24, 0x071216, 0.38).setDepth(8);
 
-    const cliff = this.add.graphics().setDepth(5);
-    cliff.fillStyle(0x142a31, 0.94);
-    cliff.beginPath();
-    cliff.moveTo(560, 350);
-    cliff.lineTo(960, 300);
-    cliff.lineTo(960, 540);
-    cliff.lineTo(510, 540);
-    cliff.lineTo(545, 438);
-    cliff.closePath();
-    cliff.fillPath();
-    cliff.fillStyle(0x6f939d, 0.28);
-    cliff.fillTriangle(580, 352, 690, 328, 620, 425);
-
-    // Distant signal infrastructure, embedded into the world rather than floating targets.
-    const infrastructure = this.add.graphics().setDepth(4);
-    infrastructure.lineStyle(4, 0x29454a, 0.9);
-    infrastructure.lineBetween(92, 302, 300, 278);
-    infrastructure.lineBetween(300, 278, 500, 292);
-    infrastructure.lineBetween(500, 292, 665, 250);
-    infrastructure.lineStyle(2, 0xa9d7dc, 0.42);
-    infrastructure.lineBetween(92, 302, 665, 250);
-
-    const beaconXs = [110, 305, 505];
-    beaconXs.forEach((x, index) => {
-      const baseY = index === 1 ? 276 : 300;
-      const mast = this.add.rectangle(x, baseY, 10, 72, 0x10272c, 1).setDepth(6);
-      const cap = this.add.circle(x, baseY - 39, 9, 0x8fd5dc, 0.18).setDepth(7);
-      const core = this.add.circle(x, baseY - 39, 4, 0xd9fbff, 0.22).setDepth(8);
-      activationObjects.push(cap, core);
-      mast.setStrokeStyle(1, 0x7eb6bd, 0.32);
-    });
-
-    // Authored relay installation at the deterministic mission target coordinate (0.68, 0.42).
+    // Authored integrated relay at exact mission target coordinate x=.68, y=.42.
     const tx = w * 0.68;
     const ty = h * 0.42;
     const relay = this.add.container(tx, ty).setDepth(12);
 
-    const pedestal = this.add.graphics();
-    pedestal.fillStyle(0x12262a, 1);
-    pedestal.fillRoundedRect(-56, 35, 112, 38, 8);
-    pedestal.lineStyle(2, 0x7da5aa, 0.45);
-    pedestal.strokeRoundedRect(-56, 35, 112, 38, 8);
-    pedestal.fillStyle(0x38545a, 1);
-    pedestal.fillTriangle(-42, 35, -18, -40, 0, 35);
-    pedestal.fillTriangle(42, 35, 18, -40, 0, 35);
+    const base = this.add.graphics();
+    base.fillStyle(0x10272e, 0.98);
+    base.fillRoundedRect(-72, 28, 144, 52, 10);
+    base.lineStyle(2, 0x7cb4b9, 0.5);
+    base.strokeRoundedRect(-72, 28, 144, 52, 10);
+    base.fillStyle(0x315761, 1);
+    base.fillTriangle(-58, 28, -29, -58, -6, 28);
+    base.fillTriangle(58, 28, 29, -58, 6, 28);
 
-    const mast = this.add.rectangle(0, -56, 13, 105, 0x193339, 1).setStrokeStyle(2, 0x86b7bd, 0.38);
-    const hub = this.add.circle(0, -92, 13, 0x0c2025, 1).setStrokeStyle(3, 0x9bc7cc, 0.6);
+    const mast = this.add.rectangle(0, -70, 15, 118, 0x17363d, 1).setStrokeStyle(2, 0x8dbec3, 0.42);
+    const braceL = this.add.rectangle(-21, -26, 7, 90, 0x244b54, 1).setRotation(-0.24);
+    const braceR = this.add.rectangle(21, -26, 7, 90, 0x244b54, 1).setRotation(0.24);
+    const hub = this.add.circle(0, -113, 15, 0x0a2026, 1).setStrokeStyle(3, 0x9ed3d6, 0.62);
 
-    const dish = this.add.container(0, -103);
-    const dishBack = this.add.ellipse(0, -2, 92, 34, 0x1a343a, 1).setStrokeStyle(3, 0xb2d4d8, 0.68);
-    const dishFace = this.add.ellipse(2, -4, 68, 23, 0x658c94, 0.64);
-    const dishCore = this.add.circle(2, -4, 8, 0xf1d379, 0.92);
-    const receiverArm = this.add.rectangle(39, -7, 34, 5, 0x6f969d, 1).setRotation(-0.18);
-    const receiver = this.add.circle(55, -12, 4, 0xe7f8fa, 0.86);
-    dish.add([dishBack, dishFace, dishCore, receiverArm, receiver]);
+    const dish = this.add.container(0, -127);
+    const dishBack = this.add.ellipse(0, 0, 112, 39, 0x17343b, 1).setStrokeStyle(3, 0xc0e5e6, 0.72);
+    const dishFace = this.add.ellipse(1, -2, 82, 27, 0x5c8991, 0.76);
+    const dishGlow = this.add.ellipse(3, -3, 56, 15, 0xa8e7e7, 0.13);
+    const dishCore = this.add.circle(4, -4, 9, 0xf2c97a, 0.96);
+    const receiverArm = this.add.rectangle(48, -8, 44, 5, 0x7aa6ad, 1).setRotation(-0.18);
+    const receiver = this.add.circle(69, -15, 5, 0xeaffff, 0.9);
+    dish.add([dishBack, dishFace, dishGlow, dishCore, receiverArm, receiver]);
 
-    const servicePanel = this.add.rectangle(0, 4, 53, 42, 0x0a171b, 1).setStrokeStyle(2, 0x7da5aa, 0.45);
-    const statusA = this.add.circle(-14, 4, 4, 0xf0d678, 0.72);
-    const statusB = this.add.circle(0, 4, 4, 0x9dd7d9, 0.42);
-    const statusC = this.add.circle(14, 4, 4, 0x9dd7d9, 0.42);
+    // Mechanical service housing, not a floating target marker.
+    const housing = this.add.graphics();
+    housing.fillStyle(0x091a1f, 1);
+    housing.fillRoundedRect(-43, -1, 86, 43, 7);
+    housing.lineStyle(2, 0x6f9fa6, 0.5);
+    housing.strokeRoundedRect(-43, -1, 86, 43, 7);
+    housing.lineStyle(2, 0x274f57, 0.9);
+    housing.lineBetween(-28, 8, 28, 8);
+    housing.lineBetween(-28, 28, 28, 28);
 
-    relay.add([pedestal, mast, hub, dish, servicePanel, statusA, statusB, statusC]);
-    activationObjects.push(statusA, statusB, statusC, dishCore);
+    // Exposed coupler = deterministic interaction point. It is physically embedded in the housing.
+    const couplerAssembly = this.add.container(0, 18);
+    const couplerOuter = this.add.circle(0, 0, 15, 0x203b42, 1).setStrokeStyle(3, 0xa4d5d6, 0.72);
+    const couplerRing = this.add.circle(0, 0, 9, 0x4d747c, 1).setStrokeStyle(2, 0xe7c26d, 0.84);
+    const couplerCore = this.add.circle(0, 0, 4, 0xf4d485, 1);
+    couplerAssembly.add([couplerOuter, couplerRing, couplerCore]);
 
-    // Cable and buried power path visually connect the small objective to the larger valley system.
+    const statusA = this.add.circle(-29, -11, 4, 0xf0d678, 0.72);
+    const statusB = this.add.circle(-17, -11, 4, 0x9dd7d9, 0.42);
+    const statusC = this.add.circle(-5, -11, 4, 0x9dd7d9, 0.42);
+    const sidePanel = this.add.rectangle(38, 17, 16, 26, 0x24464e, 1).setStrokeStyle(1, 0x80b6bb, 0.6);
+
+    relay.add([base, braceL, braceR, mast, hub, dish, housing, couplerAssembly, statusA, statusB, statusC, sidePanel]);
+    activationObjects.push(statusA, statusB, statusC, dishCore, couplerRing, couplerCore);
+
+    // Cables physically connect the coupler installation to the valley systems.
     const power = this.add.graphics().setDepth(7);
-    power.lineStyle(3, 0x8ccbd0, 0.3);
+    power.lineStyle(4, 0x1b4a53, 0.82);
     power.beginPath();
-    power.moveTo(tx - 8, ty + 70);
-    power.lineTo(540, 355);
-    power.lineTo(415, 385);
-    power.lineTo(270, 372);
+    power.moveTo(tx, ty + 72);
+    power.lineTo(594, 355);
+    power.lineTo(486, 385);
+    power.lineTo(380, 366);
+    power.strokePath();
+    power.lineStyle(1, 0x92d6d9, 0.5);
+    power.beginPath();
+    power.moveTo(tx, ty + 72);
+    power.lineTo(594, 355);
+    power.lineTo(486, 385);
+    power.lineTo(380, 366);
     power.strokePath();
 
-    // Foreground snow bank frames the scope and keeps the installation grounded.
-    const snow = this.add.graphics().setDepth(20);
-    snow.fillStyle(0xc8dde0, 0.38);
-    snow.fillEllipse(230, 515, 520, 92);
-    snow.fillStyle(0x799da5, 0.28);
-    snow.fillEllipse(760, 532, 610, 105);
+    // Foreground crystalline framing and drifting snow.
+    const fg = this.add.graphics().setDepth(18);
+    fg.fillStyle(0x18353f, 0.82);
+    fg.fillTriangle(0, 540, 98, 458, 184, 540);
+    fg.fillTriangle(960, 540, 862, 455, 774, 540);
+    fg.fillStyle(0xbbe5e7, 0.14);
+    fg.fillTriangle(32, 540, 106, 475, 146, 540);
+    fg.fillTriangle(928, 540, 858, 474, 818, 540);
 
-    // Atmospheric motion is subtle and cheap.
     if (!reducedMotion()) {
-      this.tweens.add({
-        targets: dish,
-        angle: { from: -3.2, to: 3.2 },
-        duration: 3600,
-        yoyo: true,
-        repeat: -1,
-        ease: 'Sine.inOut'
-      });
-      this.tweens.add({
-        targets: bg,
-        x: w * 0.5 + 8,
-        duration: 9000,
-        yoyo: true,
-        repeat: -1,
-        ease: 'Sine.inOut'
-      });
+      this.tweens.add({ targets: dish, angle: { from: -3.5, to: 3.5 }, duration: 3800, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
+      this.tweens.add({ targets: bg, x: w * 0.5 + 7, duration: 10500, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
+      this.tweens.add({ targets: hazeA, x: hazeA.x + 42, alpha: { from: 0.045, to: 0.10 }, duration: 7800, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
+      this.tweens.add({ targets: hazeB, x: hazeB.x - 48, alpha: { from: 0.04, to: 0.08 }, duration: 9300, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
+      this.tweens.add({ targets: dawn, alpha: { from: 0.06, to: 0.12 }, duration: 5200, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
+      this.tweens.add({ targets: rudraa, y: rudraa.y - 3, duration: 2400, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
+      this.tweens.add({ targets: heroShadow, scaleX: { from: 1, to: 0.95 }, alpha: { from: 0.38, to: 0.31 }, duration: 2400, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
+      this.tweens.add({ targets: couplerCore, alpha: { from: 0.72, to: 1 }, duration: 840, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
     }
 
-    for (let i = 0; i < 34; i += 1) {
+    for (let i = 0; i < 42; i += 1) {
       const flake = this.add.circle(
         Phaser.Math.Between(0, w),
-        Phaser.Math.Between(0, h),
+        Phaser.Math.Between(-40, h),
         Phaser.Math.Between(1, 3),
-        0xe8f5f7,
-        Phaser.Math.FloatBetween(0.15, 0.5)
-      ).setDepth(18);
+        0xeaf9fa,
+        Phaser.Math.FloatBetween(0.16, 0.54)
+      ).setDepth(17);
       if (!reducedMotion()) {
         this.tweens.add({
           targets: flake,
-          x: flake.x + Phaser.Math.Between(35, 90),
-          y: h + 20,
-          alpha: 0.05,
+          x: flake.x + Phaser.Math.Between(28, 86),
+          y: h + 24,
+          alpha: 0.04,
           duration: Phaser.Math.Between(6500, 11000),
           repeat: -1,
           onRepeat: () => {
-            flake.x = Phaser.Math.Between(-40, w);
-            flake.y = Phaser.Math.Between(-80, 20);
-            flake.alpha = Phaser.Math.FloatBetween(0.15, 0.5);
+            flake.x = Phaser.Math.Between(-50, w);
+            flake.y = Phaser.Math.Between(-100, 0);
+            flake.alpha = Phaser.Math.FloatBetween(0.16, 0.54);
           }
         });
       }
     }
 
-    // Slight camera settle creates the wide-landscape reveal without changing gameplay coordinates.
     if (!reducedMotion()) {
-      this.cameras.main.setZoom(1.018);
-      this.tweens.add({
-        targets: this.cameras.main,
-        zoom: 1,
-        duration: 1100,
-        ease: 'Sine.out'
-      });
+      this.cameras.main.setZoom(1.016);
+      this.tweens.add({ targets: this.cameras.main, zoom: 1, duration: 1200, ease: 'Sine.out' });
     }
 
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
@@ -198,7 +185,7 @@ export function mountGlacierReferenceScene(parent) {
     parent,
     width: DESIGN_WIDTH,
     height: DESIGN_HEIGHT,
-    backgroundColor: '#b4cfd5',
+    backgroundColor: '#8eb8c0',
     transparent: false,
     antialias: true,
     render: {
@@ -230,34 +217,34 @@ export function mountGlacierReferenceScene(parent) {
 
 export function activateGlacierReferenceScene() {
   if (!activeScene || activationObjects.length === 0) return;
+
   for (const object of activationObjects) {
     object.setAlpha(1);
     if (!reducedMotion()) {
       activeScene.tweens.add({
         targets: object,
-        alpha: { from: 0.28, to: 1 },
-        scale: { from: 0.72, to: 1.18 },
-        duration: 260,
+        alpha: { from: 0.24, to: 1 },
+        scale: { from: 0.76, to: 1.22 },
+        duration: 320,
         yoyo: true,
         ease: 'Sine.out'
       });
     }
   }
 
-  const beam = activeScene.add.graphics().setDepth(10);
-  beam.lineStyle(4, 0xcdf9ff, 0.65);
-  beam.lineBetween(110, 261, 305, 237);
-  beam.lineBetween(305, 237, 505, 261);
-  beam.lineBetween(505, 261, DESIGN_WIDTH * 0.68, DESIGN_HEIGHT * 0.42 - 92);
+  const beam = activeScene.add.graphics().setDepth(11);
+  beam.lineStyle(5, 0xcdfcff, 0.70);
+  beam.lineBetween(278, 545, 545, 484);
+  beam.lineBetween(545, 484, 846, 524);
+  beam.lineBetween(846, 524, 1134, 456);
+  beam.lineBetween(1134, 456, DESIGN_WIDTH * 0.68, DESIGN_HEIGHT * 0.42 - 113);
 
+  const successWash = activeScene.add.rectangle(DESIGN_WIDTH * 0.5, DESIGN_HEIGHT * 0.5, DESIGN_WIDTH, DESIGN_HEIGHT, 0xa7f2ed, 0.12).setDepth(10);
   if (!reducedMotion()) {
-    activeScene.tweens.add({
-      targets: beam,
-      alpha: 0,
-      duration: 900,
-      delay: 550,
-      onComplete: () => beam.destroy()
-    });
+    activeScene.tweens.add({ targets: beam, alpha: 0, duration: 1100, delay: 500, onComplete: () => beam.destroy() });
+    activeScene.tweens.add({ targets: successWash, alpha: 0, duration: 760, delay: 260, onComplete: () => successWash.destroy() });
+  } else {
+    window.setTimeout(() => { beam.destroy(); successWash.destroy(); }, 220);
   }
 }
 
