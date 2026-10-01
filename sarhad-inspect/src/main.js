@@ -120,6 +120,29 @@ if (FX23_VERIFICATION_MODE) {
         configurable: true,
         enumerable: false,
         value: {
+            aimAtCurrentTarget() {
+                if (screen !== 'mission')
+                    return false;
+                const target = currentTarget(currentElapsed());
+                aimX = target.x;
+                aimY = target.y;
+                const reticle = document.querySelector('#reticle');
+                if (reticle)
+                    positionReticle(reticle);
+                return true;
+            },
+            fireAtCurrentTarget() {
+                if (screen !== 'mission')
+                    return false;
+                const target = currentTarget(currentElapsed());
+                aimX = target.x;
+                aimY = target.y;
+                const reticle = document.querySelector('#reticle');
+                if (reticle)
+                    positionReticle(reticle);
+                fire();
+                return true;
+            },
             aimAtProtectedFigure(index = 0) {
                 if (screen !== 'mission' || selectedMission.kind !== 'protection')
                     return false;
@@ -132,6 +155,21 @@ if (FX23_VERIFICATION_MODE) {
                 const reticle = document.querySelector('#reticle');
                 if (reticle)
                     positionReticle(reticle);
+                return true;
+            },
+            fireAtProtectedFigure(index = 0) {
+                if (screen !== 'mission' || selectedMission.kind !== 'protection')
+                    return false;
+                const spec = selectedMission.protectedFigures?.[index];
+                if (!spec)
+                    return false;
+                const position = protectedFigureAtElapsed(spec, currentElapsed());
+                aimX = position.x;
+                aimY = position.y;
+                const reticle = document.querySelector('#reticle');
+                if (reticle)
+                    positionReticle(reticle);
+                fire();
                 return true;
             }
         }
