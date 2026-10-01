@@ -52,7 +52,7 @@ jobs:
           key: playwright-${{ runner.os }}-${{ hashFiles('qa/package.json') }}
       - name: Install Playwright OS dependencies
         working-directory: qa
-        timeout-minutes: 5
+        timeout-minutes: 9
         run: npx playwright install-deps chromium webkit
       - name: Install Playwright browsers
         working-directory: qa
