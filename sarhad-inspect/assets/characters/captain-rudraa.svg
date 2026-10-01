@@ -72,6 +72,10 @@
 <path d="M224 231C245 244 274 245 298 230" fill="none" stroke="#5a332d" stroke-width="6" stroke-linecap="round"/>
 <path d="M197 202C207 258 230 278 260 281C293 278 319 256 326 205C315 226 305 250 286 260C269 268 247 268 230 260C214 251 205 227 197 202Z" fill="#302724" opacity=".88"/>
 <path d="M224 231C245 243 274 244 298 230" fill="none" stroke="#7f5444" stroke-width="4" stroke-linecap="round"/>
+<!-- locked Captain Rudraa facial identity: prominent moustache + full short beard -->
+<path d="M214 202C226 194 242 194 257 203C272 194 289 194 303 202C294 205 284 211 274 218C267 222 262 224 257 224C251 224 245 222 238 218C229 211 220 206 214 202Z" fill="#251c1a"/>
+<path d="M199 205C203 238 216 265 238 279C249 286 270 287 282 280C306 266 320 239 324 205C315 220 308 242 291 254C280 262 270 267 258 267C245 267 234 262 224 254C208 242 204 220 199 205Z" fill="#2b211f" opacity=".96"/>
+<path d="M224 232C244 242 274 243 296 231" fill="none" stroke="#805646" stroke-width="4" stroke-linecap="round"/>
 <!-- fictional observation module, not a weapon -->
 <g transform="translate(347 282)">
   <rect x="0" y="0" width="70" height="42" rx="12" fill="#18363a" stroke="#58acaf" stroke-width="3"/>
