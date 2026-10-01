@@ -620,3 +620,29 @@ html[data-reduced-effects="true"] .rudraa-portrait img { transform:translate(-3%
   .view-tools .view-toggle { min-width:104px; }
   .loadout-choice { flex-basis:118px; }
 }
+
+
+/* FX-01 protected-civilian feedback: explicit penalty, never celebratory. */
+.civilian-penalty {
+  position:absolute;
+  z-index:7;
+  transform:translate(-50%,-50%);
+  min-width:58px;
+  padding:7px 10px;
+  border-radius:999px;
+  border:1px solid rgba(240,168,143,.82);
+  background:rgba(54,18,14,.92);
+  color:#ffd8cb;
+  font:900 .78rem/1 system-ui,sans-serif;
+  letter-spacing:.04em;
+  text-align:center;
+  pointer-events:none;
+  animation:civilian-penalty-out .72s ease-out forwards;
+}
+.civilian-penalty.reduced { animation:none; opacity:1; }
+@keyframes civilian-penalty-out {
+  0% { opacity:0; transform:translate(-50%,-35%) scale(.88); }
+  18% { opacity:1; transform:translate(-50%,-50%) scale(1); }
+  100% { opacity:0; transform:translate(-50%,-92%) scale(.94); }
+}
+html[data-reduced-effects="true"] .civilian-penalty { animation:none !important; }
