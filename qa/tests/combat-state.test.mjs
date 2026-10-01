@@ -6,6 +6,7 @@ import {
   combatProgress,
   createCombatState,
   defeatHostile,
+  useArmorPlate,
   useFirstAid
 } from '../../sarhad-inspect/src/game/combat-state.js';
 
@@ -18,6 +19,7 @@ for (const mission of missions) {
   assert.equal(state.health, profile.initialHealth);
   assert.equal(state.armor, profile.initialArmor);
   assert.equal(state.firstAidKits, profile.firstAidKits);
+  assert.equal(state.armorPlates, profile.armorPlates);
   assert.equal(state.currentWaveIndex, 0);
   assert.equal(state.wavesCleared, false);
 
@@ -30,6 +32,11 @@ for (const mission of missions) {
   const healed = useFirstAid(profile, damaged);
   assert.ok(healed.health > damaged.health, `${mission.id}: first aid must restore health`);
   assert.equal(healed.firstAidKits, damaged.firstAidKits - 1, `${mission.id}: first aid kit must be consumed`);
+
+  const armourLow = { ...state, armor: 25 };
+  const armoured = useArmorPlate(profile, armourLow);
+  assert.ok(armoured.armor > armourLow.armor, `${mission.id}: armour plate must restore armour`);
+  assert.equal(armoured.armorPlates, armourLow.armorPlates - 1, `${mission.id}: armour plate must be consumed`);
 
   while (!state.wavesCleared) {
     const wave = activeCombatWave(profile, state);
