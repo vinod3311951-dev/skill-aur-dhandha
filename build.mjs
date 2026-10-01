@@ -63,99 +63,9 @@ for(const relative of editableFiles){
 }
 console.log(`FX-01 editable source overlay applied (${editableFiles.length} files)`);
 
-// FX-23 functional repair layer.
-// The original packaged game remains the source of truth; these deterministic patches fix
-// mobile mission-card activation and provide a verification-only deep-level route.
-const mainPath=path.join(outDir,"src","main.js");
-let main=readFileSync(mainPath,"utf8");
+// FX-01: runtime fixes now live in editable sarhad-inspect source.
+console.log("FX-01 editable runtime source is authoritative");
 
-const anchor="let resetArmed = false;";
-if(!main.includes(anchor))throw new Error("Sarhad repair anchor missing: resetArmed");
-main=main.replace(anchor, anchor+"\nconst FX23_VERIFICATION_MODE = new URLSearchParams(location.search).get('fx23') === '1';");
-
-const worldUnlock="function worldUnlocked(worldId) {\n    if (worldId === 1)";
-if(!main.includes(worldUnlock))throw new Error("Sarhad repair anchor missing: worldUnlocked");
-main=main.replace(worldUnlock,"function worldUnlocked(worldId) {\n    if (FX23_VERIFICATION_MODE)\n        return true;\n    if (worldId === 1)");
-
-const missionUnlock="function missionUnlocked(mission) {\n    if (!worldUnlocked(mission.worldId))";
-if(!main.includes(missionUnlock))throw new Error("Sarhad repair anchor missing: missionUnlocked");
-main=main.replace(missionUnlock,"function missionUnlocked(mission) {\n    if (FX23_VERIFICATION_MODE)\n        return true;\n    if (!worldUnlocked(mission.worldId))");
-
-const bindAnchor="function handleVisibilityChange() {";
-if(!main.includes(bindAnchor))throw new Error("Sarhad repair anchor missing: handleVisibilityChange");
-const fallback=`
-function handleMissionMapDelegatedClick(event) {
-    const node = event.target instanceof Element
-        ? event.target.closest('[data-mission-id],[data-world-id]')
-        : null;
-    if (!node)
-        return;
-    if (node instanceof HTMLButtonElement && node.disabled)
-        return;
-
-    if (screen === 'worldSelect' && node.hasAttribute('data-world-id')) {
-        const worldId = Number(node.dataset.worldId);
-        if (!Number.isFinite(worldId) || !worldUnlocked(worldId))
-            return;
-        selectedWorldId = worldId;
-        renderMissionSelect();
-        return;
-    }
-
-    if (screen === 'missionSelect' && node.hasAttribute('data-mission-id')) {
-        const missionId = node.dataset.missionId ?? '';
-        const mission = MISSIONS.find((item) => item.id === missionId);
-        if (!mission || !missionUnlocked(mission))
-            return;
-        selectedMission = mission;
-        selectedWorldId = mission.worldId;
-        renderBriefing();
-    }
-}
-app.addEventListener('click', handleMissionMapDelegatedClick);
-
-`;
-main=main.replace(bindAnchor,fallback+bindAnchor);
-
-// Home-scene CSS background deferred until after first paint so
-// WebKit does not decode the webp synchronously during CSS paint.
-const homeSceneBefore =
-  "const appElement = document.querySelector('#app');";
-
-const homeSceneAfter =
-  "const appElement = document.querySelector('#app');\n" +
-  "let __sarhadHomeSceneScheduled = false;\n" +
-  "function __sarhadApplyHomeScene() {\n" +
-  "  if (__sarhadHomeSceneScheduled) return;\n" +
-  "  __sarhadHomeSceneScheduled = true;\n" +
-  "  const apply = () => {\n" +
-  "    const homeCard = document.querySelector('.home-card');\n" +
-  "    if (homeCard) {\n" +
-  "      homeCard.style.setProperty(\n" +
-  "        '--home-scene',\n" +
-  "        \"url('/assets/worlds/sarhad-cliffs.webp')\"\n" +
-  "      );\n" +
-  "    }\n" +
-  "  };\n" +
-  "  requestAnimationFrame(() => requestAnimationFrame(apply));\n" +
-  "}\n" +
-  "window.addEventListener('load', __sarhadApplyHomeScene, { once: true });";
-
-if (main.split(homeSceneBefore).length !== 2)
-  throw new Error("Sarhad home-scene patch anchor missing or ambiguous");
-main = main.replace(homeSceneBefore, homeSceneAfter);
-// Permanent fix: strip inline home-scene CSS from initial paint.
-const homeSceneInlineBefore =
-  `<section class="home-card market-home" style="--home-scene:url('/assets/worlds/sarhad-cliffs.webp')">`;
-const homeSceneInlineAfter =
-  `<section class="home-card market-home">`;
-if (main.split(homeSceneInlineBefore).length !== 2)
-  throw new Error("Sarhad home-scene inline anchor missing or ambiguous");
-main = main.replace(homeSceneInlineBefore, homeSceneInlineAfter);
-
-
-
-writeFileSync(mainPath,main);
 
 // Founder-approved early-build notice: patch only the generated static entry page.
 const indexPath=path.join(outDir,"index.html");
@@ -180,5 +90,4 @@ indexHtml=indexHtml.replace("</head>","<style>body { padding-bottom: 32px; }</st
 indexHtml=indexHtml.replace("</main>","</main>\n"+footer);
 writeFileSync(path.join(outDir,"robots.txt"),"User-agent: *\nDisallow: /\n");
 writeFileSync(indexPath,indexHtml);
-console.log("Sarhad FX-23 functional repair applied: delegated mission-map taps + verification mode");
 console.log(`Sarhad Sniper static build generated ${count} files from ${files.length} payload chunks`);
