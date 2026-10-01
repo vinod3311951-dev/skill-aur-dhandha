@@ -52,7 +52,9 @@ const editableFiles=[
   "src/game/diagnostics.js",
   "src/game/engine.js",
   "src/game/storage.js",
-  "src/game/types.js"
+  "src/game/types.js",
+  "assets/characters/captain-rudraa.svg",
+  "assets/worlds/glacier-reach.svg"
 ];
 for(const relative of editableFiles){
   const source=path.join(editableRoot,relative);
