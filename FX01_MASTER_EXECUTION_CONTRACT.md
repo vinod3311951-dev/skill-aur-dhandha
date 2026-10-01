@@ -119,6 +119,10 @@ No signup friction, promotional modal or ad competing with play.
 
 Buttons must be thumb-friendly, consistent, readable and calm.
 
+## 7A. One-thumb control inheritance
+
+FX-01 inherits `FACTORY_X_ONE_THUMB_GAMEPLAY_LAW.md`. Environmental View, Telescopic View, Binoculars, FIRE, pause/resume and progression must remain fully usable one-handed with one thumb on mobile; no essential multi-touch dependency is permitted.
+
 ## 8. View system
 
 Three user-friendly tools:
