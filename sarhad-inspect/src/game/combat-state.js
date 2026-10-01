@@ -96,3 +96,39 @@ export function combatProgress(profile, state) {
         down: state.down
     };
 }
+
+
+export function activeCombatHostiles(profile, state) {
+    const wave = activeCombatWave(profile, state);
+    if (!wave)
+        return [];
+    const defeated = new Set(state.defeatedHostileIds);
+    return wave.hostiles.filter((hostile) => !defeated.has(hostile.id));
+}
+
+function triangleWave(value) {
+    const phase = ((value % 1) + 1) % 1;
+    return phase < 0.5 ? phase * 2 : 2 - phase * 2;
+}
+
+export function combatHostilePositionAtElapsed(hostile, elapsedMs) {
+    const cycle = Math.max(1, hostile.cycleMs ?? 1);
+    const phase = (Math.max(0, elapsedMs) + (hostile.phaseMs ?? 0)) / cycle;
+    const mix = triangleWave(phase);
+    return {
+        x: hostile.minX + (hostile.maxX - hostile.minX) * mix,
+        y: hostile.y,
+        radius: hostile.radius
+    };
+}
+
+export function combatHostileHitAtElapsed(profile, state, elapsedMs, aimX, aimY) {
+    let best = null;
+    for (const hostile of activeCombatHostiles(profile, state)) {
+        const position = combatHostilePositionAtElapsed(hostile, elapsedMs);
+        const distance = Math.hypot(aimX - position.x, aimY - position.y);
+        if (distance <= position.radius && (!best || distance < best.distance))
+            best = { hostile, position, distance };
+    }
+    return best;
+}
