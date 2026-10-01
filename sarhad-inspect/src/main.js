@@ -32,6 +32,9 @@ let lastMissionPreviousBest = 0;
 let civilianHits = 0;
 let viewMode = 'scope';
 let missionStatusCache = '';
+let settingsReturnToMission = false;
+let settingsMissionElapsedMs = 0;
+let pendingMissionElapsedRestoreMs = null;
 const SCOPE_ZOOM = 1.78;
 const WORLD_SCENE_SOURCES = {
     1: '/assets/worlds/frost-ridge.webp',
@@ -409,15 +412,30 @@ function renderBriefing() {
     </section>`);
     bindActions();
 }
-function renderSettings() {
-    stopMissionLoop();
+function renderSettings(returnToMission = false) {
+    if (returnToMission && screen === 'mission') {
+        if (!paused)
+            pauseMission('settings');
+        settingsReturnToMission = true;
+        settingsMissionElapsedMs = currentElapsed();
+        stopWorldAmbience();
+        cancelAnimationFrame(raf);
+        raf = 0;
+        canvas = null;
+    }
+    else if (!returnToMission) {
+        settingsReturnToMission = false;
+        settingsMissionElapsedMs = 0;
+        stopMissionLoop();
+    }
     screen = 'settings';
     const { audioEnabled, hapticsEnabled, reducedEffects } = save.settings;
     app.innerHTML = shell(`
     <section class="panel settings-panel">
-      <button class="text-btn" data-action="home" aria-label="Back to home">← Home</button>
+      <button class="text-btn" data-action="${settingsReturnToMission ? 'returnMission' : 'home'}" aria-label="${settingsReturnToMission ? 'Return to active mission' : 'Back to home'}">← ${settingsReturnToMission ? 'Mission' : 'Home'}</button>
       <p class="eyebrow">SETTINGS</p>
       <h2>Comfort controls.</h2>
+      ${settingsReturnToMission ? '<p class="settings-mission-held" role="status">Active mission held safely while you adjust comfort controls.</p>' : ''}
       <div class="setting-list">
         ${settingRow('Sound', 'audio', audioEnabled)}
         ${settingRow('Haptics', 'haptics', hapticsEnabled)}
@@ -439,6 +457,19 @@ function renderSettings() {
     </section>`, false);
     bindActions();
 }
+function returnToHeldMission() {
+    if (!settingsReturnToMission) {
+        renderHome();
+        return;
+    }
+    pendingMissionElapsedRestoreMs = settingsMissionElapsedMs;
+    settingsReturnToMission = false;
+    settingsMissionElapsedMs = 0;
+    paused = false;
+    pauseStartedAt = 0;
+    renderMission();
+    startWorldAmbience();
+}
 function settingRow(label, key, enabled) {
     return `<button class="setting-row" data-setting="${key}" aria-pressed="${enabled}"><span>${label}</span><strong>${enabled ? 'ON' : 'OFF'}</strong></button>`;
 }
@@ -453,15 +484,15 @@ function toggleSetting(key) {
     save = { ...save, settings };
     saveProgress(save);
     syncReducedEffectsPresentation();
-    renderSettings();
+    renderSettings(settingsReturnToMission);
 }
 function armReset() {
     resetArmed = true;
-    renderSettings();
+    renderSettings(settingsReturnToMission);
 }
 function cancelReset() {
     resetArmed = false;
-    renderSettings();
+    renderSettings(settingsReturnToMission);
 }
 function confirmReset() {
     stopMissionLoop();
@@ -547,7 +578,7 @@ function renderMission() {
         ${selectedMission.id === 'w1-m1-relay-core' && !save.completedMissionIds.includes(selectedMission.id) ? '<div class="first-minute-coach" id="firstMinuteCoach" role="status"><strong>DRAG TO AIM</strong><span>Overview is one tap away • FIRE when the sight is settled</span></div>' : ''}
         <div class="hint" id="hint">${initialHint()}</div>
         <div class="pause-layer" id="pauseLayer" hidden>
-          <p class="eyebrow">PAUSED</p><h2>Mission held.</h2>${button('Resume', 'resume')}${button('Missions', 'missionSelect', 'secondary')}
+          <p class="eyebrow">PAUSED</p><h2>Mission held.</h2>${button('Resume', 'resume')}${button('Settings', 'missionSettings', 'secondary')}${button('Missions', 'missionSelect', 'secondary')}
         </div>
       </div>
       <div class="mission-controls">
@@ -699,7 +730,9 @@ function setupPlayfield() {
             playfield.releasePointerCapture(event.pointerId);
     });
     positionReticle(reticle);
-    missionStartedAt = performance.now();
+    const restoredElapsed = pendingMissionElapsedRestoreMs;
+    pendingMissionElapsedRestoreMs = null;
+    missionStartedAt = performance.now() - (restoredElapsed ?? 0);
     totalPausedMs = 0;
     pauseStartedAt = 0;
     paused = false;
@@ -2101,6 +2134,10 @@ function bindActions() {
                 goNext();
             else if (action === 'settings')
                 renderSettings();
+            else if (action === 'missionSettings')
+                renderSettings(true);
+            else if (action === 'returnMission')
+                returnToHeldMission();
             else if (action === 'share')
                 void shareAchievement();
             else if (action === 'install')
@@ -2165,12 +2202,12 @@ function registerInstallFlow() {
         event.preventDefault();
         deferredInstallPrompt = event;
         if (screen === 'settings')
-            renderSettings();
+            renderSettings(settingsReturnToMission);
     });
     window.addEventListener('appinstalled', () => {
         deferredInstallPrompt = null;
         if (screen === 'settings')
-            renderSettings();
+            renderSettings(settingsReturnToMission);
     });
 }
 document.addEventListener('visibilitychange', handleVisibilityChange);
