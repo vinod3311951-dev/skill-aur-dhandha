@@ -315,6 +315,7 @@ function renderMissionSelect() {
     stopMissionLoop();
     screen = 'missionSelect';
     const world = worldById(selectedWorldId);
+    ensureWorldScene(world.id);
     const missions = missionsForWorld(selectedWorldId);
     app.innerHTML = shell(`
     <section class="panel mission-select" style="--c1:${world.palette[0]};--c2:${world.palette[1]};--c3:${world.palette[2]}">
@@ -393,6 +394,7 @@ function renderBriefing() {
     stopMissionLoop();
     screen = 'briefing';
     const world = worldById(selectedMission.worldId);
+    ensureWorldScene(world.id);
     app.innerHTML = shell(`
     <section class="panel briefing" style="--c1:${world.palette[0]};--c2:${world.palette[1]};--c3:${world.palette[2]}">
       <button class="text-btn" data-action="missionSelect" aria-label="Back to missions">← Missions</button>
@@ -839,16 +841,26 @@ function drawLoop() {
     }
     raf = requestAnimationFrame(drawLoop);
 }
-function preloadWorldScenes() {
-    Object.entries(WORLD_SCENE_SOURCES).forEach(([worldId, src]) => {
-        const image = new Image();
-        image.decoding = 'async';
-        image.src = src;
-        image.addEventListener('load', () => {
-            worldSceneImages.set(Number(worldId), image);
-        }, { once: true });
-        image.addEventListener('error', () => recordAssetFailure(src), { once: true });
-    });
+const worldSceneLoading = new Set();
+function ensureWorldScene(worldId) {
+    const id = Number(worldId);
+    if (worldSceneImages.has(id) || worldSceneLoading.has(id))
+        return;
+    const src = WORLD_SCENE_SOURCES[id];
+    if (!src)
+        return;
+    worldSceneLoading.add(id);
+    const image = new Image();
+    image.decoding = 'async';
+    image.addEventListener('load', () => {
+        worldSceneLoading.delete(id);
+        worldSceneImages.set(id, image);
+    }, { once: true });
+    image.addEventListener('error', () => {
+        worldSceneLoading.delete(id);
+        recordAssetFailure(src);
+    }, { once: true });
+    image.src = src;
 }
 function drawCoverImage(ctx, image, w, h) {
     const imageRatio = image.naturalWidth / image.naturalHeight;
@@ -2219,7 +2231,6 @@ document.addEventListener('visibilitychange', handleVisibilityChange);
 window.addEventListener('pagehide', handlePageHide);
 registerInstallFlow();
 registerServiceWorker();
-preloadWorldScenes();
 renderHome();
 markRuntimeReady();
 const injectedTest = window.__TEST__;
