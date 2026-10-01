@@ -19,10 +19,12 @@ A later decision reopens **only the affected layer**, not the entire product.
 - Mobile-first one-thumb usability.
 - Environmental + Telescopic as real playable views.
 - Binoculars as observation only.
-- 10 fictional loadouts including Field Catapult.
+- 11 fictional loadouts including Field Catapult + fictional Siege Rocket.
 - Fictional setting/equipment/factions.
 - No real country/border/army/extremist organisation.
 - No real weapon models.
+- Ammo/reload/swap/readiness must be visible and one-thumb usable.
+- Every loadout has a distinct original/licence-clean firing/launch sound signature.
 - No ethnic/religious hostile coding.
 - No gore/graphic injury.
 - Local-first PWA.
