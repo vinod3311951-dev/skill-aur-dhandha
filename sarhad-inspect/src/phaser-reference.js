@@ -217,10 +217,14 @@ export function mountGlacierReferenceScene(parent) {
     scene: [GlacierReferenceScene]
   });
 
-  resizeObserver = new ResizeObserver(() => {
-    if (game?.scale) game.scale.refresh();
-  });
-  resizeObserver.observe(parent);
+  if (typeof ResizeObserver === 'function') {
+    resizeObserver = new ResizeObserver(() => {
+      if (game?.scale) game.scale.refresh();
+    });
+    resizeObserver.observe(parent);
+  } else {
+    window.addEventListener('resize', refreshPhaserScale, { passive: true });
+  }
   return true;
 }
 
@@ -257,7 +261,12 @@ export function activateGlacierReferenceScene() {
   }
 }
 
+function refreshPhaserScale() {
+  if (game?.scale) game.scale.refresh();
+}
+
 export function destroyPhaserReferenceScene() {
+  window.removeEventListener('resize', refreshPhaserScale);
   resizeObserver?.disconnect();
   resizeObserver = null;
   activationObjects = [];

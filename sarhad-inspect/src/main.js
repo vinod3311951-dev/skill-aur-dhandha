@@ -2718,7 +2718,7 @@ function startWorldAmbience() {
 }
 function feedback(success) {
     showImpactFeedback(success);
-    if (save.settings.hapticsEnabled && 'vibrate' in navigator)
+    if (save.settings.hapticsEnabled && typeof navigator.vibrate === 'function')
         navigator.vibrate(success ? 18 : 8);
 }
 function effectsReduced() {
