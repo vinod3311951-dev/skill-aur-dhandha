@@ -25,3 +25,8 @@ Every current and future Factory X **game** master contract automatically inheri
 ## Root-cause + Apple/WebKit law
 
 Every current and future Factory X product contract automatically inherits `FACTORY_X_ROOT_CAUSE_AND_WEBKIT_STABILITY_LAW.md`. Do not duplicate the full law inside each product contract.
+
+
+## Audio + reward inheritance
+
+Every current and future Factory X PWA master contract automatically inherits `FACTORY_X_AUDIO_REWARD_CELEBRATION_LAW.md`. Product contracts define only their unique genre/audio/reward identity.
