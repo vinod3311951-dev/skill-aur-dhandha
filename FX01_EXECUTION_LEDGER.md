@@ -138,6 +138,12 @@ Current evidence state:
 - newest ammo/readiness head `d49faf7d7280e7407b6e55ce1a68bd4f9175754b` is awaiting its own CI slot;
 - do not claim the newest ammo/readiness state browser-certified until that exact head completes.
 
+## Portfolio cross-promotion law added
+
+Factory X now inherits `FACTORY_X_CROSS_PROMOTION_DISCOVERY_LAW.md`.
+
+For Sarhad: after a genuine mission result, show at most 1–2 other Factory X game links + **See all games**, below the primary Next/Retry/Replay action. Do not implement cross-promotion during active play. Use a central registry so URLs are not duplicated across screens.
+
 ## Next bounded task
 
 **Do not start another patch loop until the latest deterministic QA/combat-profile CI result is read.**
