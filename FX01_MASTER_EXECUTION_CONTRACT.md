@@ -69,6 +69,9 @@ The combat/mission layer was explicitly reopened by the founder on 2026-10-01.
 Read:
 `FX01_FOUNDER_COMBAT_AMENDMENT_2026-10-01.md`
 
+Then read the later loadout/ammo/audio authority:
+`FX01_AMMO_AUDIO_READINESS_ADDENDUM_2026-10-01.md`
+
 That amendment controls:
 - live hostile/civilian combat presentation;
 - Environmental + Telescopic playable views;
@@ -186,6 +189,14 @@ These states must be understandable at a glance and fully one-thumb operable.
 ### Loadout audio identity
 
 Every loadout requires a distinct original/licence-clean firing/launch signature. Catapult, rapid, precision, heavy, launcher and rocket-class tools must be audibly distinguishable without copying real-weapon or commercial-media sounds.
+
+### Ammo / reload / readiness
+
+Long-form combat uses deterministic magazines / charges rather than a tiny global shot cap. The live HUD must show active loadout, ammo/charges, reload countdown/readiness, swap readiness, first-aid availability, armour state and armour-recovery readiness where implemented. All essential actions remain one-thumb operable.
+
+### Distinct loadout sound identity
+
+Every loadout requires a distinct original / licence-clean firing or launch signature. Precision, rapid, heavy, launcher, Field Catapult and Siege Rocket classes must be audibly distinguishable without copying real-weapon or commercial-media sounds.
 
 ## 10. Combat and protection
 
@@ -419,6 +430,9 @@ At minimum test:
 - mission feasibility;
 - views/binoculars;
 - loadouts/fairness;
+- ammo / reload / swap state;
+- per-loadout firing / launch sound identity;
+- first-aid / armour readiness visibility;
 - ammo/reload/swap state;
 - per-loadout firing/launch sound identity;
 - first-aid/armour readiness visibility;
