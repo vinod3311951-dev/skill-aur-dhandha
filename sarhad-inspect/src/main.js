@@ -168,6 +168,13 @@ function renderHome() {
     scheduleHomeScene();
 }
 function scheduleHomeScene() {
+    const ua = navigator.userAgent || '';
+    const webKitWithoutChromium = /AppleWebKit/i.test(ua) && !/(Chrome|Chromium|CriOS|Edg|OPR)/i.test(ua);
+    // Previous Sarhad evidence established that a large CSS WebP background can
+    // synchronously decode and freeze WebKit. Keep the designed glacier gradient
+    // fallback there; the full scenic plate remains available in briefing/gameplay.
+    if (webKitWithoutChromium)
+        return;
     const apply = () => requestAnimationFrame(() => requestAnimationFrame(() => {
         const homeCard = document.querySelector('.home-card');
         if (!homeCard || screen !== 'home')
