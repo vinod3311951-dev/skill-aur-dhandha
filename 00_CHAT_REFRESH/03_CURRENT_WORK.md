@@ -23,7 +23,7 @@
 - real built screenshot capture in CI;
 - Environmental + Telescopic playable views;
 - Binoculars observation mode;
-- 10 fictional loadouts including Field Catapult;
+- 11 fictional loadouts including Field Catapult + fictional Siege Rocket heavy launcher;
 - canonical latest founder combat amendment recorded.
 
 ## Latest founder additions that are binding
@@ -39,6 +39,10 @@ Summary only:
 - longer multi-wave combat;
 - numerous fictional hostile operatives;
 - short non-graphic defeat vocal reactions;
+- distinct firing/launch sound for every loadout;
+- visible ammo / reload / swap readiness;
+- visible first-aid readiness and armour/armour-recovery state;
+- no tiny global shot cap for long-form protection combat; reload/swap governs sustained fire;
 - no real organisations/ethnic coding/real weapon models/gore.
 
 ## Critical evidence rule
@@ -55,7 +59,7 @@ The earlier Android/WebKit green run predates the newest binocular/loadout/comba
 4. Implement deterministic civilian penalty + live combat presentation.
 5. Design/implement armour/health/first-aid/blast state.
 6. Design/implement multi-wave fictional-hostile combat.
-7. Regression-test all views, binoculars, loadouts, pause/save/PWA/accessibility.
+7. Integrate and regression-test ammo/reload/swap, 11 loadouts, distinct firing audio, first-aid/armour readiness, all views/binoculars, pause/save/PWA/accessibility.
 8. Capture fresh built visual evidence.
 9. Founder Android checkpoint only after evidence is green.
 
