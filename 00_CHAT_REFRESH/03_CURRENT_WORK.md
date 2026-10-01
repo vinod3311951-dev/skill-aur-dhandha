@@ -105,3 +105,28 @@ Current repair head includes:
 
 Portfolio law is now also recorded in /AMIT ULTRA/00_CHAT_REFRESH/09_FACTORY_X_VISUAL_APPLE_REVERSE_AUDIT.md:
 no cardboard/placeholder consumer visuals in any future PWA; every new screen addition requires forward verification plus reverse Apple/WebKit risk research before Audit 2.
+
+
+## Certified rebuilt representative slice — 2026-10-01
+
+Certified runtime: `d524f5280fa0fdf1a14f8a1b3838b04eb04e7a28`  
+GitHub Actions: `36897444637` — SUCCESS.
+
+Fresh evidence:
+- deterministic mission/config/combat/loadout checks PASS;
+- Android Chromium + iPhone/WebKit functional and smoke checks PASS;
+- World-1 Home/Briefing/Mission/Combat visual evidence captured on both engines;
+- visual artifact `11179952487`;
+- public build artifact `11179244508`;
+- QA log artifact `11180352007`.
+
+Founder-rejection repairs now present:
+- shaped animated hostiles/civilians replacing cardboard/text-label presentation;
+- Rudraa moustache + beard identity;
+- mobile Web Audio user-gesture activation and Safari constructor fallback;
+- stronger differentiated loadout SFX and original code-generated world pulse music;
+- iPhone safe-area hardening;
+- portable canvas rounded-rectangle helper;
+- network-first service-worker update behavior to avoid stale founder builds.
+
+Next gate: founder Android re-check. Do not scale Worlds 2–7 until approval.
