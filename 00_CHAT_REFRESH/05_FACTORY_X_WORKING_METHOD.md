@@ -25,3 +25,12 @@ Manual 46–60 second founder pacing is optional only and does not guarantee mor
 ## One-thumb game gate
 
 For every Factory X game, verify the full essential loop one-handed with one thumb before founder/release gates. Canonical law: `FACTORY_X_ONE_THUMB_GAMEPLAY_LAW.md`.
+
+
+## Mandatory pre-edit stability method
+
+For every current/future PWA use:
+
+**AUTHORITY → EVIDENCE → ROOT-CAUSE RESEARCH → REVERSE-RISK APPLE/WEBKIT CHECK → BOUNDED EDIT PLAN → IMPLEMENT → TARGETED TEST → REGRESSION → EVIDENCE.**
+
+Canonical law: `FACTORY_X_ROOT_CAUSE_AND_WEBKIT_STABILITY_LAW.md`.
