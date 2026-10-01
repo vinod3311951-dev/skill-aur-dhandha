@@ -45,6 +45,7 @@ const WORLD_SCENE_SOURCES = {
 const worldSceneImages = new Map();
 let deferredInstallPrompt = null;
 let resetArmed = false;
+const FX23_VERIFICATION_MODE = new URLSearchParams(location.search).get('fx23') === '1';
 Object.defineProperty(window, '__SARHAD_DIAGNOSTICS__', {
     configurable: false,
     enumerable: false,
@@ -125,7 +126,7 @@ function renderHome() {
     stopMissionLoop();
     screen = 'home';
     app.innerHTML = shell(`
-    <section class="home-card market-home" style="--home-scene:url('/assets/worlds/frost-ridge.webp')">
+    <section class="home-card market-home">
       <div class="rudraa-lockup" aria-label="Captain Rudraa">
         <div class="rudraa-portrait" aria-hidden="true"><img src="/assets/characters/captain-rudraa.webp" alt="" loading="eager" decoding="async"></div>
         <div><p class="eyebrow">CAPTAIN RUDRAA</p><strong class="hero-callout">Precision over force.</strong><small class="hero-subcall">Observe first. Protect civilians. Act only on a clean objective.</small></div>
@@ -159,8 +160,20 @@ function renderHome() {
       ${button('Scenic Archive', 'postcards', 'secondary')}
     </section>`);
     bindActions();
+    scheduleHomeScene();
+}
+function scheduleHomeScene() {
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+        const homeCard = document.querySelector('.home-card');
+        if (!homeCard || screen !== 'home')
+            return;
+        homeCard.style.setProperty('--home-scene', "url('/assets/worlds/frost-ridge.webp')");
+        homeCard.classList.add('scene-ready');
+    }));
 }
 function worldUnlocked(worldId) {
+    if (FX23_VERIFICATION_MODE)
+        return true;
     if (worldId === 1)
         return true;
     const previous = missionsForWorld(worldId - 1);
@@ -270,6 +283,8 @@ function renderWorldSelect() {
     });
 }
 function missionUnlocked(mission) {
+    if (FX23_VERIFICATION_MODE)
+        return true;
     if (!worldUnlocked(mission.worldId))
         return false;
     if (mission.order === 1)
@@ -2053,6 +2068,34 @@ function bindActions() {
         element.addEventListener('click', () => toggleSetting(element.dataset.setting ?? ''));
     });
 }
+function handleMissionMapDelegatedClick(event) {
+    const node = event.target instanceof Element
+        ? event.target.closest('[data-mission-id],[data-world-id]')
+        : null;
+    if (!node)
+        return;
+    if (node instanceof HTMLButtonElement && node.disabled)
+        return;
+    if (screen === 'worldSelect' && node.hasAttribute('data-world-id')) {
+        const worldId = Number(node.dataset.worldId);
+        if (!Number.isFinite(worldId) || !worldUnlocked(worldId))
+            return;
+        selectedWorldId = worldId;
+        renderMissionSelect();
+        return;
+    }
+    if (screen === 'missionSelect' && node.hasAttribute('data-mission-id')) {
+        const missionId = node.dataset.missionId ?? '';
+        const mission = MISSIONS.find((item) => item.id === missionId);
+        if (!mission || !missionUnlocked(mission))
+            return;
+        selectedMission = mission;
+        selectedWorldId = mission.worldId;
+        renderBriefing();
+    }
+}
+app.addEventListener('click', handleMissionMapDelegatedClick);
+
 function handleVisibilityChange() {
     if (document.hidden && screen === 'mission' && !paused && !missionEnded)
         pauseMission('visibility');
