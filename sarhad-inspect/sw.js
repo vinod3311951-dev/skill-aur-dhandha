@@ -1,4 +1,4 @@
-const CACHE = 'sarhad-sniper-shell-v5';
+const CACHE = 'sarhad-sniper-shell-v6';
 const APP_SHELL = [
   '/',
   '/index.html',
@@ -17,11 +17,12 @@ const APP_SHELL = [
   '/assets/worlds/sarhad-cliffs.webp',
   '/assets/worlds/dune-outpost.webp',
   '/assets/worlds/frost-ridge.webp',
+  '/assets/worlds/glacier-reach.svg',
   '/assets/worlds/jungle-pass.webp',
   '/assets/worlds/coastal-watch.webp',
   '/assets/worlds/canyon-base.webp',
   '/assets/worlds/sky-fortress.webp'
-  ,'/assets/characters/captain-rudraa.webp'
+  ,'/assets/characters/captain-rudraa.svg'
 ];
 
 self.addEventListener('install', (event) => {
