@@ -1506,6 +1506,7 @@ function drawMissionObjects(ctx, w, h, elapsed) {
 function drawCombatHostiles(ctx, w, h, elapsed) {
     if (!selectedMission.combatProfile || !combatState || combatState.wavesCleared)
         return;
+    const world = worldById(selectedMission.worldId);
     const waveElapsed = Math.max(0, elapsed - combatWaveStartedAt);
     const hostiles = activeCombatHostiles(selectedMission.combatProfile, combatState);
     for (let index = 0; index < hostiles.length; index += 1) {
@@ -1513,53 +1514,142 @@ function drawCombatHostiles(ctx, w, h, elapsed) {
         const position = combatHostilePositionAtElapsed(hostile, waveElapsed);
         const x = position.x * w;
         const y = position.y * h;
-        const scale = Math.max(.72, Math.min(1.16, w / 390));
-        const walk = effectsReduced() ? 0 : Math.sin(elapsed / 190 + index * 1.7);
+        const scale = Math.max(.86, Math.min(1.34, (w / 390) * (.9 + position.y * .22)));
+        const stride = effectsReduced() ? 0 : Math.sin(elapsed / 155 + index * 1.31);
+        const bob = effectsReduced() ? 0 : Math.abs(stride) * 2.1 * scale;
+        const sway = effectsReduced() ? 0 : Math.sin(elapsed / 420 + index) * 1.8 * scale;
+        const yy = y + bob;
+        const accent = hostile.blast ? '#e6b66b' : world.palette[0];
+
         ctx.save();
-        ctx.fillStyle = 'rgba(0,0,0,.32)';
+        ctx.translate(sway, 0);
+
+        const shadow = ctx.createRadialGradient(x, yy + 39 * scale, 0, x, yy + 39 * scale, 22 * scale);
+        shadow.addColorStop(0, 'rgba(0,0,0,.36)');
+        shadow.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = shadow;
         ctx.beginPath();
-        ctx.ellipse(x, y + 32 * scale, 13 * scale, 3.5 * scale, 0, 0, Math.PI * 2);
+        ctx.ellipse(x, yy + 39 * scale, 22 * scale, 6 * scale, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.fillStyle = '#070b0a';
-        ctx.strokeStyle = 'rgba(184,204,196,.38)';
-        ctx.lineWidth = 1;
+        // Fictional black diving/tactical suit silhouette with articulated limbs.
+        const torso = ctx.createLinearGradient(x - 15 * scale, yy - 18 * scale, x + 16 * scale, yy + 20 * scale);
+        torso.addColorStop(0, '#394641');
+        torso.addColorStop(.32, '#17201d');
+        torso.addColorStop(.72, '#090e0c');
+        torso.addColorStop(1, '#020403');
+        ctx.fillStyle = torso;
+        ctx.strokeStyle = 'rgba(198,218,208,.38)';
+        ctx.lineWidth = 1.1 * scale;
         ctx.beginPath();
-        ctx.ellipse(x, y - 23 * scale, 7.5 * scale, 9 * scale, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.fillStyle = '#111816';
-        ctx.beginPath();
-        ctx.moveTo(x - 8 * scale, y - 14 * scale);
-        ctx.lineTo(x - 6 * scale, y + 12 * scale);
-        ctx.lineTo(x + 6 * scale, y + 12 * scale);
-        ctx.lineTo(x + 8 * scale, y - 14 * scale);
+        ctx.moveTo(x - 10 * scale, yy - 17 * scale);
+        ctx.quadraticCurveTo(x - 16 * scale, yy - 5 * scale, x - 11 * scale, yy + 15 * scale);
+        ctx.quadraticCurveTo(x, yy + 21 * scale, x + 11 * scale, yy + 15 * scale);
+        ctx.quadraticCurveTo(x + 16 * scale, yy - 5 * scale, x + 10 * scale, yy - 17 * scale);
         ctx.closePath();
         ctx.fill();
         ctx.stroke();
 
-        ctx.strokeStyle = '#090d0c';
-        ctx.lineWidth = 5 * scale;
+        // Compact fictional air/tool pack adds depth without real-world insignia.
+        ctx.fillStyle = '#101815';
+        ctx.beginPath();
+        ctx.moveTo(x + 8 * scale, yy - 13 * scale);
+        ctx.lineTo(x + 17 * scale, yy - 9 * scale);
+        ctx.lineTo(x + 18 * scale, yy + 10 * scale);
+        ctx.lineTo(x + 10 * scale, yy + 14 * scale);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(123,150,139,.3)';
+        ctx.stroke();
+
+        // Hood + reflective visor.
+        ctx.fillStyle = '#080c0b';
+        ctx.beginPath();
+        ctx.ellipse(x, yy - 29 * scale, 9.6 * scale, 11.8 * scale, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(190,211,202,.34)';
+        ctx.stroke();
+        const visor = ctx.createLinearGradient(x - 7 * scale, yy - 32 * scale, x + 7 * scale, yy - 27 * scale);
+        visor.addColorStop(0, 'rgba(75,116,116,.82)');
+        visor.addColorStop(.5, 'rgba(189,226,220,.62)');
+        visor.addColorStop(1, 'rgba(31,55,55,.9)');
+        ctx.fillStyle = visor;
+        ctx.beginPath();
+        ctx.moveTo(x - 7 * scale, yy - 32 * scale);
+        ctx.quadraticCurveTo(x, yy - 35 * scale, x + 7 * scale, yy - 32 * scale);
+        ctx.lineTo(x + 6 * scale, yy - 27 * scale);
+        ctx.quadraticCurveTo(x, yy - 25 * scale, x - 6 * scale, yy - 27 * scale);
+        ctx.closePath();
+        ctx.fill();
+
+        // Shoulder armour and seam work.
+        ctx.fillStyle = '#222d29';
+        ctx.beginPath(); ctx.ellipse(x - 10 * scale, yy - 13 * scale, 6 * scale, 3.6 * scale, -.28, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(x + 10 * scale, yy - 13 * scale, 6 * scale, 3.6 * scale, .28, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = 'rgba(117,160,150,.26)';
+        ctx.beginPath(); ctx.moveTo(x, yy - 15 * scale); ctx.lineTo(x, yy + 12 * scale); ctx.stroke();
+
+        // Bent arms with a compact fictional directional module.
+        const arm = stride * 5.5 * scale;
+        ctx.strokeStyle = '#0a0f0d';
+        ctx.lineWidth = 5.4 * scale;
         ctx.lineCap = 'round';
         ctx.beginPath();
-        ctx.moveTo(x - 3 * scale, y + 10 * scale);
-        ctx.lineTo(x - 7 * scale - walk * 3, y + 30 * scale);
+        ctx.moveTo(x - 9 * scale, yy - 10 * scale);
+        ctx.lineTo(x - 14 * scale, yy + arm * .45);
+        ctx.lineTo(x - 10 * scale, yy + 11 * scale + arm);
         ctx.stroke();
         ctx.beginPath();
-        ctx.moveTo(x + 3 * scale, y + 10 * scale);
-        ctx.lineTo(x + 7 * scale + walk * 3, y + 30 * scale);
+        ctx.moveTo(x + 9 * scale, yy - 10 * scale);
+        ctx.lineTo(x + 13 * scale, yy - arm * .35);
+        ctx.lineTo(x + 18 * scale, yy - 3 * scale);
         ctx.stroke();
+        ctx.strokeStyle = '#31423c';
+        ctx.lineWidth = 4 * scale;
+        ctx.beginPath(); ctx.moveTo(x + 15 * scale, yy - 4 * scale); ctx.lineTo(x + 30 * scale, yy - 9 * scale); ctx.stroke();
+        ctx.fillStyle = accent;
+        ctx.beginPath(); ctx.arc(x + 31 * scale, yy - 9 * scale, 2 * scale, 0, Math.PI * 2); ctx.fill();
 
-        const r = Math.max(10, position.radius * Math.min(w, h));
-        ctx.strokeStyle = hostile.blast ? '#f4c78c' : '#d9e6df';
-        ctx.lineWidth = 1.5;
-        ctx.strokeRect(x - r, y - r * .68, r * 2, r * 1.36);
+        // Articulated knees and boots produce an obvious walk cycle.
+        ctx.strokeStyle = '#070b09';
+        ctx.lineWidth = 6 * scale;
+        const leg = stride * 6.2 * scale;
+        ctx.beginPath();
+        ctx.moveTo(x - 4 * scale, yy + 12 * scale);
+        ctx.lineTo(x - 6 * scale - leg * .35, yy + 25 * scale);
+        ctx.lineTo(x - 10 * scale - leg, yy + 39 * scale);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x + 4 * scale, yy + 12 * scale);
+        ctx.lineTo(x + 6 * scale + leg * .35, yy + 25 * scale);
+        ctx.lineTo(x + 10 * scale + leg, yy + 39 * scale);
+        ctx.stroke();
+        ctx.strokeStyle = '#1b2722';
+        ctx.lineWidth = 4 * scale;
+        ctx.beginPath(); ctx.moveTo(x - 14 * scale - leg, yy + 40 * scale); ctx.lineTo(x - 7 * scale - leg, yy + 40 * scale); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x + 7 * scale + leg, yy + 40 * scale); ctx.lineTo(x + 14 * scale + leg, yy + 40 * scale); ctx.stroke();
+        ctx.lineCap = 'butt';
 
-        ctx.fillStyle = 'rgba(7,15,13,.78)';
-        ctx.font = `700 ${Math.max(8, 8.5 * scale)}px system-ui`;
-        ctx.textAlign = 'center';
-        ctx.fillText(hostile.role.toUpperCase(), x, y + 45 * scale);
+        // Consumer target cue is a floating optical lock, never a cardboard rectangle or text label.
+        const cueR = Math.max(13, position.radius * Math.min(w, h));
+        const pulse = effectsReduced() ? .45 : .42 + (Math.sin(elapsed / 180 + index) + 1) * .08;
+        ctx.strokeStyle = alpha(accent, pulse);
+        ctx.lineWidth = 1.6 * scale;
+        ctx.beginPath();
+        ctx.arc(x, yy - 3 * scale, cueR * 1.18, -.72, .72);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(x, yy - 3 * scale, cueR * 1.18, Math.PI - .72, Math.PI + .72);
+        ctx.stroke();
+        if (hostile.blast) {
+            ctx.fillStyle = alpha(accent, .68);
+            for (let k = 0; k < 4; k += 1) {
+                const a = elapsed / 420 + k * Math.PI / 2;
+                ctx.beginPath();
+                ctx.arc(x + Math.cos(a) * cueR * 1.45, yy - 3 * scale + Math.sin(a) * cueR * 1.45, 1.7 * scale, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
         ctx.restore();
     }
 }
@@ -1711,124 +1801,97 @@ function drawProtectedFigures(ctx, w, h, elapsed) {
         const figure = selectedMission.protectedFigures[index];
         const position = protectedFigureAtElapsed(figure, elapsed);
         const x = position.x * w;
-        const walk = effectsReduced() ? 0 : Math.sin(elapsed / 210 + index * 2.1);
-        const y = position.y * h + Math.abs(walk) * 1.2;
-        const depthScale = 0.92 + Math.max(0, Math.min(0.34, (position.y - 0.48) * 1.2));
-        const scale = Math.max(0.94, Math.min(1.32, (w / 390) * depthScale));
+        const stride = effectsReduced() ? 0 : Math.sin(elapsed / 175 + index * 1.9);
+        const y = position.y * h + (effectsReduced() ? 0 : Math.abs(stride) * 1.7);
+        const depthScale = .92 + Math.max(0, Math.min(.36, (position.y - .46) * 1.2));
+        const scale = Math.max(.94, Math.min(1.34, (w / 390) * depthScale));
         const facing = index % 2 === 0 ? 1 : -1;
         const skin = index % 3 === 0 ? '#bf8f6e' : index % 3 === 1 ? '#d0a07d' : '#9e7157';
-        const jacket = index % 3 === 0 ? '#465b69' : index % 3 === 1 ? '#6b5947' : '#3e5650';
+        const jacket = index % 3 === 0 ? '#486477' : index % 3 === 1 ? '#735d48' : '#49665d';
+        const darkJacket = index % 3 === 0 ? '#263845' : index % 3 === 1 ? '#3d3027' : '#263b35';
         const trouser = index % 2 === 0 ? '#26302d' : '#303638';
-        const swing = walk * 5.2 * scale;
-        // Soft grounded shadow for depth against the scenic plate.
-        ctx.fillStyle = 'rgba(0,0,0,.26)';
-        ctx.beginPath();
-        ctx.ellipse(x, y + 37 * scale, 13 * scale, 3.5 * scale, 0, 0, Math.PI * 2);
-        ctx.fill();
-        // Hair + head with layered face shading; no stereotyped cultural markers.
-        ctx.fillStyle = '#141816';
-        ctx.beginPath();
-        ctx.ellipse(x - facing * 1.1 * scale, y - 31.2 * scale, 7.8 * scale, 9.2 * scale, -facing * 0.06, 0, Math.PI * 2);
-        ctx.fill();
-        const faceGrad = ctx.createLinearGradient(x - 6 * scale, y - 35 * scale, x + 7 * scale, y - 22 * scale);
-        faceGrad.addColorStop(0, skin);
-        faceGrad.addColorStop(1, '#75513f');
-        ctx.fillStyle = faceGrad;
-        ctx.beginPath();
-        ctx.ellipse(x + facing * 1.7 * scale, y - 28.8 * scale, 6.2 * scale, 7.5 * scale, facing * 0.06, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = 'rgba(20,24,22,.6)';
-        ctx.beginPath();
-        ctx.arc(x + facing * 3.4 * scale, y - 30.1 * scale, 0.8 * scale, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = skin;
-        ctx.fillRect(x - 2.2 * scale, y - 22.5 * scale, 4.4 * scale, 4.8 * scale);
-        // Layered jacket body creates a recognisable human profile instead of a mannequin block.
-        const bodyGrad = ctx.createLinearGradient(x - 10 * scale, y - 20 * scale, x + 10 * scale, y + 12 * scale);
-        bodyGrad.addColorStop(0, jacket);
-        bodyGrad.addColorStop(1, '#1f2c29');
-        ctx.fillStyle = bodyGrad;
-        ctx.strokeStyle = 'rgba(7,15,12,.65)';
+        const armSwing = stride * 6.2 * scale;
+        const legSwing = stride * 5.2 * scale;
+
+        const shadow = ctx.createRadialGradient(x, y + 40 * scale, 0, x, y + 40 * scale, 20 * scale);
+        shadow.addColorStop(0, 'rgba(0,0,0,.3)');
+        shadow.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = shadow;
+        ctx.beginPath(); ctx.ellipse(x, y + 40 * scale, 20 * scale, 5 * scale, 0, 0, Math.PI * 2); ctx.fill();
+
+        // Hair, face and neck.
+        ctx.fillStyle = '#151817';
+        ctx.beginPath(); ctx.ellipse(x - facing * 1.5 * scale, y - 31 * scale, 8.8 * scale, 10.3 * scale, -facing * .08, 0, Math.PI * 2); ctx.fill();
+        const face = ctx.createLinearGradient(x - 7 * scale, y - 34 * scale, x + 8 * scale, y - 23 * scale);
+        face.addColorStop(0, skin);
+        face.addColorStop(1, '#75513f');
+        ctx.fillStyle = face;
+        ctx.beginPath(); ctx.ellipse(x + facing * 2 * scale, y - 29 * scale, 6.6 * scale, 8.1 * scale, facing * .08, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = 'rgba(18,22,20,.72)';
+        ctx.beginPath(); ctx.arc(x + facing * 4 * scale, y - 30 * scale, .9 * scale, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = skin; ctx.fillRect(x - 2.3 * scale, y - 22.5 * scale, 4.6 * scale, 5 * scale);
+
+        // Layered winter field clothing, shaped rather than boxed.
+        const body = ctx.createLinearGradient(x - 12 * scale, y - 20 * scale, x + 12 * scale, y + 15 * scale);
+        body.addColorStop(0, jacket);
+        body.addColorStop(.62, darkJacket);
+        body.addColorStop(1, '#17231f');
+        ctx.fillStyle = body;
+        ctx.strokeStyle = 'rgba(9,17,14,.58)';
         ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.moveTo(x - 7.8 * scale, y - 19 * scale);
-        ctx.quadraticCurveTo(x - 11 * scale, y - 5 * scale, x - 7 * scale, y + 9 * scale);
-        ctx.quadraticCurveTo(x, y + 13 * scale, x + 7 * scale, y + 9 * scale);
-        ctx.quadraticCurveTo(x + 11 * scale, y - 5 * scale, x + 7.8 * scale, y - 19 * scale);
+        ctx.moveTo(x - 8 * scale, y - 19 * scale);
+        ctx.quadraticCurveTo(x - 13 * scale, y - 5 * scale, x - 9 * scale, y + 12 * scale);
+        ctx.quadraticCurveTo(x, y + 17 * scale, x + 9 * scale, y + 12 * scale);
+        ctx.quadraticCurveTo(x + 13 * scale, y - 5 * scale, x + 8 * scale, y - 19 * scale);
         ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-        ctx.strokeStyle = 'rgba(207,222,214,.20)';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(x, y - 18 * scale);
-        ctx.lineTo(x, y + 8 * scale);
-        ctx.stroke();
-        // Articulated arms with hands and walking swing.
-        ctx.strokeStyle = jacket;
-        ctx.lineWidth = 4.8 * scale;
+        ctx.fill(); ctx.stroke();
+        ctx.strokeStyle = 'rgba(225,235,230,.22)';
+        ctx.beginPath(); ctx.moveTo(x, y - 18 * scale); ctx.lineTo(x, y + 10 * scale); ctx.stroke();
+
+        // Moving arms and hands.
+        ctx.strokeStyle = darkJacket;
+        ctx.lineWidth = 5.2 * scale;
         ctx.lineCap = 'round';
-        ctx.beginPath();
-        ctx.moveTo(x - 6.2 * scale, y - 13 * scale);
-        ctx.lineTo(x - 10.5 * scale, y - 1 * scale + swing);
-        ctx.lineTo(x - 8.2 * scale, y + 8 * scale);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(x + 6.2 * scale, y - 13 * scale);
-        ctx.lineTo(x + 10.5 * scale, y - 1 * scale - swing);
-        ctx.lineTo(x + 8.2 * scale, y + 8 * scale);
-        ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x - 7 * scale, y - 13 * scale); ctx.lineTo(x - 12 * scale, y - 1 * scale + armSwing); ctx.lineTo(x - 9 * scale, y + 9 * scale); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x + 7 * scale, y - 13 * scale); ctx.lineTo(x + 12 * scale, y - 1 * scale - armSwing); ctx.lineTo(x + 9 * scale, y + 9 * scale); ctx.stroke();
         ctx.fillStyle = skin;
-        ctx.beginPath();
-        ctx.arc(x - 8.2 * scale, y + 8 * scale, 2.2 * scale, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(x + 8.2 * scale, y + 8 * scale, 2.2 * scale, 0, Math.PI * 2);
-        ctx.fill();
-        // Separated legs + shoes sell a real walking cycle while hitboxes remain engine-owned.
+        ctx.beginPath(); ctx.arc(x - 9 * scale, y + 9 * scale, 2.2 * scale, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(x + 9 * scale, y + 9 * scale, 2.2 * scale, 0, Math.PI * 2); ctx.fill();
+
+        // Legs and shoes with a stronger visible gait.
         ctx.strokeStyle = trouser;
-        ctx.lineWidth = 5.4 * scale;
-        ctx.beginPath();
-        ctx.moveTo(x - 3.2 * scale, y + 7 * scale);
-        ctx.lineTo(x - 4.5 * scale - walk * 2.5, y + 23 * scale);
-        ctx.lineTo(x - 7.5 * scale - walk * 4, y + 34 * scale);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(x + 3.2 * scale, y + 7 * scale);
-        ctx.lineTo(x + 4.5 * scale + walk * 2.5, y + 23 * scale);
-        ctx.lineTo(x + 7.5 * scale + walk * 4, y + 34 * scale);
-        ctx.stroke();
-        ctx.strokeStyle = '#111815';
-        ctx.lineWidth = 3.4 * scale;
-        ctx.beginPath();
-        ctx.moveTo(x - 9 * scale - walk * 4, y + 35 * scale);
-        ctx.lineTo(x - 4 * scale - walk * 4, y + 35 * scale);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(x + 4 * scale + walk * 4, y + 35 * scale);
-        ctx.lineTo(x + 9 * scale + walk * 4, y + 35 * scale);
-        ctx.stroke();
+        ctx.lineWidth = 5.8 * scale;
+        ctx.beginPath(); ctx.moveTo(x - 3 * scale, y + 10 * scale); ctx.lineTo(x - 5 * scale - legSwing * .35, y + 25 * scale); ctx.lineTo(x - 9 * scale - legSwing, y + 39 * scale); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x + 3 * scale, y + 10 * scale); ctx.lineTo(x + 5 * scale + legSwing * .35, y + 25 * scale); ctx.lineTo(x + 9 * scale + legSwing, y + 39 * scale); ctx.stroke();
+        ctx.strokeStyle = '#111815'; ctx.lineWidth = 3.6 * scale;
+        ctx.beginPath(); ctx.moveTo(x - 13 * scale - legSwing, y + 40 * scale); ctx.lineTo(x - 6 * scale - legSwing, y + 40 * scale); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x + 6 * scale + legSwing, y + 40 * scale); ctx.lineTo(x + 13 * scale + legSwing, y + 40 * scale); ctx.stroke();
         ctx.lineCap = 'butt';
-        // Neutral carry bag/backpack adds silhouette variety without real-world branding.
+
         if (index % 2 === 1) {
-            ctx.fillStyle = '#283934';
+            ctx.fillStyle = '#2d403a';
             ctx.beginPath();
-            ctx.roundRect(x - facing * 11 * scale - 4 * scale, y - 13 * scale, 8 * scale, 16 * scale, 3 * scale);
-            ctx.fill();
+            ctx.moveTo(x - facing * 14 * scale, y - 11 * scale);
+            ctx.lineTo(x - facing * 7 * scale, y - 14 * scale);
+            ctx.lineTo(x - facing * 7 * scale, y + 6 * scale);
+            ctx.lineTo(x - facing * 15 * scale, y + 4 * scale);
+            ctx.closePath(); ctx.fill();
         }
-        // Compact neutral marker is redundant to the human silhouette and keeps colour from being the only safety cue.
-        ctx.fillStyle = 'rgba(6,16,12,.82)';
+
+        // Safety cue is a small shield/check glyph, never a text placard.
+        const sx = x + facing * 18 * scale, sy = y - 17 * scale;
+        ctx.strokeStyle = 'rgba(223,243,233,.76)';
+        ctx.lineWidth = 1.5 * scale;
         ctx.beginPath();
-        ctx.roundRect(x - 21 * scale, y + 40 * scale, 42 * scale, 12 * scale, 6 * scale);
-        ctx.fill();
-        ctx.strokeStyle = 'rgba(220,232,226,.32)';
-        ctx.lineWidth = 0.8;
+        ctx.moveTo(sx, sy - 6 * scale);
+        ctx.lineTo(sx + 6 * scale, sy - 3 * scale);
+        ctx.lineTo(sx + 5 * scale, sy + 4 * scale);
+        ctx.quadraticCurveTo(sx, sy + 9 * scale, sx - 5 * scale, sy + 4 * scale);
+        ctx.lineTo(sx - 6 * scale, sy - 3 * scale);
+        ctx.closePath();
         ctx.stroke();
-        ctx.fillStyle = '#edf3ef';
-        ctx.font = `800 ${Math.max(6.5, 7.5 * scale)}px system-ui`;
-        ctx.textAlign = 'center';
-        ctx.fillText('CIVILIAN', x, y + 49 * scale);
-        ctx.textAlign = 'start';
+        ctx.beginPath(); ctx.moveTo(sx - 3 * scale, sy + 1 * scale); ctx.lineTo(sx - .5 * scale, sy + 4 * scale); ctx.lineTo(sx + 4 * scale, sy - 2 * scale); ctx.stroke();
     }
     ctx.restore();
 }
