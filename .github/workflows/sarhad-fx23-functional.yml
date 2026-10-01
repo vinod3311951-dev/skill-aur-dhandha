@@ -5,6 +5,7 @@ on:
     branches: [sarhad-sniper-deploy, fx-01-audit1]
     paths:
       - "build.mjs"
+      - "sarhad-inspect/**"
       - "qa/fx23-functional.spec.js"
       - "qa/static-server.mjs"
       - "qa/tests/smoke.spec.js"
