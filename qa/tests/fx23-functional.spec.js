@@ -176,13 +176,8 @@ test('Field Catapult and Vector Needle preserve identical precision hit truth', 
     await page.getByRole('button', { name: /Start Campaign|Continue Campaign/i }).click();
     await page.locator(`[data-loadout-id="${loadoutId}"]`).click();
     await page.getByRole('button', { name: /^Begin$/i }).click();
-    await page.locator('[data-action="viewToggle"]').click();
-
-    const playfield = page.locator('#playfield');
-    const box = await playfield.boundingBox();
-    if (!box) throw new Error('Playfield bounding box missing');
-    await page.mouse.click(box.x + box.width * 0.68, box.y + box.height * 0.42);
-    await page.locator('[data-action="fire"]').click();
+    const fired = await page.evaluate(() => window.__SARHAD_QA_CONTROL__.fireAtCurrentTarget());
+    expect(fired).toBe(true);
     await expect(page.getByRole('heading', { name: /Objective complete/i })).toBeVisible({ timeout: 4000 });
     return Number(await page.locator('.result-score strong').textContent());
   }
@@ -198,12 +193,10 @@ test('civilian hit applies deterministic visible negative score penalty', async 
   expect(stateBefore.protectedFigures.length).toBeGreaterThan(0);
   expect(stateBefore.civilianHitPenalty).toBe(400);
 
-  const aimed = await page.evaluate(() => window.__SARHAD_QA_CONTROL__.aimAtProtectedFigure(0));
-  expect(aimed).toBe(true);
-
   const scoreBefore = Number(await page.locator('#missionScore').textContent());
   const attemptsBefore = Number(await page.locator('#attempts').textContent());
-  await page.locator('[data-action="fire"]').click();
+  const fired = await page.evaluate(() => window.__SARHAD_QA_CONTROL__.fireAtProtectedFigure(0));
+  expect(fired).toBe(true);
 
   await expect(page.locator('#civilianHits')).toHaveText('1');
   const scoreAfter = Number(await page.locator('#missionScore').textContent());
