@@ -56,9 +56,9 @@ Three user-friendly view tools:
    - cannot fire while binoculars are active;
    - must not alter hitboxes, scoring geometry or mission truth.
 
-## 4. Loadout system — 10 fictional tools
+## 4. Loadout system — 11 fictional tools
 
-The game must offer ten clearly differentiated **fictional** loadout choices, including a catapult-style option.
+The game must offer eleven clearly differentiated **fictional** loadout choices, including a catapult-style option and one fictional heavy rocket-class add-on.
 
 Current working catalogue:
 1. Vector Needle
@@ -71,6 +71,7 @@ Current working catalogue:
 8. Prism Rifle
 9. Rail Dart
 10. Field Catapult
+11. Siege Rocket — fictional heavy rocket-class launcher
 
 Rules:
 - no real firearm names/models;
@@ -163,8 +164,12 @@ Before this amendment is considered implemented, automated tests must prove:
 - Environmental View playable;
 - Telescopic View playable;
 - Binoculars one-tap enter/exit and no-fire state;
-- ten loadouts exposed;
+- eleven loadouts exposed;
 - Field Catapult present;
+- Siege Rocket present as an original fictional heavy rocket-class add-on;
+- every loadout has a distinct firing/launch audio signature;
+- ammo/charge count, reload state and swap readiness are deterministic and visible;
+- first-aid and armour readiness are visible and one-thumb usable;
 - loadout choice does not mutate authoritative hit geometry;
 - civilian movement deterministic;
 - civilian hit penalty deterministic and visible;
@@ -176,3 +181,50 @@ Before this amendment is considered implemented, automated tests must prove:
 - Android/WebKit regression remains green.
 
 This file is the canonical record of the founder's latest combat/interaction additions from the 2026-10-01 chat.
+
+
+## 4A. Ammo, reload, swap and readiness UX
+
+Long-form protection combat may feel effectively endless, but each fictional tool must use a readable finite magazine / charge / shot capacity.
+
+The live HUD must show, where relevant:
+- active loadout name;
+- ammo / charges remaining;
+- magazine / charge capacity;
+- reload countdown and reload-ready state;
+- loadout-swap readiness;
+- first-aid kit count and whether first aid can currently be used;
+- armour level;
+- armour-recovery / repair readiness if active;
+- current wave / encounter state.
+
+Rules:
+- never hide zero-ammo state;
+- never require the player to guess whether reload, swap, first aid or armour recovery is available;
+- reload / swap / first-aid / armour controls must remain one-thumb accessible;
+- first aid cannot activate at full health;
+- armour recovery cannot activate at full armour;
+- ammo / reload / swap state must be deterministic and regression-tested;
+- sustained engagements continue through reload/swap, not through a tiny global shot cap.
+
+## 4B. Distinct firing / launch sound identity
+
+Every fictional loadout must have a recognisably different, original/licence-clean firing or launch signature.
+
+Sound families:
+- precision tools: tight, clean transient;
+- rapid tools: short repeating pulse;
+- heavy tools: deeper mechanical impact;
+- launcher tools: low launch thump with restrained tail;
+- Field Catapult: elastic tension-release plus projectile whoosh;
+- Siege Rocket: heavy ignition/launch burst with short low-frequency tail.
+
+Do not copy real weapon recordings, commercial game/film weapon sounds, or recognisable protected sound signatures.
+
+All firing/launch audio must obey:
+- mute/default-volume controls;
+- no clipping;
+- bounded simultaneous audio nodes;
+- Apple/WebKit AudioContext/autoplay/resume rules;
+- Reduced Effects / weak-device fallback;
+- provenance requirements in `FACTORY_X_AUDIO_REWARD_CELEBRATION_LAW.md`.
