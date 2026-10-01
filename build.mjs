@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync, rmSync, mkdirSync, writeFileSync } from "node:fs";
+import { readdirSync, readFileSync, rmSync, mkdirSync, writeFileSync, copyFileSync, existsSync } from "node:fs";
 import { gunzipSync } from "node:zlib";
 import { createHash } from "node:crypto";
 import path from "node:path";
@@ -37,6 +37,31 @@ for(const [urlPath,item] of Object.entries(manifest)){
 }
 
 if(!count||!readFileSync(path.join(outDir,"index.html")))throw new Error("SARHAD static output was not generated");
+
+// FX-01 source-of-truth overlay.
+// The historical compressed payload remains the binary asset reservoir during the Audit-1 rebuild,
+// while editable application source under sarhad-inspect becomes authoritative for HTML/CSS/JS/SW.
+// This removes the need to keep patching generated output while preserving current production assets.
+const editableRoot=path.join(root,"sarhad-inspect");
+const editableFiles=[
+  "index.html",
+  "sw.js",
+  "src/main.js",
+  "src/styles.css",
+  "src/game/config.js",
+  "src/game/diagnostics.js",
+  "src/game/engine.js",
+  "src/game/storage.js",
+  "src/game/types.js"
+];
+for(const relative of editableFiles){
+  const source=path.join(editableRoot,relative);
+  if(!existsSync(source))throw new Error(`FX-01 editable source missing: ${relative}`);
+  const target=path.join(outDir,relative);
+  mkdirSync(path.dirname(target),{recursive:true});
+  copyFileSync(source,target);
+}
+console.log(`FX-01 editable source overlay applied (${editableFiles.length} files)`);
 
 // FX-23 functional repair layer.
 // The original packaged game remains the source of truth; these deterministic patches fix
