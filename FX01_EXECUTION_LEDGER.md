@@ -106,6 +106,16 @@ Completed / committed so far:
 
 Important: the newest binocular / 10-loadout / combat-amendment head has **not yet completed the full regression matrix**. The earlier green run must not be misrepresented as validating these newest changes.
 
+## Latest founder loadout/ammo/audio amendment
+
+Binding Sarhad-specific additions:
+- expand loadout rack from 10 to **11** with fictional **Siege Rocket** heavy rocket-class add-on;
+- every loadout gets its own original/licence-clean firing/launch sound signature;
+- sustained combat uses visible magazine/charge counts rather than a tiny global shot cap;
+- HUD must show ammo, reload countdown/readiness, swap readiness, first-aid readiness, armour state and armour-recovery readiness;
+- all of the above must remain one-thumb operable and deterministic;
+- no copied real weapon model/sound.
+
 ## Next bounded task
 
 **Do not start another patch loop until the latest deterministic QA/combat-profile CI result is read.**
