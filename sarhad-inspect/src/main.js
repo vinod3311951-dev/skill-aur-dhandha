@@ -2262,7 +2262,7 @@ function playLoadoutFireSound() {
             oscillator.frequency.setValueAtTime(layer.from, context.currentTime);
             oscillator.frequency.exponentialRampToValueAtTime(Math.max(20, layer.to), context.currentTime + profile.duration);
             gain.gain.setValueAtTime(.0001, context.currentTime);
-            gain.gain.exponentialRampToValueAtTime(Math.max(.001, layer.gain), context.currentTime + .008);
+            gain.gain.exponentialRampToValueAtTime(Math.max(.018, layer.gain * 1.9), context.currentTime + .008);
             gain.gain.exponentialRampToValueAtTime(.0001, context.currentTime + profile.duration);
             oscillator.connect(gain).connect(context.destination);
             oscillator.start();
@@ -2520,7 +2520,10 @@ function ensureAudioContext() {
     if (!save.settings.audioEnabled)
         return null;
     try {
-        audioContext ??= new AudioContext();
+        const AudioCtor = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtor)
+            return null;
+        audioContext ??= new AudioCtor();
         if (audioContext.state === 'suspended')
             void audioContext.resume().catch(() => undefined);
         return audioContext;
@@ -2564,7 +2567,7 @@ function startWorldAmbience() {
         const bpm = bpmByWorld[world.id - 1] ?? 88;
         const master = context.createGain();
         master.gain.setValueAtTime(0.0001, context.currentTime);
-        master.gain.exponentialRampToValueAtTime(0.011, context.currentTime + 0.35);
+        master.gain.exponentialRampToValueAtTime(0.045, context.currentTime + 0.28);
         master.connect(context.destination);
         const low = context.createOscillator();
         low.type = 'sine';
@@ -2769,6 +2772,16 @@ function registerInstallFlow() {
             renderSettings(settingsReturnToMission);
     });
 }
+function unlockAudioFromGesture() {
+    if (!save.settings.audioEnabled)
+        return;
+    const context = ensureAudioContext();
+    if (context?.state === 'suspended')
+        void context.resume().catch(() => undefined);
+}
+window.addEventListener('pointerdown', unlockAudioFromGesture, { passive: true });
+window.addEventListener('touchstart', unlockAudioFromGesture, { passive: true });
+
 document.addEventListener('visibilitychange', handleVisibilityChange);
 window.addEventListener('pagehide', handlePageHide);
 registerInstallFlow();
