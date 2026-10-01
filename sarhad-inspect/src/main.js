@@ -75,6 +75,8 @@ function qaStateSnapshot() {
         missionScore,
         civilianHits,
         viewMode,
+        aimX,
+        aimY,
         visualPerformanceTier: visualPerformanceTier()
     };
 }
@@ -95,7 +97,7 @@ Object.defineProperty(window, 'render_game_to_text', {
     enumerable: false,
     value: () => JSON.stringify({
         screen, selectedMissionId: selectedMission.id, selectedWorldId, paused, missionEnded,
-        attemptsLeft, missionScore, civilianHits, viewMode, visualPerformanceTier: visualPerformanceTier()
+        attemptsLeft, missionScore, civilianHits, viewMode, aimX, aimY, visualPerformanceTier: visualPerformanceTier()
     })
 });
 window.addEventListener('error', (event) => {
@@ -395,7 +397,7 @@ function renderBriefing() {
       <div class="briefing-scenic" style="--world-scene:url('${WORLD_SCENE_SOURCES[world.id]}')" aria-hidden="true"><span>${world.name}</span></div>
       <h2>${selectedMission.title}</h2>
       <p class="objective"><strong>Objective:</strong> ${selectedMission.objective}</p>
-      <div class="world-condition" aria-label="World conditions"><span>${world.name}</span><strong>${worldFieldNote(world)}</strong></div>
+      <div class="world-condition" aria-label="Environmental conditions"><span>ENVIRONMENT • ${world.name}</span><strong>${worldFieldNote(world)}</strong></div>
       <div class="rudraa-note"><span class="rudraa-note-portrait" aria-hidden="true"><img src="/assets/characters/captain-rudraa.svg" alt="" loading="eager" decoding="async"></span><p><strong>Rudraa field note:</strong> ${fieldNote(selectedMission)}</p></div>
       <div class="brief-grid four">
         <div><span>Mission</span><strong>${mechanicLabel(selectedMission)}</strong></div>
@@ -567,13 +569,13 @@ function renderMission() {
       <div class="loadout-strip"><span>Fictional loadout</span><strong>${weaponLabel(selectedMission)}</strong>${selectedMission.kind === 'protection' ? '<em>Civilian hits <b id="civilianHits">0</b></em>' : ''}</div>
       <div class="mission-status" id="missionStatus" role="status" aria-live="polite">${missionStatusText(0)}</div>
       <div class="playfield ${viewMode === 'scope' ? 'scope-view' : 'overview-view'}" id="playfield" data-view="${viewMode}">
-        <canvas id="scene" aria-label="Precision mission play area"></canvas>
+        <canvas id="scene" aria-label="Precision mission play area with playable telescopic and environmental views"></canvas>
         <div class="scope-mask" aria-hidden="true"></div>
         <div class="scope-glass" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
         <div class="reticle" id="reticle" aria-hidden="true"></div>
         <div class="impact-layer" id="impactLayer" aria-hidden="true"></div>
-        <button class="view-toggle" id="viewToggle" data-action="viewToggle" aria-pressed="${viewMode === 'overview'}" aria-label="Switch to ${viewMode === 'scope' ? 'overview' : 'telescopic'} view">${viewMode === 'scope' ? 'OVERVIEW' : 'SCOPE'}</button>
-        ${selectedMission.id === 'w1-m1-relay-core' && !save.completedMissionIds.includes(selectedMission.id) ? '<div class="first-minute-coach" id="firstMinuteCoach" role="status"><strong>DRAG TO AIM</strong><span>Overview is one tap away • FIRE when the sight is settled</span></div>' : ''}
+        <button class="view-toggle" id="viewToggle" data-action="viewToggle" aria-pressed="${viewMode === 'overview'}" aria-label="Switch to ${viewMode === 'scope' ? 'environmental' : 'telescopic'} view">${viewMode === 'scope' ? 'ENVIRONMENT' : 'TELESCOPE'}</button>
+        ${selectedMission.id === 'w1-m1-relay-core' && !save.completedMissionIds.includes(selectedMission.id) ? '<div class="first-minute-coach" id="firstMinuteCoach" role="status"><strong>DRAG TO AIM</strong><span>Environmental view is one tap away • FIRE when the sight is settled</span></div>' : ''}
         <div class="hint" id="hint">${initialHint()}</div>
         <div class="pause-layer" id="pauseLayer" hidden>
           <p class="eyebrow">PAUSED</p><h2>Mission held.</h2>${button('Resume', 'resume')}${button('Settings', 'missionSettings', 'secondary')}${button('Missions', 'missionSelect', 'secondary')}
@@ -772,9 +774,9 @@ function toggleViewMode() {
     if (reticle)
         positionReticle(reticle);
     if (toggle) {
-        toggle.textContent = viewMode === 'scope' ? 'OVERVIEW' : 'SCOPE';
+        toggle.textContent = viewMode === 'scope' ? 'ENVIRONMENT' : 'TELESCOPE';
         toggle.setAttribute('aria-pressed', String(viewMode === 'overview'));
-        toggle.setAttribute('aria-label', `Switch to ${viewMode === 'scope' ? 'overview' : 'telescopic'} view`);
+        toggle.setAttribute('aria-label', `Switch to ${viewMode === 'scope' ? 'environmental' : 'telescopic'} view`);
     }
 }
 function visualPerformanceTier() {
