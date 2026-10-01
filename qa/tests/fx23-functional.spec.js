@@ -73,3 +73,29 @@ test('Reduced effects setting visibly binds to the document presentation state',
   await expect(toggle).toHaveAttribute('aria-pressed', 'true');
   await expect.poll(() => page.evaluate(() => document.documentElement.dataset.reducedEffects)).toBe('true');
 });
+
+
+test('Pause → Settings preserves the active mission and returns to the same state', async ({ page }) => {
+  await page.goto(BASE, { waitUntil: 'domcontentloaded' });
+  await page.getByRole('button', { name: /Start Campaign|Continue Campaign/i }).click();
+  await page.getByRole('button', { name: /^Begin$/i }).click();
+  await expect(page.locator('#scene')).toBeVisible();
+
+  const missionBefore = await page.evaluate(() => window.__SARHAD_QA_STATE__.selectedMissionId);
+  const attemptsBefore = await page.locator('#attempts').textContent();
+
+  await page.getByRole('button', { name: /^Pause$/i }).click();
+  await expect(page.getByRole('heading', { name: /Mission held/i })).toBeVisible();
+  await page.getByRole('button', { name: /^Settings$/i }).click();
+
+  await expect(page.getByRole('button', { name: /Return to active mission/i })).toBeVisible();
+  await expect(page.getByText(/Active mission held safely/i)).toBeVisible();
+
+  await page.getByRole('button', { name: /Return to active mission/i }).click();
+  await expect(page.locator('#scene')).toBeVisible();
+
+  const missionAfter = await page.evaluate(() => window.__SARHAD_QA_STATE__.selectedMissionId);
+  const attemptsAfter = await page.locator('#attempts').textContent();
+  expect(missionAfter).toBe(missionBefore);
+  expect(attemptsAfter).toBe(attemptsBefore);
+});
