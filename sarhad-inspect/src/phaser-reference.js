@@ -81,27 +81,32 @@ class GlacierReferenceScene extends Phaser.Scene {
     // Mechanical service housing, not a floating target marker.
     const housing = this.add.graphics();
     housing.fillStyle(0x091a1f, 1);
-    housing.fillRoundedRect(-43, -1, 86, 43, 7);
+    housing.fillRoundedRect(-46, -24, 92, 50, 7);
     housing.lineStyle(2, 0x6f9fa6, 0.5);
-    housing.strokeRoundedRect(-43, -1, 86, 43, 7);
+    housing.strokeRoundedRect(-46, -24, 92, 50, 7);
     housing.lineStyle(2, 0x274f57, 0.9);
-    housing.lineBetween(-28, 8, 28, 8);
-    housing.lineBetween(-28, 28, 28, 28);
+    housing.lineBetween(-31, -13, 31, -13);
+    housing.lineBetween(-31, 15, 31, 15);
 
-    // Exposed coupler = deterministic interaction point. It is physically embedded in the housing.
-    const couplerAssembly = this.add.container(0, 18);
-    const couplerOuter = this.add.circle(0, 0, 15, 0x203b42, 1).setStrokeStyle(3, 0xa4d5d6, 0.72);
-    const couplerRing = this.add.circle(0, 0, 9, 0x4d747c, 1).setStrokeStyle(2, 0xe7c26d, 0.84);
-    const couplerCore = this.add.circle(0, 0, 4, 0xf4d485, 1);
-    couplerAssembly.add([couplerOuter, couplerRing, couplerCore]);
+    // Exposed coupler = deterministic interaction point, physically embedded at the exact hit coordinate.
+    // Its asymmetric keyed geometry deliberately avoids a bullseye/target-board silhouette.
+    const couplerAssembly = this.add.container(0, 0);
+    const couplerPlate = this.add.polygon(0, 0, [
+      -16, -11, 8, -11, 17, -3, 12, 11, -11, 11, -18, 3
+    ], 0x294a51, 1).setStrokeStyle(2, 0xa4d5d6, 0.72);
+    const couplerKey = this.add.rectangle(1, 0, 13, 8, 0xd6ad59, 1).setRotation(-0.12);
+    const couplerLatch = this.add.rectangle(13, -1, 7, 16, 0x6e969c, 1).setRotation(0.2);
+    const couplerBoltA = this.add.circle(-11, -4, 2.5, 0xd2ecec, 0.9);
+    const couplerBoltB = this.add.circle(-9, 6, 2.5, 0xd2ecec, 0.75);
+    couplerAssembly.add([couplerPlate, couplerKey, couplerLatch, couplerBoltA, couplerBoltB]);
 
-    const statusA = this.add.circle(-29, -11, 4, 0xf0d678, 0.72);
-    const statusB = this.add.circle(-17, -11, 4, 0x9dd7d9, 0.42);
-    const statusC = this.add.circle(-5, -11, 4, 0x9dd7d9, 0.42);
-    const sidePanel = this.add.rectangle(38, 17, 16, 26, 0x24464e, 1).setStrokeStyle(1, 0x80b6bb, 0.6);
+    const statusA = this.add.circle(-31, -16, 3.5, 0xf0d678, 0.72);
+    const statusB = this.add.circle(-20, -16, 3.5, 0x9dd7d9, 0.42);
+    const statusC = this.add.circle(-9, -16, 3.5, 0x9dd7d9, 0.42);
+    const sidePanel = this.add.rectangle(39, 2, 14, 29, 0x24464e, 1).setStrokeStyle(1, 0x80b6bb, 0.6);
 
     relay.add([base, braceL, braceR, mast, hub, dish, housing, couplerAssembly, statusA, statusB, statusC, sidePanel]);
-    activationObjects.push(statusA, statusB, statusC, dishCore, couplerRing, couplerCore);
+    activationObjects.push(statusA, statusB, statusC, dishCore, couplerKey, couplerLatch);
 
     // Cables physically connect the coupler installation to the valley systems.
     const power = this.add.graphics().setDepth(7);
@@ -137,7 +142,7 @@ class GlacierReferenceScene extends Phaser.Scene {
       this.tweens.add({ targets: dawn, alpha: { from: 0.06, to: 0.12 }, duration: 5200, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
       this.tweens.add({ targets: rudraa, y: rudraa.y - 3, duration: 2400, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
       this.tweens.add({ targets: heroShadow, scaleX: { from: 1, to: 0.95 }, alpha: { from: 0.38, to: 0.31 }, duration: 2400, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
-      this.tweens.add({ targets: couplerCore, alpha: { from: 0.72, to: 1 }, duration: 840, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
+      this.tweens.add({ targets: couplerKey, alpha: { from: 0.72, to: 1 }, duration: 840, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
     }
 
     for (let i = 0; i < 42; i += 1) {
