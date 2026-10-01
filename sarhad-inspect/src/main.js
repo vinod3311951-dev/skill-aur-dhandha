@@ -1,5 +1,7 @@
 import { MISSIONS, WORLDS, missionsForWorld } from './game/config.js';
 import { evaluateRicochetShot, evaluateShot, masteryLabel, masteryStars, protectedFigureAtElapsed, protectedFigureHitAtElapsed, targetAtElapsed } from './game/engine.js';
+import { activeCombatHostiles, activeCombatWave, applyCombatDamage, combatHostileHitAtElapsed, combatHostilePositionAtElapsed, combatProgress, createCombatState, defeatHostile, useArmorPlate, useFirstAid } from './game/combat-state.js';
+import { LOADOUTS, beginLoadoutReload, consumeLoadoutShot, createLoadoutState, cycleLoadout, loadoutReadiness, syncLoadoutState } from './game/loadout-state.js';
 import { loadSave, resetProgress, saveProgress } from './game/storage.js';
 import { beginMissionDiagnostics, finishMissionDiagnostics, markRuntimeReady, noteContextLoss, noteFrame, notePause, noteShot, recordAssetFailure, recordUncaughtError, recordUnhandledRejection, runtimeHealthSnapshot, runtimeSnapshot } from './game/diagnostics.js';
 const appElement = document.querySelector('#app');
@@ -33,18 +35,10 @@ let civilianHits = 0;
 let viewMode = 'scope';
 let binocularsActive = false;
 let selectedLoadoutId = 'vector-needle';
-const LOADOUTS = [
-    { id: 'vector-needle', name: 'Vector Needle', family: 'precision', tone: 650, duration: .10, wave: 'sine' },
-    { id: 'pulse-carbine', name: 'Pulse Carbine', family: 'rapid', tone: 730, duration: .075, wave: 'sine' },
-    { id: 'twin-relay', name: 'Twin Relay', family: 'rapid', tone: 790, duration: .082, wave: 'triangle' },
-    { id: 'arc-driver', name: 'Arc Driver', family: 'precision', tone: 590, duration: .11, wave: 'triangle' },
-    { id: 'slate-heavy', name: 'Slate Heavy', family: 'heavy', tone: 350, duration: .14, wave: 'square' },
-    { id: 'echo-repeater', name: 'Echo Repeater', family: 'rapid', tone: 700, duration: .09, wave: 'sine' },
-    { id: 'beacon-launcher', name: 'Beacon Launcher', family: 'launcher', tone: 270, duration: .17, wave: 'triangle' },
-    { id: 'prism-rifle', name: 'Prism Rifle', family: 'precision', tone: 620, duration: .105, wave: 'sine' },
-    { id: 'rail-dart', name: 'Rail Dart', family: 'heavy', tone: 410, duration: .12, wave: 'square' },
-    { id: 'field-catapult', name: 'Field Catapult', family: 'catapult', tone: 220, duration: .19, wave: 'triangle' }
-];
+let loadoutState = createLoadoutState(selectedLoadoutId);
+let combatState = null;
+let combatWaveStartedAt = 0;
+let combatPressureTick = 0;
 let missionStatusCache = '';
 let settingsReturnToMission = false;
 let settingsMissionElapsedMs = 0;
@@ -451,7 +445,7 @@ function weaponLabel(mission) {
 function renderLoadoutRack() {
     return `<div class="loadout-rack" aria-label="Choose fictional loadout">
       ${LOADOUTS.map((item) => `<button class="loadout-choice ${item.id === selectedLoadoutId ? 'active' : ''}" data-loadout-id="${item.id}" aria-pressed="${item.id === selectedLoadoutId}">
-        <span>${item.name}</span><small>${item.id === 'field-catapult' ? 'CATAPULT' : item.family.toUpperCase()}</small>
+        <span>${item.name}</span><small>${item.id === 'field-catapult' ? 'CATAPULT' : item.id === 'siege-rocket' ? 'ROCKET' : item.family.toUpperCase()}</small>
       </button>`).join('')}
     </div>`;
 }
@@ -474,7 +468,7 @@ function fieldNote(mission) {
         sequence: 'Read the order before the first shot. Do not rush the chain.',
         identification: 'The marker is the clue. Confirm it before you commit.',
         ricochet: 'Think in angles. The surface is part of the solution.',
-        protection: 'Read the crossing pattern. Protect civilians first, then take the clean opening.',
+        protection: 'Protect civilians, clear each hostile wave, manage armour, then disable the exposed carrier.',
         disablement: 'Ignore the machine. Find the exposed weakness.'
     };
     return notes[mission.kind];
@@ -495,7 +489,7 @@ function renderBriefing() {
       <div class="rudraa-note"><span class="rudraa-note-portrait" aria-hidden="true"><img src="/assets/characters/captain-rudraa.svg" alt="" loading="eager" decoding="async"></span><p><strong>Rudraa field note:</strong> ${fieldNote(selectedMission)}</p></div>
       <div class="brief-grid four">
         <div><span>Mission</span><strong>${mechanicLabel(selectedMission)}</strong></div>
-        <div><span>Attempts</span><strong>${selectedMission.maxAttempts}</strong></div>
+        <div><span>${selectedMission.combatProfile ? 'Combat' : 'Attempts'}</span><strong>${selectedMission.combatProfile ? 'Waves + carrier' : selectedMission.maxAttempts}</strong></div>
         <div><span>Recommended</span><strong>${weaponLabel(selectedMission)}</strong></div>
         <div><span>Scout</span><strong>Binoculars</strong></div>
       </div>
@@ -2034,6 +2028,11 @@ function startMission() {
     viewMode = 'scope';
     binocularsActive = false;
     missionEnded = false;
+    missionStatusCache = '';
+    loadoutState = createLoadoutState(selectedLoadoutId);
+    combatState = selectedMission.combatProfile ? createCombatState(selectedMission.combatProfile) : null;
+    combatWaveStartedAt = 0;
+    combatPressureTick = 0;
     beginMissionDiagnostics(selectedMission.id);
     renderMission();
     startWorldAmbience();
