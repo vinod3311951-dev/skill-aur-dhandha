@@ -15,3 +15,8 @@ Execution truth: `FX01_EXECUTION_LEDGER.md`
 Canonical single master contracts are not registered in this repository yet. Generate/store each once when that product becomes active, then add its exact file/version pointer here.
 
 AMIT FINAL Section 14 remains the portfolio-level single-master-execution law.
+
+
+## One-thumb gameplay law
+
+Every current and future Factory X **game** master contract automatically inherits `FACTORY_X_ONE_THUMB_GAMEPLAY_LAW.md`. Keep product-specific control details in the product contract; do not duplicate the global law.
