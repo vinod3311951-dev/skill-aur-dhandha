@@ -506,6 +506,9 @@ function confirmReset() {
     civilianHits = 0;
     viewMode = 'scope';
     resetArmed = false;
+    settingsReturnToMission = false;
+    settingsMissionElapsedMs = 0;
+    pendingMissionElapsedRestoreMs = null;
     renderHome();
 }
 function isStandaloneDisplay() {
@@ -1902,6 +1905,7 @@ function pauseMission(reason = 'manual') {
     pauseStartedAt = performance.now();
     notePause(reason);
     cancelAnimationFrame(raf);
+    stopWorldAmbience();
     const layer = document.querySelector('#pauseLayer');
     if (layer)
         layer.hidden = false;
@@ -1916,6 +1920,7 @@ function resumeMission() {
     if (layer)
         layer.hidden = true;
     drawLoop();
+    startWorldAmbience();
 }
 function nextMission(mission) {
     if (mission.order < 15)
