@@ -48,10 +48,15 @@ test('level 1 is playable and completion unlocks level 2', async ({ page }) => {
 for (const level of [5, 10, 25, 50, 100]) {
   test(`representative level ${level} opens into playable mission`, async ({ page }) => {
     await openLevel(page, level);
-    const before = Number(await page.locator('#attempts').textContent());
+    const before = await page.locator('#attempts').textContent();
     await page.locator('[data-action="fire"]').click();
-    const after = Number(await page.locator('#attempts').textContent());
-    expect(after).toBeLessThan(before);
+    const after = await page.locator('#attempts').textContent();
+    if (before === '∞') {
+      expect(after).toBe('∞');
+      await expect(page.locator('#combatHud')).toBeVisible();
+    } else {
+      expect(Number(after)).toBeLessThan(Number(before));
+    }
   });
 }
 
@@ -152,13 +157,14 @@ test('Environmental and Telescopic views are both playable and share aim state',
   expect(scopeAim.y).toBeCloseTo(overviewAim.y, 5);
 });
 
-test('briefing exposes ten fictional loadouts including Field Catapult', async ({ page }) => {
+test('briefing exposes eleven fictional loadouts including Field Catapult and Siege Rocket', async ({ page }) => {
   await page.goto(BASE, { waitUntil: 'domcontentloaded' });
   await page.getByRole('button', { name: /Start Campaign|Continue Campaign/i }).click();
 
   const choices = page.locator('[data-loadout-id]');
-  await expect(choices).toHaveCount(10);
+  await expect(choices).toHaveCount(11);
   await expect(page.locator('[data-loadout-id="field-catapult"]')).toContainText(/Field Catapult/i);
+  await expect(page.locator('[data-loadout-id="siege-rocket"]')).toContainText(/Siege Rocket/i);
 
   await page.locator('[data-loadout-id="field-catapult"]').click();
   await expect(page.locator('[data-loadout-id="field-catapult"]')).toHaveAttribute('aria-pressed', 'true');
@@ -194,15 +200,16 @@ test('civilian hit applies deterministic visible negative score penalty', async 
   expect(stateBefore.civilianHitPenalty).toBe(400);
 
   const scoreBefore = Number(await page.locator('#missionScore').textContent());
-  const attemptsBefore = Number(await page.locator('#attempts').textContent());
+  const attemptsBefore = await page.locator('#attempts').textContent();
   const fired = await page.evaluate(() => window.__SARHAD_QA_CONTROL__.fireAtProtectedFigure(0));
   expect(fired).toBe(true);
 
   await expect(page.locator('#civilianHits')).toHaveText('1');
   const scoreAfter = Number(await page.locator('#missionScore').textContent());
-  const attemptsAfter = Number(await page.locator('#attempts').textContent());
+  const attemptsAfter = await page.locator('#attempts').textContent();
   expect(scoreAfter).toBe(scoreBefore - 400);
-  expect(attemptsAfter).toBe(attemptsBefore - 1);
+  expect(attemptsAfter).toBe(attemptsBefore);
+  expect(attemptsAfter).toBe('∞');
   await expect(page.locator('#hint')).toContainText(/Civilian hit.*400 points/i);
   await expect(page.locator('.civilian-penalty')).toContainText('400');
 });
@@ -227,4 +234,78 @@ test('all seven worlds and 105 missions are open in ordinary consumer mode', asy
   await mission15.click();
   await expect(page.getByRole('button', { name: /^Begin$/i })).toBeVisible();
   await expect(page.getByText(/WORLD 7 • MISSION 15/i)).toBeVisible();
+});
+
+
+test('protection combat is one-thumb playable with ammo reload swap aid armour and waves', async ({ page }) => {
+  await openLevel(page, 7);
+
+  await expect(page.locator('#combatHud')).toBeVisible();
+  await expect(page.locator('#readinessStrip')).toBeVisible();
+  await expect(page.locator('#attempts')).toHaveText('∞');
+
+  const start = await page.evaluate(() => window.__SARHAD_QA_STATE__);
+  expect(start.combat).toBeTruthy();
+  expect(start.combat.health).toBe(100);
+  expect(start.combat.armor).toBe(100);
+  expect(start.combat.totalWaves).toBeGreaterThanOrEqual(3);
+  expect(start.loadout.capacity).toBeGreaterThan(1);
+
+  const ammoBefore = start.loadout.ammo;
+  const hostileBefore = start.combat.defeated;
+  const firedHostile = await page.evaluate(() => window.__SARHAD_QA_CONTROL__.fireAtFirstCombatHostile());
+  expect(firedHostile).toBe(true);
+  await expect.poll(() => page.evaluate(() => window.__SARHAD_QA_STATE__.loadout.ammo)).toBe(ammoBefore - 1);
+  await expect.poll(() => page.evaluate(() => window.__SARHAD_QA_STATE__.combat.defeated)).toBeGreaterThan(hostileBefore);
+
+  await page.locator('[data-action="reload"]').click();
+  await expect.poll(() => page.evaluate(() => window.__SARHAD_QA_STATE__.loadout.reloading)).toBe(true);
+
+  await page.waitForTimeout(1400);
+  await expect.poll(() => page.evaluate(() => window.__SARHAD_QA_STATE__.loadout.reloading)).toBe(false);
+
+  const selectedBefore = await page.evaluate(() => window.__SARHAD_QA_STATE__.selectedLoadoutId);
+  await page.locator('[data-action="swap"]').click();
+  await expect.poll(() => page.evaluate(() => window.__SARHAD_QA_STATE__.selectedLoadoutId)).not.toBe(selectedBefore);
+
+  const damaged = await page.evaluate(() => window.__SARHAD_QA_CONTROL__.damageRudraa(120, false));
+  expect(damaged).toBe(true);
+  const afterDamage = await page.evaluate(() => window.__SARHAD_QA_STATE__.combat);
+  expect(afterDamage.health).toBeLessThan(100);
+  expect(afterDamage.armor).toBeLessThan(100);
+
+  const aidBefore = afterDamage.firstAidKits;
+  await page.locator('[data-action="firstAid"]').click();
+  const afterAid = await page.evaluate(() => window.__SARHAD_QA_STATE__.combat);
+  expect(afterAid.health).toBeGreaterThan(afterDamage.health);
+  expect(afterAid.firstAidKits).toBe(aidBefore - 1);
+
+  const platesBefore = afterAid.armorPlates;
+  await page.locator('[data-action="armorPlate"]').click();
+  const afterPlate = await page.evaluate(() => window.__SARHAD_QA_STATE__.combat);
+  expect(afterPlate.armor).toBeGreaterThan(afterAid.armor);
+  expect(afterPlate.armorPlates).toBe(platesBefore - 1);
+
+  const cleared = await page.evaluate(() => window.__SARHAD_QA_CONTROL__.clearCombatWaves());
+  expect(cleared).toBe(true);
+  await expect(page.locator('#missionStatus')).toContainText(/CARRIER EXPOSED/i);
+
+  const carrier = await page.evaluate(() => window.__SARHAD_QA_CONTROL__.fireAtCurrentTarget());
+  expect(carrier).toBe(true);
+  await expect(page.getByRole('heading', { name: /Objective complete/i })).toBeVisible({ timeout: 4000 });
+});
+
+test('Siege Rocket has finite ammo and a distinct runtime firing profile', async ({ page }) => {
+  await page.goto(`${BASE}/?fx23=1`, { waitUntil: 'domcontentloaded' });
+  await page.getByRole('button', { name: /Start Campaign|Continue Campaign/i }).click();
+  await page.locator('[data-loadout-id="siege-rocket"]').click();
+  await page.getByRole('button', { name: /^Begin$/i }).click();
+
+  await expect(page.locator('#activeLoadout')).toHaveText('Siege Rocket');
+  const state = await page.evaluate(() => window.__SARHAD_QA_STATE__.loadout);
+  expect(state.capacity).toBe(2);
+  expect(state.ammo).toBe(2);
+
+  await page.locator('[data-action="fire"]').click();
+  await expect.poll(() => page.evaluate(() => window.__SARHAD_QA_STATE__.loadout.ammo)).toBe(1);
 });
