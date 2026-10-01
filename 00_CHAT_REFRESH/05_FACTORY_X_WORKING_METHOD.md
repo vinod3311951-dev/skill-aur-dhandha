@@ -20,3 +20,8 @@ Stop only for:
 - impossibility without violating the frozen authority/safety/IP rules.
 
 Manual 46–60 second founder pacing is optional only and does not guarantee more usage.
+
+
+## One-thumb game gate
+
+For every Factory X game, verify the full essential loop one-handed with one thumb before founder/release gates. Canonical law: `FACTORY_X_ONE_THUMB_GAMEPLAY_LAW.md`.
