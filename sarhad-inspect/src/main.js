@@ -1477,6 +1477,18 @@ function alpha(hex, opacity) {
     const b = Number.parseInt(normalized.slice(4, 6), 16);
     return `rgba(${r},${g},${b},${opacity})`;
 }
+function roundedRectPath(ctx, x, y, w, h, radius) {
+    const r = Math.max(0, Math.min(radius, Math.abs(w) / 2, Math.abs(h) / 2));
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+}
 function drawMissionObjects(ctx, w, h, elapsed) {
     if (selectedMission.kind === 'sequence' && selectedMission.sequence) {
         selectedMission.sequence.forEach((node, index) => drawTarget(ctx, w, h, node, index === sequenceIndex, index < sequenceIndex));
@@ -1684,7 +1696,7 @@ function drawProtectionOpposition(ctx, w, h, elapsed) {
         ctx.stroke();
         ctx.fillStyle = '#16221e';
         ctx.beginPath();
-        ctx.roundRect(x - 6.2 * scale, y - 30.5 * scale, 12.4 * scale, 5.2 * scale, 2.2 * scale);
+        roundedRectPath(ctx, x - 6.2 * scale, y - 30.5 * scale, 12.4 * scale, 5.2 * scale, 2.2 * scale);
         ctx.fill();
         ctx.fillStyle = 'rgba(164,196,185,.48)';
         ctx.fillRect(x - 4.7 * scale, y - 28.9 * scale, 9.4 * scale, 1.6 * scale);
@@ -1710,7 +1722,7 @@ function drawProtectionOpposition(ctx, w, h, elapsed) {
         ctx.stroke();
         ctx.fillStyle = '#111915';
         ctx.beginPath();
-        ctx.roundRect(x - position.facing * 12 * scale - 4 * scale, y - 15 * scale, 8 * scale, 22 * scale, 3 * scale);
+        roundedRectPath(ctx, x - position.facing * 12 * scale - 4 * scale, y - 15 * scale, 8 * scale, 22 * scale, 3 * scale);
         ctx.fill();
         // Articulated arms with a compact fictional directional tool. It intentionally avoids a real weapon silhouette.
         const armSwing = walk * 3.6 * scale;
@@ -1910,7 +1922,7 @@ function drawThreatCarrier(ctx, w, h, target) {
     ctx.fill();
     ctx.stroke();
     ctx.beginPath();
-    ctx.roundRect(x - 9 * scale, y - 5 * scale, 18 * scale, 25 * scale, 5 * scale);
+    roundedRectPath(ctx, x - 9 * scale, y - 5 * scale, 18 * scale, 25 * scale, 5 * scale);
     ctx.fill();
     ctx.stroke();
     ctx.fillStyle = '#6f5d3e';
@@ -1967,14 +1979,14 @@ function drawTarget(ctx, w, h, target, active, completed, candidateIndex) {
         }
         ctx.fillStyle = '#0c1411';
         ctx.beginPath();
-        ctx.roundRect(tx - size * .48, ty - size * .24, size * .96, size * .55, size * .16);
+        roundedRectPath(ctx, tx - size * .48, ty - size * .24, size * .96, size * .55, size * .16);
         ctx.fill();
     }
     else if (marker === 'bar') {
         // Power junction with protective side rails and exposed center bus.
         ctx.fillStyle = metal;
         ctx.beginPath();
-        ctx.roundRect(tx - size * .88, ty - size * 1.02, size * 1.76, size * 2.04, size * .16);
+        roundedRectPath(ctx, tx - size * .88, ty - size * 1.02, size * 1.76, size * 2.04, size * .16);
         ctx.fill();
         ctx.stroke();
         ctx.fillStyle = '#111815';
@@ -2028,12 +2040,12 @@ function drawTarget(ctx, w, h, target, active, completed, candidateIndex) {
         ctx.fill();
         ctx.fillStyle = metal;
         ctx.beginPath();
-        ctx.roundRect(tx - size * .82, ty - size * .84, size * 1.64, size * 1.62, size * .18);
+        roundedRectPath(ctx, tx - size * .82, ty - size * .84, size * 1.64, size * 1.62, size * .18);
         ctx.fill();
         ctx.stroke();
         ctx.fillStyle = '#0b1411';
         ctx.beginPath();
-        ctx.roundRect(tx - size * .52, ty - size * .46, size * 1.04, size * .86, size * .11);
+        roundedRectPath(ctx, tx - size * .52, ty - size * .46, size * 1.04, size * .86, size * .11);
         ctx.fill();
         ctx.fillStyle = 'rgba(180,204,191,.26)';
         ctx.fillRect(tx - size * .40, ty - size * .30, size * .8, size * .08);
