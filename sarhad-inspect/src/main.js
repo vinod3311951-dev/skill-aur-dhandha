@@ -1012,6 +1012,14 @@ function drawLoop() {
     const now = performance.now();
     noteFrame(now);
     const elapsed = currentElapsed();
+
+    loadoutState = syncLoadoutState(loadoutState, elapsed);
+    updateLoadoutHud(elapsed);
+    if (selectedMission.combatProfile && combatState)
+        processCombatPressure(elapsed);
+    if (missionEnded)
+        return;
+
     updateMissionStatus(elapsed);
     const world = worldById(selectedMission.worldId);
     ctx.save();
@@ -1029,7 +1037,8 @@ function drawLoop() {
     drawWorld(ctx, w, h, world, elapsed);
     drawMissionObjects(ctx, w, h, elapsed);
     ctx.restore();
-    if (selectedMission.kind === 'protection' && selectedMission.threatMs) {
+
+    if (selectedMission.kind === 'protection' && selectedMission.threatMs && !selectedMission.combatProfile) {
         drawProtectionTimer(ctx, w, selectedMission.threatMs, elapsed);
         if (elapsed >= selectedMission.threatMs) {
             missionEnded = true;
@@ -1481,13 +1490,77 @@ function drawMissionObjects(ctx, w, h, elapsed) {
         return;
     }
     if (selectedMission.kind === 'protection') {
-        drawProtectionOpposition(ctx, w, h, elapsed);
+        if (selectedMission.combatProfile && combatState)
+            drawCombatHostiles(ctx, w, h, elapsed);
+        else
+            drawProtectionOpposition(ctx, w, h, elapsed);
         drawProtectionCrossfire(ctx, w, h, elapsed);
         drawProtectedFigures(ctx, w, h, elapsed);
-        drawThreatCarrier(ctx, w, h, currentTarget(elapsed));
+        if (!selectedMission.combatProfile || combatState?.wavesCleared)
+            drawThreatCarrier(ctx, w, h, currentTarget(elapsed));
         return;
     }
     drawTarget(ctx, w, h, currentTarget(elapsed), true, false);
+}
+function drawCombatHostiles(ctx, w, h, elapsed) {
+    if (!selectedMission.combatProfile || !combatState || combatState.wavesCleared)
+        return;
+    const waveElapsed = Math.max(0, elapsed - combatWaveStartedAt);
+    const hostiles = activeCombatHostiles(selectedMission.combatProfile, combatState);
+    for (let index = 0; index < hostiles.length; index += 1) {
+        const hostile = hostiles[index];
+        const position = combatHostilePositionAtElapsed(hostile, waveElapsed);
+        const x = position.x * w;
+        const y = position.y * h;
+        const scale = Math.max(.72, Math.min(1.16, w / 390));
+        const walk = effectsReduced() ? 0 : Math.sin(elapsed / 190 + index * 1.7);
+        ctx.save();
+        ctx.fillStyle = 'rgba(0,0,0,.32)';
+        ctx.beginPath();
+        ctx.ellipse(x, y + 32 * scale, 13 * scale, 3.5 * scale, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#070b0a';
+        ctx.strokeStyle = 'rgba(184,204,196,.38)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.ellipse(x, y - 23 * scale, 7.5 * scale, 9 * scale, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#111816';
+        ctx.beginPath();
+        ctx.moveTo(x - 8 * scale, y - 14 * scale);
+        ctx.lineTo(x - 6 * scale, y + 12 * scale);
+        ctx.lineTo(x + 6 * scale, y + 12 * scale);
+        ctx.lineTo(x + 8 * scale, y - 14 * scale);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.strokeStyle = '#090d0c';
+        ctx.lineWidth = 5 * scale;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(x - 3 * scale, y + 10 * scale);
+        ctx.lineTo(x - 7 * scale - walk * 3, y + 30 * scale);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x + 3 * scale, y + 10 * scale);
+        ctx.lineTo(x + 7 * scale + walk * 3, y + 30 * scale);
+        ctx.stroke();
+
+        const r = Math.max(10, position.radius * Math.min(w, h));
+        ctx.strokeStyle = hostile.blast ? '#f4c78c' : '#d9e6df';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(x - r, y - r * .68, r * 2, r * 1.36);
+
+        ctx.fillStyle = 'rgba(7,15,13,.78)';
+        ctx.font = `700 ${Math.max(8, 8.5 * scale)}px system-ui`;
+        ctx.textAlign = 'center';
+        ctx.fillText(hostile.role.toUpperCase(), x, y + 45 * scale);
+        ctx.restore();
+    }
 }
 function drawProtectionOpposition(ctx, w, h, elapsed) {
     // Fictional opposing figures provide urgency only. They are scenery, never valid targets.
