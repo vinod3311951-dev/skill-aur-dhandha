@@ -34,3 +34,8 @@ For every current/future PWA use:
 **AUTHORITY → EVIDENCE → ROOT-CAUSE RESEARCH → REVERSE-RISK APPLE/WEBKIT CHECK → BOUNDED EDIT PLAN → IMPLEMENT → TARGETED TEST → REGRESSION → EVIDENCE.**
 
 Canonical law: `FACTORY_X_ROOT_CAUSE_AND_WEBKIT_STABILITY_LAW.md`.
+
+
+## Audio + reward gate
+
+Before founder/release gates, verify the product-specific music/SFX/reward stack under `FACTORY_X_AUDIO_REWARD_CELEBRATION_LAW.md`, including combined graphics/animation/audio load on Apple/WebKit and Android Chromium.
