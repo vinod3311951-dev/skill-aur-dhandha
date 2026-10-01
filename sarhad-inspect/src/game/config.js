@@ -1,5 +1,5 @@
 export const WORLDS = [
-    { id: 1, name: 'Sarhad Cliffs', subtitle: 'High ridges and clean sightlines', palette: ['#8fb6aa', '#48695d', '#162821'], scenery: 'cliffs' },
+    { id: 1, name: 'Glacier Reach', subtitle: 'Ice light, distant cloud and clean sightlines', palette: ['#d8f2f5', '#769aa8', '#17272e'], scenery: 'glacier' },
     { id: 2, name: 'Amber Desert', subtitle: 'Heat shimmer and timed windows', palette: ['#e2b76f', '#9b6638', '#2a2119'], scenery: 'desert' },
     { id: 3, name: 'Pine Watch', subtitle: 'Forest cover and identification', palette: ['#9cb79f', '#4f6a50', '#17251a'], scenery: 'pine' },
     { id: 4, name: 'Monsoon Pass', subtitle: 'Rain, motion and visibility', palette: ['#8faeb6', '#496671', '#15232a'], scenery: 'monsoon' },
