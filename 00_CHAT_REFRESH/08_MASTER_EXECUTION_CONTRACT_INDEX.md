@@ -20,3 +20,8 @@ AMIT FINAL Section 14 remains the portfolio-level single-master-execution law.
 ## One-thumb gameplay law
 
 Every current and future Factory X **game** master contract automatically inherits `FACTORY_X_ONE_THUMB_GAMEPLAY_LAW.md`. Keep product-specific control details in the product contract; do not duplicate the global law.
+
+
+## Root-cause + Apple/WebKit law
+
+Every current and future Factory X product contract automatically inherits `FACTORY_X_ROOT_CAUSE_AND_WEBKIT_STABILITY_LAW.md`. Do not duplicate the full law inside each product contract.
