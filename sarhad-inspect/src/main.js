@@ -34,7 +34,7 @@ let viewMode = 'scope';
 let missionStatusCache = '';
 const SCOPE_ZOOM = 1.78;
 const WORLD_SCENE_SOURCES = {
-    1: '/assets/worlds/sarhad-cliffs.webp',
+    1: '/assets/worlds/frost-ridge.webp',
     2: '/assets/worlds/dune-outpost.webp',
     3: '/assets/worlds/frost-ridge.webp',
     4: '/assets/worlds/jungle-pass.webp',
@@ -125,7 +125,7 @@ function renderHome() {
     stopMissionLoop();
     screen = 'home';
     app.innerHTML = shell(`
-    <section class="home-card market-home" style="--home-scene:url('/assets/worlds/sarhad-cliffs.webp')">
+    <section class="home-card market-home" style="--home-scene:url('/assets/worlds/frost-ridge.webp')">
       <div class="rudraa-lockup" aria-label="Captain Rudraa">
         <div class="rudraa-portrait" aria-hidden="true"><img src="/assets/characters/captain-rudraa.webp" alt="" loading="eager" decoding="async"></div>
         <div><p class="eyebrow">CAPTAIN RUDRAA</p><strong class="hero-callout">Precision over force.</strong><small class="hero-subcall">Observe first. Protect civilians. Act only on a clean objective.</small></div>
@@ -333,7 +333,7 @@ function weaponLabel(mission) {
 }
 function worldFieldNote(world) {
     const notes = {
-        1: 'Cold ridge air • long clear sightlines',
+        1: 'Ice light • distant cloud • clean sightlines',
         2: 'Warm haze • shifting open windows',
         3: 'Layered pine cover • marker discipline',
         4: 'Rain and mist • moving visibility',
@@ -367,7 +367,7 @@ function renderBriefing() {
       <h2>${selectedMission.title}</h2>
       <p class="objective"><strong>Objective:</strong> ${selectedMission.objective}</p>
       <div class="world-condition" aria-label="World conditions"><span>${world.name}</span><strong>${worldFieldNote(world)}</strong></div>
-      <div class="rudraa-note"><span aria-hidden="true">R</span><p><strong>Rudraa field note:</strong> ${fieldNote(selectedMission)}</p></div>
+      <div class="rudraa-note"><span class="rudraa-note-portrait" aria-hidden="true"><img src="/assets/characters/captain-rudraa.webp" alt="" loading="eager" decoding="async"></span><p><strong>Rudraa field note:</strong> ${fieldNote(selectedMission)}</p></div>
       <div class="brief-grid four">
         <div><span>Mission</span><strong>${mechanicLabel(selectedMission)}</strong></div>
         <div><span>Attempts</span><strong>${selectedMission.maxAttempts}</strong></div>
@@ -798,12 +798,28 @@ function drawCoverImage(ctx, image, w, h) {
     }
     ctx.drawImage(image, sx, sy, sw, sh, 0, 0, w, h);
 }
+function drawCinematicScenePlate(ctx, image, w, h, world, elapsed) {
+    const reduced = effectsReduced();
+    const lowTier = visualPerformanceTier() === 'low';
+    if (reduced || lowTier) {
+        drawCoverImage(ctx, image, w, h);
+        return;
+    }
+    const driftX = Math.sin(elapsed / 8200 + world.id * 0.7) * w * 0.006;
+    const driftY = Math.cos(elapsed / 10400 + world.id * 0.4) * h * 0.004;
+    ctx.save();
+    ctx.translate(w * 0.5 + driftX, h * 0.5 + driftY);
+    ctx.scale(1.038, 1.038);
+    ctx.translate(-w * 0.5, -h * 0.5);
+    drawCoverImage(ctx, image, w, h);
+    ctx.restore();
+}
 function drawWorld(ctx, w, h, world, elapsed) {
     const [light, mid, dark] = world.palette;
     const visualBand = Math.max(0, Math.min(4, Math.floor((selectedMission.order - 1) / 3)));
     const sceneImage = worldSceneImages.get(world.id);
     if (sceneImage?.complete && sceneImage.naturalWidth > 0) {
-        drawCoverImage(ctx, sceneImage, w, h);
+        drawCinematicScenePlate(ctx, sceneImage, w, h, world, elapsed);
         const cinematicShade = ctx.createLinearGradient(0, 0, 0, h);
         cinematicShade.addColorStop(0, 'rgba(5,12,10,.04)');
         cinematicShade.addColorStop(.58, 'rgba(5,12,10,.10)');
@@ -1889,10 +1905,12 @@ function startWorldAmbience() {
     try {
         const world = worldById(selectedMission.worldId);
         const baseByWorld = [92, 104, 110, 98, 124, 84, 116];
+        const bpmByWorld = [88, 90, 86, 92, 84, 94, 90];
         const base = baseByWorld[world.id - 1] ?? 96;
+        const bpm = bpmByWorld[world.id - 1] ?? 88;
         const master = context.createGain();
         master.gain.setValueAtTime(0.0001, context.currentTime);
-        master.gain.exponentialRampToValueAtTime(0.012, context.currentTime + 0.35);
+        master.gain.exponentialRampToValueAtTime(0.011, context.currentTime + 0.35);
         master.connect(context.destination);
         const low = context.createOscillator();
         low.type = 'sine';
@@ -1910,13 +1928,22 @@ function startWorldAmbience() {
         lfo.type = 'sine';
         lfo.frequency.value = 0.08 + world.id * 0.006;
         const lfoGain = context.createGain();
-        lfoGain.gain.value = 0.0035;
+        lfoGain.gain.value = 0.0025;
         lfo.connect(lfoGain).connect(master.gain);
+        // Sarhad's restrained pulse is tempo, not forced loudness.
+        // World 1 establishes the approved 82–94 BPM identity at 88 BPM.
+        const beat = context.createOscillator();
+        beat.type = 'sine';
+        beat.frequency.value = bpm / 60;
+        const beatGain = context.createGain();
+        beatGain.gain.value = world.id === 1 ? 0.0018 : 0.0012;
+        beat.connect(beatGain).connect(master.gain);
         low.start();
         air.start();
         lfo.start();
-        ambienceOscillators = [low, air, lfo];
-        ambienceNodes = [master, lowGain, airGain, lfoGain];
+        beat.start();
+        ambienceOscillators = [low, air, lfo, beat];
+        ambienceNodes = [master, lowGain, airGain, lfoGain, beatGain];
     }
     catch {
         stopWorldAmbience();
