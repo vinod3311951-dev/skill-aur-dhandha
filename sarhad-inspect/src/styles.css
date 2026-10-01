@@ -327,3 +327,119 @@ h2 { font-size: clamp(1.7rem, 7vw, 2.5rem); line-height: 1.05; margin-bottom: 12
 .rudraa-portrait img { width:185%; height:145%; object-fit:cover; object-position:left top; transform:translate(-3%,-1%); filter:saturate(.94) contrast(1.06); }
 .hero-subcall { display:block; margin-top:4px; max-width:30ch; color:#bdcbc4; font-size:.68rem; line-height:1.35; }
 @media (max-width:360px) { .rudraa-lockup { grid-template-columns:70px 1fr; } .rudraa-portrait { width:70px; } .hero-subcall { font-size:.63rem; } }
+
+
+/* FX-01 World-1 final-quality vertical-slice treatment */
+.market-home {
+  background:
+    linear-gradient(180deg,rgba(7,17,22,.14),rgba(5,14,18,.66) 44%,rgba(4,10,14,.96) 84%),
+    radial-gradient(circle at 72% 24%,rgba(190,237,246,.16),transparent 34%),
+    var(--home-scene, linear-gradient(160deg,#b9dae1,#5e8390 52%,#14272e)) center/cover no-repeat;
+  border-color:rgba(188,231,239,.24);
+  box-shadow:0 28px 64px rgba(0,0,0,.32),inset 0 0 0 1px rgba(229,249,252,.025);
+}
+.market-home.scene-ready::after {
+  content:'';
+  position:absolute;
+  inset:-4%;
+  z-index:-1;
+  pointer-events:none;
+  background:
+    radial-gradient(ellipse at 28% 16%,rgba(232,250,253,.10),transparent 32%),
+    linear-gradient(112deg,transparent 0 54%,rgba(182,226,237,.055) 56% 58%,transparent 61%);
+  animation:glacier-breathe 8.8s ease-in-out infinite alternate;
+}
+@keyframes glacier-breathe {
+  from { transform:translate3d(-.5%,0,0) scale(1.005); opacity:.64; }
+  to { transform:translate3d(.7%,-.35%,0) scale(1.018); opacity:1; }
+}
+
+.rudraa-lockup {
+  position:relative;
+  overflow:hidden;
+  border-color:rgba(127,197,205,.34);
+  background:
+    linear-gradient(96deg,rgba(6,17,20,.91),rgba(7,22,25,.58)),
+    radial-gradient(circle at 12% 50%,rgba(90,177,181,.14),transparent 32%);
+}
+.rudraa-lockup::after {
+  content:'';
+  position:absolute;
+  left:94px;
+  right:13px;
+  top:10px;
+  height:1px;
+  background:linear-gradient(90deg,rgba(101,187,190,.58),transparent);
+  opacity:.72;
+}
+.rudraa-portrait {
+  border-color:rgba(220,183,100,.88);
+  box-shadow:0 0 0 4px rgba(7,27,30,.58),0 11px 26px rgba(0,0,0,.42),0 0 20px rgba(77,155,160,.12);
+}
+.rudraa-portrait img {
+  transform:translate(-3%,-1%) scale(1.012);
+  animation:rudraa-breathe 5.4s ease-in-out infinite alternate;
+}
+@keyframes rudraa-breathe {
+  from { transform:translate(-3%,-1%) scale(1.012); }
+  to { transform:translate(-3.3%,-1.6%) scale(1.035); }
+}
+.hero-callout { letter-spacing:.015em; }
+.hero-subcall { color:#c4d4d4; }
+
+.rudraa-note {
+  grid-template-columns:46px 1fr;
+  border-color:rgba(105,168,171,.36);
+  background:linear-gradient(100deg,rgba(8,27,30,.88),rgba(11,28,22,.68));
+}
+.rudraa-note-portrait {
+  width:42px !important;
+  height:42px !important;
+  overflow:hidden;
+  border-radius:50%;
+  border:1px solid rgba(220,183,100,.78) !important;
+  background:#14272a !important;
+  padding:0 !important;
+}
+.rudraa-note-portrait img {
+  width:180%;
+  height:145%;
+  object-fit:cover;
+  object-position:left top;
+  transform:translate(-4%,-1%);
+}
+
+.environment-activation.world-1::after {
+  content:'';
+  position:absolute;
+  left:10%;
+  right:10%;
+  bottom:15%;
+  height:30%;
+  opacity:0;
+  background:
+    radial-gradient(circle at 18% 68%,rgba(210,247,252,.92) 0 2px,rgba(135,224,239,.22) 3px 16px,transparent 17px),
+    radial-gradient(circle at 50% 38%,rgba(226,251,254,.96) 0 2px,rgba(135,224,239,.24) 3px 19px,transparent 20px),
+    radial-gradient(circle at 82% 68%,rgba(210,247,252,.92) 0 2px,rgba(135,224,239,.22) 3px 16px,transparent 17px);
+  animation:glacier-grid-online .58s ease-out forwards;
+}
+@keyframes glacier-grid-online {
+  0% { opacity:0; transform:translateY(7px) scale(.96); }
+  35% { opacity:.9; }
+  100% { opacity:.58; transform:translateY(0) scale(1); }
+}
+
+/* The in-app Reduced effects toggle must have a visible effect independent of OS preference. */
+html[data-reduced-effects="true"] .market-home.scene-ready::after,
+html[data-reduced-effects="true"] .rudraa-portrait img,
+html[data-reduced-effects="true"] .environment-activation::before,
+html[data-reduced-effects="true"] .environment-activation::after,
+html[data-reduced-effects="true"] .environment-activation > i,
+html[data-reduced-effects="true"] .environment-activation > b,
+html[data-reduced-effects="true"] .environment-activation > span,
+html[data-reduced-effects="true"] .impact-pulse {
+  animation:none !important;
+  transition:none !important;
+}
+html[data-reduced-effects="true"] .market-home.scene-ready::after { opacity:.32; transform:none; }
+html[data-reduced-effects="true"] .rudraa-portrait img { transform:translate(-3%,-1%) scale(1.012); }
