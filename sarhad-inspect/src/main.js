@@ -37,7 +37,7 @@ let settingsMissionElapsedMs = 0;
 let pendingMissionElapsedRestoreMs = null;
 const SCOPE_ZOOM = 1.78;
 const WORLD_SCENE_SOURCES = {
-    1: '/assets/worlds/frost-ridge.webp',
+    1: '/assets/worlds/glacier-reach.svg',
     2: '/assets/worlds/dune-outpost.webp',
     3: '/assets/worlds/frost-ridge.webp',
     4: '/assets/worlds/jungle-pass.webp',
@@ -136,7 +136,7 @@ function renderHome() {
     app.innerHTML = shell(`
     <section class="home-card market-home">
       <div class="rudraa-lockup" aria-label="Captain Rudraa">
-        <div class="rudraa-portrait" aria-hidden="true"><img src="/assets/characters/captain-rudraa.webp" alt="" loading="eager" decoding="async"></div>
+        <div class="rudraa-portrait" aria-hidden="true"><img src="/assets/characters/captain-rudraa.svg" alt="" loading="eager" decoding="async"></div>
         <div><p class="eyebrow">CAPTAIN RUDRAA</p><strong class="hero-callout">Precision over force.</strong><small class="hero-subcall">Observe first. Protect civilians. Act only on a clean objective.</small></div>
       </div>
       <h2>Observe. Decide. Fire once.</h2>
@@ -171,18 +171,11 @@ function renderHome() {
     scheduleHomeScene();
 }
 function scheduleHomeScene() {
-    const ua = navigator.userAgent || '';
-    const webKitWithoutChromium = /AppleWebKit/i.test(ua) && !/(Chrome|Chromium|CriOS|Edg|OPR)/i.test(ua);
-    // Previous Sarhad evidence established that a large CSS WebP background can
-    // synchronously decode and freeze WebKit. Keep the designed glacier gradient
-    // fallback there; the full scenic plate remains available in briefing/gameplay.
-    if (webKitWithoutChromium)
-        return;
     const apply = () => requestAnimationFrame(() => requestAnimationFrame(() => {
         const homeCard = document.querySelector('.home-card');
         if (!homeCard || screen !== 'home')
             return;
-        homeCard.style.setProperty('--home-scene', "url('/assets/worlds/frost-ridge.webp')");
+        homeCard.style.setProperty('--home-scene', "url('/assets/worlds/glacier-reach.svg')");
         homeCard.classList.add('scene-ready');
     }));
     if (document.readyState === 'complete')
@@ -403,7 +396,7 @@ function renderBriefing() {
       <h2>${selectedMission.title}</h2>
       <p class="objective"><strong>Objective:</strong> ${selectedMission.objective}</p>
       <div class="world-condition" aria-label="World conditions"><span>${world.name}</span><strong>${worldFieldNote(world)}</strong></div>
-      <div class="rudraa-note"><span class="rudraa-note-portrait" aria-hidden="true"><img src="/assets/characters/captain-rudraa.webp" alt="" loading="eager" decoding="async"></span><p><strong>Rudraa field note:</strong> ${fieldNote(selectedMission)}</p></div>
+      <div class="rudraa-note"><span class="rudraa-note-portrait" aria-hidden="true"><img src="/assets/characters/captain-rudraa.svg" alt="" loading="eager" decoding="async"></span><p><strong>Rudraa field note:</strong> ${fieldNote(selectedMission)}</p></div>
       <div class="brief-grid four">
         <div><span>Mission</span><strong>${mechanicLabel(selectedMission)}</strong></div>
         <div><span>Attempts</span><strong>${selectedMission.maxAttempts}</strong></div>
