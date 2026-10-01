@@ -31,6 +31,14 @@ Repository truth is implementation truth.
 Later explicit founder decisions win in the affected layer only.
 Never rely on memory over evidence.
 
+## 2B. Portfolio-wide root-cause + Apple/WebKit inheritance
+
+FX-01 inherits `FACTORY_X_ROOT_CAUSE_AND_WEBKIT_STABILITY_LAW.md`.
+
+Its mandatory pre-edit order is: research repeated failure class → reverse-risk Apple/WebKit graphics/audio/animation/cache behavior → establish edit plan → then modify the evidence-supported layer.
+
+Do not repeatedly debug legacy HTML/CSS/JS before those gates.
+
 ## 3. Core identity
 
 Sarhad Sniper is a single-player, mobile-first precision/action/puzzle experience built around:
