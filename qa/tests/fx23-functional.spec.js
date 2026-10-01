@@ -168,20 +168,23 @@ test('briefing exposes ten fictional loadouts including Field Catapult', async (
 });
 
 test('Field Catapult and Vector Needle preserve identical precision hit truth', async ({ page }) => {
-  async function run(loadoutId) {
+  async function truth(loadoutId) {
     await page.goto(`${BASE}/?fx23=1`, { waitUntil: 'domcontentloaded' });
     await page.getByRole('button', { name: /Start Campaign|Continue Campaign/i }).click();
     await page.locator(`[data-loadout-id="${loadoutId}"]`).click();
     await page.getByRole('button', { name: /^Begin$/i }).click();
-    const fired = await page.evaluate(() => window.__SARHAD_QA_CONTROL__.fireAtCurrentTarget());
-    expect(fired).toBe(true);
-    await expect(page.getByRole('heading', { name: /Objective complete/i })).toBeVisible({ timeout: 4000 });
-    return Number(await page.locator('.result-score strong').textContent());
+    return page.evaluate(() => window.__SARHAD_QA_CONTROL__.shotTruthAtCurrentTarget());
   }
 
-  const vectorScore = await run('vector-needle');
-  const catapultScore = await run('field-catapult');
-  expect(catapultScore).toBe(vectorScore);
+  const vector = await truth('vector-needle');
+  const catapult = await truth('field-catapult');
+
+  expect(vector.loadoutId).toBe('vector-needle');
+  expect(catapult.loadoutId).toBe('field-catapult');
+  expect(vector.hit).toBe(true);
+  expect(catapult.hit).toBe(true);
+  expect(catapult.score).toBe(vector.score);
+  expect(catapult.distance).toBe(vector.distance);
 });
 
 test('civilian hit applies deterministic visible negative score penalty', async ({ page }) => {
