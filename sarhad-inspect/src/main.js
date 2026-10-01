@@ -50,6 +50,7 @@ let settingsReturnToMission = false;
 let settingsMissionElapsedMs = 0;
 let pendingMissionElapsedRestoreMs = null;
 const SCOPE_ZOOM = 1.78;
+const CIVILIAN_HIT_PENALTY = 400;
 const WORLD_SCENE_SOURCES = {
     1: '/assets/worlds/glacier-reach.svg',
     2: '/assets/worlds/dune-outpost.webp',
@@ -79,6 +80,7 @@ Object.defineProperty(window, '__SARHAD_HEALTH__', {
     get: () => runtimeHealthSnapshot()
 });
 function qaStateSnapshot() {
+    const elapsed = screen === 'mission' ? currentElapsed() : 0;
     return {
         screen,
         selectedMissionId: selectedMission.id,
@@ -88,9 +90,16 @@ function qaStateSnapshot() {
         attemptsLeft,
         missionScore,
         civilianHits,
+        civilianHitPenalty: CIVILIAN_HIT_PENALTY,
         viewMode,
+        binocularsActive,
+        selectedLoadoutId,
+        selectedLoadoutName: selectedLoadout().name,
         aimX,
         aimY,
+        protectedFigures: selectedMission.kind === 'protection'
+            ? (selectedMission.protectedFigures ?? []).map((spec) => ({ id: spec.id, ...protectedFigureAtElapsed(spec, elapsed) }))
+            : [],
         visualPerformanceTier: visualPerformanceTier()
     };
 }
@@ -104,6 +113,28 @@ if (new URLSearchParams(location.search).get('test') === '1') {
         configurable: true,
         enumerable: false,
         value: () => JSON.stringify(qaStateSnapshot())
+    });
+}
+if (FX23_VERIFICATION_MODE) {
+    Object.defineProperty(window, '__SARHAD_QA_CONTROL__', {
+        configurable: true,
+        enumerable: false,
+        value: {
+            aimAtProtectedFigure(index = 0) {
+                if (screen !== 'mission' || selectedMission.kind !== 'protection')
+                    return false;
+                const spec = selectedMission.protectedFigures?.[index];
+                if (!spec)
+                    return false;
+                const position = protectedFigureAtElapsed(spec, currentElapsed());
+                aimX = position.x;
+                aimY = position.y;
+                const reticle = document.querySelector('#reticle');
+                if (reticle)
+                    positionReticle(reticle);
+                return true;
+            }
+        }
     });
 }
 Object.defineProperty(window, 'render_game_to_text', {
@@ -591,7 +622,7 @@ function renderMission() {
         <div><span>Attempts</span><strong id="attempts">${attemptsLeft}</strong></div>
         <div><span>Score</span><strong id="missionScore">${missionScore}</strong></div>
       </div>
-      <div class="loadout-strip"><span>Fictional loadout</span><strong id="activeLoadout">${selectedLoadout().name}</strong>${selectedMission.kind === 'protection' ? '<em>Civilian hits <b id="civilianHits">0</b></em>' : ''}</div>
+      <div class="loadout-strip"><span>Fictional loadout</span><strong id="activeLoadout">${selectedLoadout().name}</strong>${selectedMission.kind === 'protection' ? `<em>Protected civilians • hits <b id="civilianHits">0</b> • −${CIVILIAN_HIT_PENALTY}/hit</em>` : ''}</div>
       <div class="mission-status" id="missionStatus" role="status" aria-live="polite">${missionStatusText(0)}</div>
       <div class="playfield ${viewMode === 'scope' ? 'scope-view' : 'overview-view'}" id="playfield" data-view="${viewMode}">
         <canvas id="scene" aria-label="Precision mission play area with playable telescopic and environmental views"></canvas>
@@ -689,7 +720,7 @@ function renderResult(success) {
       <div class="mission-debrief" aria-label="Mission debrief">
         <div><span>Attempts saved</span><strong>${Math.max(0, attemptsLeft)}</strong></div>
         <div><span>Decision</span><strong>${success ? 'Objective clear' : 'Retry ready'}</strong></div>
-        ${selectedMission.kind === 'protection' ? `<div><span>Civilian safety</span><strong>${civilianHits === 0 ? 'Clear' : `${civilianHits} penalty`}</strong></div>` : ''}
+        ${selectedMission.kind === 'protection' ? `<div><span>Civilian safety</span><strong>${civilianHits === 0 ? 'Clear' : `${civilianHits} hit${civilianHits === 1 ? '' : 's'} • −${civilianHits * CIVILIAN_HIT_PENALTY}`}</strong></div>` : ''}
       </div>
       <div class="result-score"><span>Mission score</span><strong>${missionScore}</strong></div>
       <div class="button-row">
@@ -1846,9 +1877,10 @@ function fire() {
         if (protectedHit) {
             attemptsLeft -= 1;
             civilianHits += 1;
-            missionScore = Math.max(0, missionScore - 400);
-            lastShot = { hit: false, score: 0, distance: 0, reason: 'Civilian hit — score penalty.' };
+            missionScore -= CIVILIAN_HIT_PENALTY;
+            lastShot = { hit: false, score: -CIVILIAN_HIT_PENALTY, distance: 0, reason: `Civilian hit — −${CIVILIAN_HIT_PENALTY} points.` };
             feedback(false);
+            showCivilianPenaltyFeedback();
             const hint = document.querySelector('#hint');
             const attempts = document.querySelector('#attempts');
             const scoreEl = document.querySelector('#missionScore');
@@ -2020,6 +2052,18 @@ function showEnvironmentActivation() {
     activation.innerHTML = '<i></i><i></i><i></i><b></b><span></span>';
     layer.appendChild(activation);
     window.setTimeout(() => activation.remove(), effectsReduced() ? 180 : 620);
+}
+function showCivilianPenaltyFeedback() {
+    const layer = document.querySelector('#impactLayer');
+    if (!layer)
+        return;
+    const penalty = document.createElement('span');
+    penalty.className = `civilian-penalty${effectsReduced() ? ' reduced' : ''}`;
+    penalty.style.left = `${aimX * 100}%`;
+    penalty.style.top = `${aimY * 100}%`;
+    penalty.textContent = `−${CIVILIAN_HIT_PENALTY}`;
+    layer.appendChild(penalty);
+    window.setTimeout(() => penalty.remove(), effectsReduced() ? 320 : 760);
 }
 function showImpactFeedback(success) {
     const layer = document.querySelector('#impactLayer');
