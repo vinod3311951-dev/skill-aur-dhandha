@@ -14,17 +14,24 @@
 3. Repository state is the implementation truth.
 4. No historical status note may silently override verified repository state.
 
-## Frozen product truth recovered
+## Product authority state
 
-- Single-player precision / timing / puzzle game.
-- Captain Rudraa.
-- Seven fictional scenic worlds.
-- 105 missions = 7 worlds × 15 missions.
-- Core: OBSERVE → IDENTIFY OBJECTIVE → AIM → DECIDE → FIRE → IMPACT → SCORE → NEXT.
-- Mission families: precision, timing, sequence, ricochet, identification, protection/survival, mechanical disablement.
-- Object/mechanical/tactical-puzzle targets.
-- No real countries, real borders, real military units, real weapon models, gore, or realistic human-target combat.
-- One-thumb touch-first control model.
+**Founder amendment 2026-10-01:** the combat / mission-engagement layer has been deliberately reopened. Canonical file:
+`FX01_FOUNDER_COMBAT_AMENDMENT_2026-10-01.md`.
+
+Where that amendment conflicts with older combat-only wording, the later founder amendment wins. Unrelated Sarhad locks remain active.
+
+Still locked:
+- Captain Rudraa;
+- seven fictional scenic worlds;
+- 105-mission campaign structure unless later explicitly changed;
+- mobile-first one-thumb usability;
+- Environmental + Telescopic playable views;
+- Binocular observation mode;
+- fictional geography, factions and equipment;
+- no real countries, borders, military units, extremist organisations or real weapon models;
+- no gore / graphic injury;
+- local-first PWA, accessibility, privacy, performance and AMIT FINAL gates.
 
 ## Verified current implementation baseline
 
@@ -62,48 +69,50 @@ These are **not** permission to weaken the contract. They define the work ahead.
 
 ## Current reasoning mode
 
-**HIGH** — authority reconciliation, architecture and final-quality vertical-slice planning are cross-system/high-consequence work.
+**HIGH** — the founder has reopened the combat architecture. Armour/health/first-aid, blast protection, multi-wave hostile AI, civilian-protection scoring and long-session pacing require cross-system design and deterministic QA before returning to Medium.
 
 ## Current phase
 
-**PHASE 1 IN PROGRESS — WORLD-1 FINAL-QUALITY VERTICAL SLICE.**
+**PHASE 1 REOPENED — WORLD-1 FINAL-QUALITY VERTICAL SLICE + COMBAT-LAYER AMENDMENT.**
 
-Completed in this phase so far:
-- froze `FX01_WORLD1_VERTICAL_SLICE_CONSTITUTION.md`;
-- made editable Sarhad source authoritative over the historical compressed payload for app code while retaining existing binary assets;
-- removed the brittle generated-source repair layer and moved required runtime fixes into editable source;
-- locked World 1 to **Glacier Reach** without changing deterministic mission geometry;
-- switched World-1 scenic use to the existing frost/glacier production plate;
-- added restrained 2D/2.5D cinematic scene drift with Reduced Motion / low-tier fallback;
-- introduced World-1 glacier atmospheric depth cues;
-- added Captain Rudraa portrait presence in mission briefing;
-- established the approved ~88 BPM World-1 atmospheric pulse inside the frozen 82–94 BPM sonic range;
-- strengthened World-1 environmental activation presentation;
-- wired the in-app Reduced effects setting to visible DOM/canvas presentation;
-- protected WebKit first-paint from the previously documented large-CSS-WebP decode risk;
-- cached Captain Rudraa identity art in the PWA shell;
-- repaired Pause → Settings → return-to-same-active-mission flow;
-- made QA workflow branch-safe and stopped CI from pushing diagnostic commits back onto an actively changing branch;
-- corrected smoke-gate attribution so screenshot-harness stalls are recorded but are not falsely scored as game freezes.
+Completed / committed so far:
+- isolated work on `fx-01-audit1`; production remains untouched;
+- editable Sarhad source made authoritative over the historical compressed payload;
+- brittle generated-source patching removed; runtime fixes moved into editable source;
+- World 1 locked to **Glacier Reach**;
+- original project-created `glacier-reach.svg` and `captain-rudraa.svg` added and registered in the in-progress IP files;
+- 2D/2.5D scenic motion, glacier atmosphere and Rudraa briefing presence added;
+- ~88 BPM World-1 ambient pulse established inside the approved 82–94 BPM range;
+- Reduced Effects wired to visible presentation;
+- Pause → Settings → same active mission repaired;
+- WebKit/Android QA attribution repaired and performance gates isolated from CI contention;
+- the isolated functional + smoke matrix reached a genuine green state before the latest founder feature additions;
+- real built home / briefing / mission screenshots captured in CI and visually inspected;
+- screenshot rough edges identified and chipping begun;
+- Environmental and Telescopic modes made explicit as two playable views sharing one authoritative hit truth;
+- **Binoculars** observation mode implemented: one tap in/out, no firing while active;
+- **10 fictional loadouts** implemented in the briefing rack, including **Field Catapult**;
+- latest founder combat/interaction decisions recorded canonically in `FX01_FOUNDER_COMBAT_AMENDMENT_2026-10-01.md`.
 
-Production gameplay truth remains unchanged.
+Important: the newest binocular / 10-loadout / combat-amendment head has **not yet completed the full regression matrix**. The earlier green run must not be misrepresented as validating these newest changes.
 
 ## Next bounded task
 
-**PHASE 1 — VALIDATE THE CURRENT WORLD-1 SLICE ON THE LATEST HEAD, THEN CLOSE REMAINING SLICE GAPS.**
+**HIGH — reconcile and implement the founder combat amendment without weakening the proven view/aim engine.**
 
-Current QA work in flight:
-1. full Android Chromium + iPhone WebKit functional/smoke matrix on the latest branch head;
-2. explicit Glacier Reach + Rudraa identity assertions;
-3. explicit Reduced effects presentation assertion;
-4. explicit Pause → Settings → same mission regression;
-5. pre-screenshot game FPS gate with screenshot-harness stalls kept as diagnostics.
+Immediate order:
+1. run build + 105-mission validator + Android/WebKit regression on the current binocular/10-loadout head;
+2. lock loadout fairness: presentation/audio/feel may differ, authoritative hit geometry may not;
+3. replace any remaining consumer-visible practice/cardboard feel with live mechanical/world graphics;
+4. strengthen animated civilian crossing and implement a deterministic, clearly visible civilian-hit score penalty;
+5. design/implement Rudraa armour, health, blast protection and first-aid state;
+6. design/implement longer multi-wave missions using fictional hostile operatives only;
+7. add short non-graphic hostile-defeat vocal feedback where appropriate;
+8. regression-test save/progression, Reduced Motion, pause/background fairness, both playable views, Binoculars, all 10 loadouts, civilian safety and combat state;
+9. capture fresh real built screenshots/video evidence;
+10. only then approach the founder Android vertical-slice checkpoint.
 
-After the latest head is green:
-- inspect the actual built vertical slice rather than source-only evidence;
-- verify first-minute flow, activation payoff and home-screen hierarchy;
-- close any remaining World-1 slice defects;
-- only then present the founder Android checkpoint.
+No mass production of Worlds 2–7 until the amended World-1 slice is proven.
 
 ## Founder interruption policy
 
