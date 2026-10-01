@@ -38,3 +38,8 @@ A later decision reopens **only the affected layer**, not the entire product.
 - Do not use old green CI as proof for newer code.
 - Do not mass-produce Worlds 2–7 before the amended World-1 slice is proven.
 - Do not solve failures by weakening features or tests.
+
+
+## Portfolio-wide game-control lock
+
+Every Factory X **game** inherits `FACTORY_X_ONE_THUMB_GAMEPLAY_LAW.md`: all essential gameplay must be completable one-handed with one thumb on mobile. No release-ready game may depend on two-finger gestures or simultaneous multi-touch controls.
