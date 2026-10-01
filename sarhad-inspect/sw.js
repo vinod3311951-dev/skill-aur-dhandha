@@ -1,4 +1,4 @@
-const CACHE = 'sarhad-sniper-shell-v7';
+const CACHE = 'sarhad-sniper-shell-v8';
 const APP_SHELL = [
   '/',
   '/index.html',
