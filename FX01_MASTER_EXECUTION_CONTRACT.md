@@ -73,7 +73,7 @@ That amendment controls:
 - live hostile/civilian combat presentation;
 - Environmental + Telescopic playable views;
 - Binocular observation;
-- 10 fictional loadouts including Field Catapult;
+- 11 fictional loadouts including Field Catapult and fictional Siege Rocket;
 - civilian penalties;
 - armour/health/first aid/blast protection;
 - longer multi-wave fictional-hostile missions;
@@ -154,7 +154,7 @@ No camera/view can create hidden gameplay advantage.
 
 ## 9. Loadouts
 
-Expose ten fictional loadouts, including Field Catapult.
+Expose eleven fictional loadouts, including Field Catapult and a fictional heavy rocket-class Siege Rocket.
 
 Loadout differences may affect:
 - visual silhouette;
@@ -170,6 +170,22 @@ They must not:
 - weaken objectives/hostiles;
 - create paid accuracy advantage;
 - use real firearm models/names.
+
+### Ammo / reload / readiness
+
+Long-form combat is not governed by a tiny global shot cap. Each loadout instead has a deterministic magazine/charge model with visible:
+- ammo/charges;
+- reload countdown/readiness;
+- swap readiness;
+- active loadout;
+- first-aid availability;
+- armour state and armour-recovery availability where implemented.
+
+These states must be understandable at a glance and fully one-thumb operable.
+
+### Loadout audio identity
+
+Every loadout requires a distinct original/licence-clean firing/launch signature. Catapult, rapid, precision, heavy, launcher and rocket-class tools must be audibly distinguishable without copying real-weapon or commercial-media sounds.
 
 ## 10. Combat and protection
 
@@ -378,7 +394,9 @@ Before mass production, World 1 must prove:
 - first-minute onboarding;
 - Environmental + Telescopic play;
 - Binoculars;
-- 10 loadouts including Field Catapult;
+- 11 loadouts including Field Catapult and Siege Rocket;
+- deterministic ammo/reload/swap readiness HUD;
+- distinct per-loadout firing/launch sound identity;
 - live world/combat presentation;
 - civilian protection;
 - armour/health/first aid/blast state;
@@ -401,6 +419,9 @@ At minimum test:
 - mission feasibility;
 - views/binoculars;
 - loadouts/fairness;
+- ammo/reload/swap state;
+- per-loadout firing/launch sound identity;
+- first-aid/armour readiness visibility;
 - hostile/civilian state;
 - civilian penalties;
 - armour/health/first aid/blast;
