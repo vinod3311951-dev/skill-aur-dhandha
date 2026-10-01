@@ -157,6 +157,26 @@ test('Environmental and Telescopic views are both playable and share aim state',
   expect(scopeAim.y).toBeCloseTo(overviewAim.y, 5);
 });
 
+test('Mission 1 coaching stays clear of the Binoculars and view controls on phone layouts', async ({ page }) => {
+  await page.goto(BASE, { waitUntil: 'domcontentloaded' });
+  await page.getByRole('button', { name: /Start Campaign|Continue Campaign/i }).click();
+  await page.getByRole('button', { name: /^Begin$/i }).click();
+
+  const coach = page.locator('#firstMinuteCoach');
+  const tools = page.locator('.view-tools');
+  await expect(coach).toBeVisible();
+  await expect(tools).toBeVisible();
+
+  const coachBox = await coach.boundingBox();
+  const toolsBox = await tools.boundingBox();
+  const fieldBox = await page.locator('#playfield').boundingBox();
+  if (!coachBox || !toolsBox || !fieldBox) throw new Error('Mission 1 presentation boxes missing');
+
+  expect(coachBox.y).toBeGreaterThanOrEqual(toolsBox.y + toolsBox.height + 6);
+  expect(coachBox.x).toBeGreaterThanOrEqual(fieldBox.x);
+  expect(coachBox.x + coachBox.width).toBeLessThanOrEqual(fieldBox.x + fieldBox.width);
+});
+
 test('briefing exposes eleven fictional loadouts including Field Catapult and Siege Rocket', async ({ page }) => {
   await page.goto(BASE, { waitUntil: 'domcontentloaded' });
   await page.getByRole('button', { name: /Start Campaign|Continue Campaign/i }).click();
