@@ -55,3 +55,8 @@ Every Factory X PWA inherits `FACTORY_X_ROOT_CAUSE_AND_WEBKIT_STABILITY_LAW.md`.
 ## Portfolio-wide audio/reward lock
 
 Every Factory X PWA inherits `FACTORY_X_AUDIO_REWARD_CELEBRATION_LAW.md`: genre-specific original/licence-cleared music, copyright provenance, premium celebratory reward feedback, Reduced Motion/no-strobe safety, WebKit audio lifecycle testing, and truthful reward callouts only.
+
+
+## Portfolio-wide internal discovery lock
+
+Every Factory X PWA inherits `FACTORY_X_CROSS_PROMOTION_DISCOVERY_LAW.md`: games may show 1–2 other game PWAs only after the real level/result screen; utilities may show 1–2 other utilities only after a meaningful completed result/task. Primary Next/Retry/utility action remains dominant. No mid-play/full-screen/forced cross-promotion.
