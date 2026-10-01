@@ -31,6 +31,20 @@ let lastMissionWasPersonalBest = false;
 let lastMissionPreviousBest = 0;
 let civilianHits = 0;
 let viewMode = 'scope';
+let binocularsActive = false;
+let selectedLoadoutId = 'vector-needle';
+const LOADOUTS = [
+    { id: 'vector-needle', name: 'Vector Needle', family: 'precision', tone: 650, duration: .10, wave: 'sine' },
+    { id: 'pulse-carbine', name: 'Pulse Carbine', family: 'rapid', tone: 730, duration: .075, wave: 'sine' },
+    { id: 'twin-relay', name: 'Twin Relay', family: 'rapid', tone: 790, duration: .082, wave: 'triangle' },
+    { id: 'arc-driver', name: 'Arc Driver', family: 'precision', tone: 590, duration: .11, wave: 'triangle' },
+    { id: 'slate-heavy', name: 'Slate Heavy', family: 'heavy', tone: 350, duration: .14, wave: 'square' },
+    { id: 'echo-repeater', name: 'Echo Repeater', family: 'rapid', tone: 700, duration: .09, wave: 'sine' },
+    { id: 'beacon-launcher', name: 'Beacon Launcher', family: 'launcher', tone: 270, duration: .17, wave: 'triangle' },
+    { id: 'prism-rifle', name: 'Prism Rifle', family: 'precision', tone: 620, duration: .105, wave: 'sine' },
+    { id: 'rail-dart', name: 'Rail Dart', family: 'heavy', tone: 410, duration: .12, wave: 'square' },
+    { id: 'field-catapult', name: 'Field Catapult', family: 'catapult', tone: 220, duration: .19, wave: 'triangle' }
+];
 let missionStatusCache = '';
 let settingsReturnToMission = false;
 let settingsMissionElapsedMs = 0;
@@ -352,14 +366,23 @@ function mechanicLabel(mission) {
     };
     return labels[mission.kind];
 }
+function recommendedLoadoutForMission(mission) {
+    const family = mission.weaponClass;
+    return LOADOUTS.find((item) => item.family === family) ?? LOADOUTS[0];
+}
+function selectedLoadout() {
+    return LOADOUTS.find((item) => item.id === selectedLoadoutId) ?? recommendedLoadoutForMission(selectedMission);
+}
 function weaponLabel(mission) {
-    const labels = {
-        precision: 'Precision class',
-        rapid: 'Rapid class',
-        heavy: 'Heavy class',
-        launcher: 'Launcher class'
-    };
-    return labels[mission.weaponClass];
+    const recommended = recommendedLoadoutForMission(mission);
+    return recommended.name;
+}
+function renderLoadoutRack() {
+    return `<div class="loadout-rack" aria-label="Choose fictional loadout">
+      ${LOADOUTS.map((item) => `<button class="loadout-choice ${item.id === selectedLoadoutId ? 'active' : ''}" data-loadout-id="${item.id}" aria-pressed="${item.id === selectedLoadoutId}">
+        <span>${item.name}</span><small>${item.id === 'field-catapult' ? 'CATAPULT' : item.family.toUpperCase()}</small>
+      </button>`).join('')}
+    </div>`;
 }
 function worldFieldNote(world) {
     const notes = {
@@ -402,9 +425,11 @@ function renderBriefing() {
       <div class="brief-grid four">
         <div><span>Mission</span><strong>${mechanicLabel(selectedMission)}</strong></div>
         <div><span>Attempts</span><strong>${selectedMission.maxAttempts}</strong></div>
-        <div><span>Loadout</span><strong>${weaponLabel(selectedMission)}</strong></div>
-        <div><span>Input</span><strong>Drag + Fire</strong></div>
+        <div><span>Recommended</span><strong>${weaponLabel(selectedMission)}</strong></div>
+        <div><span>Scout</span><strong>Binoculars</strong></div>
       </div>
+      <p class="loadout-help">Choose any fictional loadout. Style, sound and impact feel change — mission hitboxes do not.</p>
+      ${renderLoadoutRack()}
       ${button('Begin', 'start')}
     </section>`);
     bindActions();
@@ -443,7 +468,7 @@ function renderSettings(returnToMission = false) {
         ${button(isStandaloneDisplay() ? 'Installed' : 'Install', 'install', 'secondary', isStandaloneDisplay())}
       </div>
       <div class="settings-info" aria-label="How to play and privacy">
-        <div><span>HOW TO PLAY</span><strong>Drag to aim • switch Scope / Overview • FIRE only when the objective is clear.</strong><small>Pause is always available. Mission information never depends on sound, colour or motion alone.</small></div>
+        <div><span>HOW TO PLAY</span><strong>Drag to aim • Environmental / Telescope are playable • Binoculars scout the scene • FIRE only when the objective is clear.</strong><small>Pause is always available. Mission information never depends on sound, colour or motion alone.</small></div>
         <div><span>PRIVACY</span><strong>Local-first. No account or sensitive device permissions required.</strong><small>Progress and settings stay in this browser unless the browser clears local storage.</small></div>
       </div>
       <div class="reset-card" aria-label="Reset local progress">
@@ -566,16 +591,20 @@ function renderMission() {
         <div><span>Attempts</span><strong id="attempts">${attemptsLeft}</strong></div>
         <div><span>Score</span><strong id="missionScore">${missionScore}</strong></div>
       </div>
-      <div class="loadout-strip"><span>Fictional loadout</span><strong>${weaponLabel(selectedMission)}</strong>${selectedMission.kind === 'protection' ? '<em>Civilian hits <b id="civilianHits">0</b></em>' : ''}</div>
+      <div class="loadout-strip"><span>Fictional loadout</span><strong id="activeLoadout">${selectedLoadout().name}</strong>${selectedMission.kind === 'protection' ? '<em>Civilian hits <b id="civilianHits">0</b></em>' : ''}</div>
       <div class="mission-status" id="missionStatus" role="status" aria-live="polite">${missionStatusText(0)}</div>
       <div class="playfield ${viewMode === 'scope' ? 'scope-view' : 'overview-view'}" id="playfield" data-view="${viewMode}">
         <canvas id="scene" aria-label="Precision mission play area with playable telescopic and environmental views"></canvas>
         <div class="scope-mask" aria-hidden="true"></div>
         <div class="scope-glass" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+        <div class="binocular-mask" id="binocularMask" aria-hidden="true"><i></i></div>
         <div class="reticle" id="reticle" aria-hidden="true"></div>
         <div class="impact-layer" id="impactLayer" aria-hidden="true"></div>
-        <button class="view-toggle" id="viewToggle" data-action="viewToggle" aria-pressed="${viewMode === 'overview'}" aria-label="Switch to ${viewMode === 'scope' ? 'environmental' : 'telescopic'} view">${viewMode === 'scope' ? 'ENVIRONMENT' : 'TELESCOPE'}</button>
-        ${selectedMission.id === 'w1-m1-relay-core' && !save.completedMissionIds.includes(selectedMission.id) ? '<div class="first-minute-coach" id="firstMinuteCoach" role="status"><strong>DRAG TO AIM</strong><span>Environmental view is one tap away • FIRE when the sight is settled</span></div>' : ''}
+        <div class="view-tools" aria-label="View tools">
+          <button class="binocular-toggle" id="binocularToggle" data-action="binoculars" aria-pressed="${binocularsActive}" aria-label="${binocularsActive ? 'Exit binoculars' : 'Use binoculars'}">${binocularsActive ? 'BACK TO AIM' : 'BINOCULARS'}</button>
+          <button class="view-toggle" id="viewToggle" data-action="viewToggle" aria-pressed="${viewMode === 'overview'}" aria-label="Switch to ${viewMode === 'scope' ? 'environmental' : 'telescopic'} view">${viewMode === 'scope' ? 'ENVIRONMENT' : 'TELESCOPE'}</button>
+        </div>
+        ${selectedMission.id === 'w1-m1-relay-core' && !save.completedMissionIds.includes(selectedMission.id) ? '<div class="first-minute-coach" id="firstMinuteCoach" role="status"><strong>DRAG TO AIM</strong><span>Use Binoculars to scout • switch views anytime • FIRE when the sight is settled</span></div>' : ''}
         <div class="hint" id="hint">${initialHint()}</div>
         <div class="pause-layer" id="pauseLayer" hidden>
           <p class="eyebrow">PAUSED</p><h2>Mission held.</h2>${button('Resume', 'resume')}${button('Settings', 'missionSettings', 'secondary')}${button('Missions', 'missionSelect', 'secondary')}
@@ -779,6 +808,25 @@ function toggleViewMode() {
         toggle.setAttribute('aria-label', `Switch to ${viewMode === 'scope' ? 'environmental' : 'telescopic'} view`);
     }
 }
+function toggleBinoculars() {
+    if (screen !== 'mission' || paused || missionEnded)
+        return;
+    binocularsActive = !binocularsActive;
+    const playfield = document.querySelector('#playfield');
+    const button = document.querySelector('#binocularToggle');
+    if (playfield)
+        playfield.classList.toggle('binocular-view', binocularsActive);
+    if (button) {
+        button.textContent = binocularsActive ? 'BACK TO AIM' : 'BINOCULARS';
+        button.setAttribute('aria-pressed', String(binocularsActive));
+        button.setAttribute('aria-label', binocularsActive ? 'Exit binoculars' : 'Use binoculars');
+    }
+    const hint = document.querySelector('#hint');
+    if (hint)
+        hint.textContent = binocularsActive
+            ? 'Observation mode — scan the environment, then return to aim.'
+            : initialHint();
+}
 function visualPerformanceTier() {
     const nav = navigator;
     const lowMemory = typeof nav.deviceMemory === 'number' && nav.deviceMemory <= 4;
@@ -816,7 +864,13 @@ function drawLoop() {
     updateMissionStatus(elapsed);
     const world = worldById(selectedMission.worldId);
     ctx.save();
-    if (viewMode === 'scope') {
+    if (binocularsActive) {
+        const binocularZoom = 1.28;
+        ctx.translate(w * 0.5, h * 0.5);
+        ctx.scale(binocularZoom, binocularZoom);
+        ctx.translate(-aimX * w, -aimY * h);
+    }
+    else if (viewMode === 'scope') {
         ctx.translate(w * 0.5, h * 0.5);
         ctx.scale(SCOPE_ZOOM, SCOPE_ZOOM);
         ctx.translate(-aimX * w, -aimY * h);
@@ -1779,6 +1833,12 @@ function drawProtectionTimer(ctx, w, total, elapsed) {
 function fire() {
     if (screen !== 'mission' || paused || missionEnded || attemptsLeft <= 0)
         return;
+    if (binocularsActive) {
+        const hint = document.querySelector('#hint');
+        if (hint)
+            hint.textContent = 'Binoculars are for observation. Tap BACK TO AIM before firing.';
+        return;
+    }
     const elapsed = currentElapsed();
     noteShot();
     if (selectedMission.kind === 'protection' && selectedMission.protectedFigures) {
@@ -1900,6 +1960,7 @@ function startMission() {
     civilianHits = 0;
     sequenceIndex = 0;
     viewMode = 'scope';
+    binocularsActive = false;
     missionEnded = false;
     beginMissionDiagnostics(selectedMission.id);
     renderMission();
@@ -1965,7 +2026,8 @@ function showImpactFeedback(success) {
     if (!layer)
         return;
     const pulse = document.createElement('span');
-    pulse.className = `impact-pulse ${success ? 'hit' : 'miss'} weapon-${selectedMission.weaponClass}${effectsReduced() ? ' reduced' : ''}`;
+    const loadout = selectedLoadout();
+    pulse.className = `impact-pulse ${success ? 'hit' : 'miss'} weapon-${loadout.family}${effectsReduced() ? ' reduced' : ''}`;
     pulse.style.left = `${aimX * 100}%`;
     pulse.style.top = `${aimY * 100}%`;
     layer.appendChild(pulse);
@@ -2070,10 +2132,11 @@ function feedback(success) {
             return;
         const oscillator = context.createOscillator();
         const gain = context.createGain();
-        const loadoutTone = { precision: 640, rapid: 720, heavy: 360, launcher: 250 }[selectedMission.weaponClass];
-        const duration = { precision: 0.10, rapid: 0.075, heavy: 0.13, launcher: 0.17 }[selectedMission.weaponClass];
-        oscillator.type = selectedMission.weaponClass === 'launcher' ? 'triangle' : selectedMission.weaponClass === 'heavy' ? 'square' : 'sine';
-        oscillator.frequency.value = success ? loadoutTone : Math.max(150, loadoutTone * 0.42);
+        const loadout = selectedLoadout();
+        const loadoutTone = loadout.tone;
+        const duration = loadout.duration;
+        oscillator.type = loadout.wave;
+        oscillator.frequency.value = success ? loadoutTone : Math.max(140, loadoutTone * 0.42);
         gain.gain.setValueAtTime(0.0001, context.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.045, context.currentTime + 0.008);
         gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + duration);
@@ -2140,6 +2203,8 @@ function bindActions() {
                 pauseMission();
             else if (action === 'viewToggle')
                 toggleViewMode();
+            else if (action === 'binoculars')
+                toggleBinoculars();
             else if (action === 'resume')
                 resumeMission();
             else if (action === 'next')
@@ -2160,6 +2225,19 @@ function bindActions() {
                 cancelReset();
             else if (action === 'resetConfirm')
                 confirmReset();
+        });
+    });
+    document.querySelectorAll('[data-loadout-id]').forEach((element) => {
+        element.addEventListener('click', () => {
+            const id = element.dataset.loadoutId ?? '';
+            if (!LOADOUTS.some((item) => item.id === id))
+                return;
+            selectedLoadoutId = id;
+            document.querySelectorAll('[data-loadout-id]').forEach((button) => {
+                const active = button.dataset.loadoutId === selectedLoadoutId;
+                button.classList.toggle('active', active);
+                button.setAttribute('aria-pressed', String(active));
+            });
         });
     });
     document.querySelectorAll('[data-setting]').forEach((element) => {
