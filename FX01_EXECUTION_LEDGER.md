@@ -66,20 +66,44 @@ These are **not** permission to weaken the contract. They define the work ahead.
 
 ## Current phase
 
-**PHASE 0 COMPLETE — BASELINE RECOVERED.**  
-No production gameplay truth has been changed.
+**PHASE 1 IN PROGRESS — WORLD-1 FINAL-QUALITY VERTICAL SLICE.**
+
+Completed in this phase so far:
+- froze `FX01_WORLD1_VERTICAL_SLICE_CONSTITUTION.md`;
+- made editable Sarhad source authoritative over the historical compressed payload for app code while retaining existing binary assets;
+- removed the brittle generated-source repair layer and moved required runtime fixes into editable source;
+- locked World 1 to **Glacier Reach** without changing deterministic mission geometry;
+- switched World-1 scenic use to the existing frost/glacier production plate;
+- added restrained 2D/2.5D cinematic scene drift with Reduced Motion / low-tier fallback;
+- introduced World-1 glacier atmospheric depth cues;
+- added Captain Rudraa portrait presence in mission briefing;
+- established the approved ~88 BPM World-1 atmospheric pulse inside the frozen 82–94 BPM sonic range;
+- strengthened World-1 environmental activation presentation;
+- wired the in-app Reduced effects setting to visible DOM/canvas presentation;
+- protected WebKit first-paint from the previously documented large-CSS-WebP decode risk;
+- cached Captain Rudraa identity art in the PWA shell;
+- repaired Pause → Settings → return-to-same-active-mission flow;
+- made QA workflow branch-safe and stopped CI from pushing diagnostic commits back onto an actively changing branch;
+- corrected smoke-gate attribution so screenshot-harness stalls are recorded but are not falsely scored as game freezes.
+
+Production gameplay truth remains unchanged.
 
 ## Next bounded task
 
-**PHASE 1 — Final-quality World-1 vertical-slice constitution and delta plan.**
+**PHASE 1 — VALIDATE THE CURRENT WORLD-1 SLICE ON THE LATEST HEAD, THEN CLOSE REMAINING SLICE GAPS.**
 
-Before editing art/gameplay systems:
-1. reconcile the newer approved world/hero/audio presentation with the existing implementation;
-2. freeze the exact World-1 visual/audio/animation/home-screen contract;
-3. identify the minimum safe source files and asset pipeline changes;
-4. preserve mission fairness and existing deterministic engine;
-5. create the implementation task box and test acceptance criteria;
-6. then implement, test, repair and regression-check on this isolated branch.
+Current QA work in flight:
+1. full Android Chromium + iPhone WebKit functional/smoke matrix on the latest branch head;
+2. explicit Glacier Reach + Rudraa identity assertions;
+3. explicit Reduced effects presentation assertion;
+4. explicit Pause → Settings → same mission regression;
+5. pre-screenshot game FPS gate with screenshot-harness stalls kept as diagnostics.
+
+After the latest head is green:
+- inspect the actual built vertical slice rather than source-only evidence;
+- verify first-minute flow, activation payoff and home-screen hierarchy;
+- close any remaining World-1 slice defects;
+- only then present the founder Android checkpoint.
 
 ## Founder interruption policy
 
