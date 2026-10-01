@@ -8,6 +8,7 @@
 2. `FACTORY_X_ONE_THUMB_GAMEPLAY_LAW.md` — mandatory for every Factory X game.
 3. `FACTORY_X_ROOT_CAUSE_AND_WEBKIT_STABILITY_LAW.md` — mandatory before repeated debugging or heavy-media approval on every Factory X PWA.
 4. `FACTORY_X_AUDIO_REWARD_CELEBRATION_LAW.md` — mandatory genre-specific copyright-safe music/SFX and reward-celebration standard.
+5. `FACTORY_X_CROSS_PROMOTION_DISCOVERY_LAW.md` — compact first-party discovery after genuine results; never mid-task.
 5. `FX01_MASTER_EXECUTION_CONTRACT.md`.
 6. `FX01_FOUNDER_COMBAT_AMENDMENT_2026-10-01.md`.
 7. `FX01_AMMO_AUDIO_READINESS_ADDENDUM_2026-10-01.md` — latest Sarhad loadout/ammo/audio/readiness authority.
