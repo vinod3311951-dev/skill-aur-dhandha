@@ -2,7 +2,7 @@ name: Sarhad FX-23 Functional QA
 
 on:
   push:
-    branches: [sarhad-sniper-deploy]
+    branches: [sarhad-sniper-deploy, fx-01-audit1]
     paths:
       - "build.mjs"
       - "qa/fx23-functional.spec.js"
@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: sarhad-sniper-deploy
+          ref: ${{ github.ref_name }}
       - uses: actions/setup-node@v4
         with:
           node-version: 20
