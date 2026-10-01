@@ -7,6 +7,7 @@ export function createCombatState(profile) {
         health: clamp(profile.initialHealth ?? 100, 1, 100),
         armor: clamp(profile.initialArmor ?? 0, 0, 100),
         firstAidKits: Math.max(0, Math.trunc(profile.firstAidKits ?? 0)),
+        armorPlates: Math.max(0, Math.trunc(profile.armorPlates ?? 0)),
         currentWaveIndex: 0,
         defeatedHostileIds: [],
         wavesCleared: false,
@@ -45,6 +46,16 @@ export function useFirstAid(profile, state) {
         ...state,
         health: clamp(state.health + Math.max(0, profile.firstAidRestore ?? 0), 0, 100),
         firstAidKits: state.firstAidKits - 1
+    };
+}
+
+export function useArmorPlate(profile, state) {
+    if (state.down || state.armorPlates <= 0 || state.armor >= 100)
+        return state;
+    return {
+        ...state,
+        armor: clamp(state.armor + Math.max(0, profile.armorRestore ?? 0), 0, 100),
+        armorPlates: state.armorPlates - 1
     };
 }
 
