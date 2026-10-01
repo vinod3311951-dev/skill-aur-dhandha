@@ -186,6 +186,48 @@ Root cause: moving-target position was sampled once for QA aim and again millise
 
 Repair: the fairness regression now compares both loadouts against an atomic target/aim snapshot through a verification-only helper. No gameplay threshold or fairness rule was weakened.
 
+## Certified live-combat integration — 2026-10-01
+
+**Certified runtime head:** `247aaba5b25484b42cef9ecc23675d4de977f48e`  
+**GitHub Actions run:** `36879939075` — **SUCCESS**
+
+Live Sarhad now includes:
+- all 7 worlds + all 105 missions open from first launch;
+- 11 fictional loadouts including Field Catapult + Siege Rocket;
+- finite per-loadout ammo/charges with visible countdown;
+- deterministic reload + swap readiness;
+- distinct synthesized firing/launch profile for all 11 loadouts;
+- one-thumb Reload / Swap / First Aid / Armour controls;
+- Rudraa health + armour + first-aid + armour-plate state;
+- deterministic multi-wave protection combat with live fictional hostile targets;
+- civilians remain protected with visible score penalty on civilian hit;
+- carrier becomes the final objective after hostile waves;
+- Telescopic / Environmental / Binocular views remain available;
+- open-access progress truth preserved: worlds/levels are open, while mastery/postcards require actual completion;
+- cross-promotion remains **deferred** until the other production PWA URLs are ready and verified.
+
+Complete automated evidence:
+- mission/config validation: PASS;
+- combat-state validation: PASS across **14 combat profiles**;
+- loadout-state validation: PASS across **11 loadouts**;
+- Android Chromium + iPhone/WebKit functional matrix: **34/34 PASS**;
+- Android smoke repeat: **2/2 PASS**;
+- iPhone/WebKit smoke repeat: **2/2 PASS**;
+- World-1 visual slice capture: **1/1 PASS**;
+- full workflow: **SUCCESS**.
+
+Artifacts:
+- `sarhad-public-build` — artifact `11171156677`;
+- `fx01-qa-log` — artifact `11170582789`;
+- `fx01-visual-slice` — artifact `11170174579`.
+
+CI infrastructure root-cause repair:
+- one prior run hung unusually during combined Playwright installation;
+- workflow now separates QA dependency install, browser-cache restore, OS dependency install and browser install;
+- installation steps are bounded by timeouts;
+- obsolete branch runs continue to cancel via concurrency;
+- the repaired workflow completed successfully.
+
 ## Next bounded task
 
 1. Wait for browser certification of open-access head `747a77f29dff70fbae8616a039ec94acc06b075b`.
