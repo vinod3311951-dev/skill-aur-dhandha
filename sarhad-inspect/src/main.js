@@ -163,13 +163,17 @@ function renderHome() {
     scheduleHomeScene();
 }
 function scheduleHomeScene() {
-    requestAnimationFrame(() => requestAnimationFrame(() => {
+    const apply = () => requestAnimationFrame(() => requestAnimationFrame(() => {
         const homeCard = document.querySelector('.home-card');
         if (!homeCard || screen !== 'home')
             return;
         homeCard.style.setProperty('--home-scene', "url('/assets/worlds/frost-ridge.webp')");
         homeCard.classList.add('scene-ready');
     }));
+    if (document.readyState === 'complete')
+        apply();
+    else
+        window.addEventListener('load', apply, { once: true });
 }
 function worldUnlocked(worldId) {
     if (FX23_VERIFICATION_MODE)
@@ -1039,11 +1043,42 @@ function drawMissionAtmosphere(ctx, w, h, world, visualBand, elapsed) {
         ctx.strokeStyle = `rgba(245,253,255,${.1 + visualBand * .02})`;
         ctx.lineWidth = 1;
         for (let i = 0; i < density; i += 1) {
-            const x = ((i * 61 + selectedMission.order * 31) % 100) / 100 * w;
+            const xBase = ((i * 61 + selectedMission.order * 31) % 100) / 100 * w;
+            const drift = reduced ? 0 : ((elapsed * (0.004 + i * 0.0004)) % (w * .06));
+            const x = (xBase + drift) % w;
             ctx.beginPath();
-            ctx.moveTo(x, h * .18);
-            ctx.lineTo(x + w * .04, h * .28);
+            ctx.moveTo(x, h * .14);
+            ctx.lineTo(x + w * .035, h * .24);
             ctx.stroke();
+        }
+        // World-1 depth planes: decorative cloud/ice framing only.
+        if (world.id === 1) {
+            const cloudShift = reduced ? 0 : Math.sin(elapsed / 6800) * w * .018;
+            const cloud = ctx.createLinearGradient(0, h * .08, 0, h * .34);
+            cloud.addColorStop(0, 'rgba(226,244,249,.09)');
+            cloud.addColorStop(1, 'rgba(226,244,249,0)');
+            ctx.fillStyle = cloud;
+            ctx.beginPath();
+            ctx.ellipse(w * .24 + cloudShift, h * .16, w * .22, h * .065, 0, 0, Math.PI * 2);
+            ctx.ellipse(w * .68 - cloudShift * .6, h * .20, w * .26, h * .075, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            const edge = ctx.createLinearGradient(0, h * .78, 0, h);
+            edge.addColorStop(0, 'rgba(9,27,34,0)');
+            edge.addColorStop(1, 'rgba(5,18,24,.34)');
+            ctx.fillStyle = edge;
+            ctx.beginPath();
+            ctx.moveTo(0, h);
+            ctx.lineTo(0, h * .91);
+            ctx.lineTo(w * .12, h * .86);
+            ctx.lineTo(w * .28, h * .94);
+            ctx.lineTo(w * .48, h * .88);
+            ctx.lineTo(w * .66, h * .95);
+            ctx.lineTo(w * .84, h * .89);
+            ctx.lineTo(w, h * .93);
+            ctx.lineTo(w, h);
+            ctx.closePath();
+            ctx.fill();
         }
     }
     else if (world.scenery === 'monsoon') {
@@ -1858,7 +1893,7 @@ function showEnvironmentActivation() {
         return;
     const world = worldById(selectedMission.worldId);
     const activation = document.createElement('div');
-    activation.className = `environment-activation${effectsReduced() ? ' reduced' : ''}`;
+    activation.className = `environment-activation world-${world.id}${effectsReduced() ? ' reduced' : ''}`;
     activation.style.setProperty('--activation-light', world.palette[0]);
     activation.style.setProperty('--activation-mid', world.palette[1]);
     activation.setAttribute('aria-hidden', 'true');
