@@ -708,15 +708,28 @@ function currentTarget(elapsedMs) {
 function renderMission() {
     screen = 'mission';
     const world = worldById(selectedMission.worldId);
+    const combatMode = Boolean(selectedMission.combatProfile && combatState);
+    const ready = loadoutReadiness(loadoutState, 0);
     app.innerHTML = shell(`
     <section class="mission-wrap" style="--c1:${world.palette[0]};--c2:${world.palette[1]};--c3:${world.palette[2]}">
       <div class="mission-worldline"><span>WORLD ${world.id}</span><strong>${world.name}</strong><em>${mechanicLabel(selectedMission)}</em></div>
       <div class="mission-hud">
         <div><span>Mission</span><strong>${selectedMission.order}/15</strong></div>
-        <div><span>Attempts</span><strong id="attempts">${attemptsLeft}</strong></div>
+        <div><span>${combatMode ? 'Shots' : 'Attempts'}</span><strong id="attempts">${combatMode ? '∞' : attemptsLeft}</strong></div>
         <div><span>Score</span><strong id="missionScore">${missionScore}</strong></div>
       </div>
-      <div class="loadout-strip"><span>Fictional loadout</span><strong id="activeLoadout">${selectedLoadout().name}</strong>${selectedMission.kind === 'protection' ? `<em>Protected civilians • hits <b id="civilianHits">0</b> • −${CIVILIAN_HIT_PENALTY}/hit</em>` : ''}</div>
+      <div class="loadout-strip"><span>Fictional loadout</span><strong id="activeLoadout">${ready.definition.name}</strong>${selectedMission.kind === 'protection' ? `<em>Protected civilians • hits <b id="civilianHits">${civilianHits}</b> • −${CIVILIAN_HIT_PENALTY}/hit</em>` : ''}</div>
+      <div class="readiness-strip" id="readinessStrip" aria-label="Loadout readiness">
+        <div><span>AMMO</span><strong id="ammoCount">${ready.ammo}/${ready.capacity}</strong></div>
+        <div><span>RELOAD</span><strong id="reloadState">${ready.reloading ? '...' : ready.canReload ? 'READY' : 'FULL'}</strong></div>
+        <div><span>SWAP</span><strong id="swapState">${ready.canSwap ? 'READY' : 'WAIT'}</strong></div>
+        ${combatMode ? `<div><span>FIRST AID</span><strong id="aidState">${combatState.firstAidKits}</strong></div><div><span>ARMOUR PLATE</span><strong id="plateState">${combatState.armorPlates}</strong></div>` : ''}
+      </div>
+      ${combatMode ? `<div class="combat-hud" id="combatHud" aria-label="Rudraa combat status">
+        <div><span>HEALTH</span><strong id="combatHealth">${Math.round(combatState.health)}</strong><i><b id="combatHealthBar" style="--meter:${combatState.health}%"></b></i></div>
+        <div><span>ARMOUR</span><strong id="combatArmor">${Math.round(combatState.armor)}</strong><i><b id="combatArmorBar" style="--meter:${combatState.armor}%"></b></i></div>
+        <div><span>WAVE</span><strong id="combatWave">${combatProgress(selectedMission.combatProfile, combatState).wave}/${combatProgress(selectedMission.combatProfile, combatState).totalWaves}</strong></div>
+      </div>` : ''}
       <div class="mission-status" id="missionStatus" role="status" aria-live="polite">${missionStatusText(0)}</div>
       <div class="playfield ${viewMode === 'scope' ? 'scope-view' : 'overview-view'}" id="playfield" data-view="${viewMode}">
         <canvas id="scene" aria-label="Precision mission play area with playable telescopic and environmental views"></canvas>
@@ -735,18 +748,29 @@ function renderMission() {
           <p class="eyebrow">PAUSED</p><h2>Mission held.</h2>${button('Resume', 'resume')}${button('Settings', 'missionSettings', 'secondary')}${button('Missions', 'missionSelect', 'secondary')}
         </div>
       </div>
-      <div class="mission-controls">
-        <button class="btn secondary" data-action="pause">Pause</button>
+      <div class="mission-controls ${combatMode ? 'combat-controls' : ''}">
+        <button class="btn secondary compact" data-action="pause">Pause</button>
+        <button class="btn secondary compact" data-action="reload">Reload</button>
+        <button class="btn secondary compact" data-action="swap">Swap</button>
+        ${combatMode ? `<button class="btn aid compact" id="firstAidButton" data-action="firstAid">Aid ×${combatState.firstAidKits}</button><button class="btn armour compact" id="armorButton" data-action="armorPlate">Armour ×${combatState.armorPlates}</button>` : ''}
         <button class="btn fire" data-action="fire">FIRE</button>
       </div>
     </section>`, false);
     bindActions();
     setupPlayfield();
+    updateLoadoutHud(0);
+    updateCombatHud();
 }
 function missionStatusText(elapsedMs) {
     if (selectedMission.kind === 'sequence' && selectedMission.sequence) {
         const current = Math.min(sequenceIndex + 1, selectedMission.sequence.length);
         return `SEQUENCE • NODE ${current}/${selectedMission.sequence.length}`;
+    }
+    if (selectedMission.combatProfile && combatState) {
+        const progress = combatProgress(selectedMission.combatProfile, combatState);
+        if (progress.wavesCleared)
+            return 'CARRIER EXPOSED • DISABLE DEVICE';
+        return `PROTECT CIVILIANS • WAVE ${progress.wave}/${progress.totalWaves} • ${activeCombatHostiles(selectedMission.combatProfile, combatState).length} HOSTILES`;
     }
     if (selectedMission.kind === 'protection' && selectedMission.threatMs) {
         const seconds = Math.max(0, (selectedMission.threatMs - elapsedMs) / 1000);
@@ -780,6 +804,8 @@ function initialHint() {
         return selectedMission.objective;
     if (selectedMission.kind === 'ricochet')
         return 'Aim at the marked rebound surface.';
+    if (selectedMission.combatProfile)
+        return 'Clear each hostile wave, protect civilians, manage armour, then disable the carrier.';
     if (selectedMission.kind === 'protection')
         return 'Disable the carrier device. Do not hit civilians.';
     if (selectedMission.kind === 'disablement')
