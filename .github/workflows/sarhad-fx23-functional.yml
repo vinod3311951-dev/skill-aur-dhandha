@@ -50,6 +50,19 @@ jobs:
           npx playwright test tests/fx23-functional.spec.js --project=local-android-chrome --project=local-iphone-webkit --workers=2 --reporter=line 2>&1 | tee ../FX01_QA_LOG.txt
           npx playwright test tests/smoke.spec.js --project=local-android-chrome --workers=1 --repeat-each=2 --reporter=line 2>&1 | tee -a ../FX01_QA_LOG.txt
           npx playwright test tests/smoke.spec.js --project=local-iphone-webkit --workers=1 --repeat-each=2 --reporter=line 2>&1 | tee -a ../FX01_QA_LOG.txt
+      - name: Capture built World-1 visual slice
+        working-directory: qa
+        env:
+          GAME_URL: http://127.0.0.1:4173
+        run: npx playwright test tests/visual-slice.spec.js --project=local-android-chrome --workers=1 --reporter=line
+      - name: Upload FX-01 visual slice
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fx01-visual-slice
+          path: qa/test-results/**/fx01-*.png
+          if-no-files-found: error
+          retention-days: 7
       - name: Upload FX-01 QA diagnostic log
         if: always()
         uses: actions/upload-artifact@v4
