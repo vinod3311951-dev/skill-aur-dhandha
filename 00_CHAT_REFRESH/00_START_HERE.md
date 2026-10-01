@@ -10,10 +10,11 @@
 4. `FACTORY_X_AUDIO_REWARD_CELEBRATION_LAW.md` — mandatory genre-specific copyright-safe music/SFX and reward-celebration standard.
 5. `FX01_MASTER_EXECUTION_CONTRACT.md`.
 6. `FX01_FOUNDER_COMBAT_AMENDMENT_2026-10-01.md`.
-7. `FX01_WORLD1_VERTICAL_SLICE_CONSTITUTION.md`.
-8. `FX01_EXECUTION_LEDGER.md`.
-9. `00_CHAT_REFRESH/03_CURRENT_WORK.md`.
-10. Actual `fx-01-audit1` repository head + current CI evidence.
+7. `FX01_AMMO_AUDIO_READINESS_ADDENDUM_2026-10-01.md` — latest Sarhad loadout/ammo/audio/readiness authority.
+8. `FX01_WORLD1_VERTICAL_SLICE_CONSTITUTION.md`.
+9. `FX01_EXECUTION_LEDGER.md`.
+10. `00_CHAT_REFRESH/03_CURRENT_WORK.md`.
+11. Actual `fx-01-audit1` repository head + current CI evidence.
 
 ## Authority law
 
