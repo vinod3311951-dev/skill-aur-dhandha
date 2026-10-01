@@ -43,3 +43,8 @@ A later decision reopens **only the affected layer**, not the entire product.
 ## Portfolio-wide game-control lock
 
 Every Factory X **game** inherits `FACTORY_X_ONE_THUMB_GAMEPLAY_LAW.md`: all essential gameplay must be completable one-handed with one thumb on mobile. No release-ready game may depend on two-finger gestures or simultaneous multi-touch controls.
+
+
+## Portfolio-wide pre-edit stability lock
+
+Every Factory X PWA inherits `FACTORY_X_ROOT_CAUSE_AND_WEBKIT_STABILITY_LAW.md`. Research repeated failures and reverse-risk Apple/WebKit/media stability **before** another legacy HTML/CSS/JS/service-worker/asset edit.
