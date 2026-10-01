@@ -46,6 +46,11 @@ const worldSceneImages = new Map();
 let deferredInstallPrompt = null;
 let resetArmed = false;
 const FX23_VERIFICATION_MODE = new URLSearchParams(location.search).get('fx23') === '1';
+function syncReducedEffectsPresentation() {
+    const reduced = save.settings.reducedEffects || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    document.documentElement.dataset.reducedEffects = reduced ? 'true' : 'false';
+}
+syncReducedEffectsPresentation();
 Object.defineProperty(window, '__SARHAD_DIAGNOSTICS__', {
     configurable: false,
     enumerable: false,
@@ -440,6 +445,7 @@ function toggleSetting(key) {
         settings.reducedEffects = !settings.reducedEffects;
     save = { ...save, settings };
     saveProgress(save);
+    syncReducedEffectsPresentation();
     renderSettings();
 }
 function armReset() {
@@ -453,6 +459,7 @@ function cancelReset() {
 function confirmReset() {
     stopMissionLoop();
     save = resetProgress();
+    syncReducedEffectsPresentation();
     selectedWorldId = 1;
     selectedMission = MISSIONS[0];
     attemptsLeft = selectedMission.maxAttempts;
