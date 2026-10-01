@@ -1,7 +1,7 @@
 # FX-01 — World 1 Final-Quality Vertical Slice Constitution
 
 **Status:** FROZEN FOR THE FX-01 AUDIT-1 BUILD  
-**Authority:** FX-01 master execution contract + authoritative enhanced Sarhad blueprint  
+**Authority:** FX-01 master execution contract + authoritative enhanced Sarhad blueprint + later founder amendment `FX01_FOUNDER_COMBAT_AMENDMENT_2026-10-01.md`  
 **Scope:** prove the production language before scaling art/audio treatment across all seven worlds.
 
 ## Product signature
@@ -16,8 +16,9 @@ beautiful fictional landscape → small mechanical objective → stable one-thum
 **Name:** Glacier Reach  
 **Visual role:** first-contact world and quality bar for the entire product.  
 **Palette:** glacier cyan / pale ice / deep slate.  
-**Existing binary scenic plate used during the vertical slice:** `/assets/worlds/frost-ridge.webp`.  
-**Reason:** the existing scene library is retained while production presentation is upgraded; gameplay truth is unchanged.
+**Current World-1 scenic master:** `/assets/worlds/glacier-reach.svg`.  
+**Current Rudraa identity master:** `/assets/characters/captain-rudraa.svg`.  
+Both are project-created editable SVG masters registered in the in-progress FX-01 IP files.
 
 ### Required World-1 presentation
 - layered 2D/2.5D depth feel from the scenic plate;
@@ -32,7 +33,7 @@ beautiful fictional landscape → small mechanical objective → stable one-thum
 
 Rudraa is the calm precision lead, not a generic combat avatar.
 For the vertical slice:
-- existing original project portrait remains the identity asset;
+- the current original project SVG portrait is the identity asset;
 - home treatment must become more cinematic and recognisable;
 - briefing treatment must use the portrait, not a letter placeholder;
 - subtle breathing/scan-line life may be used when Reduced Motion is off;
@@ -56,8 +57,9 @@ Required:
 
 ## Gameplay feel
 
-Preserve the deterministic mission engine and all target coordinates/radii.
-Improve only presentation:
+The original deterministic aim/hit truth remains authoritative, but the founder deliberately reopened the combat/mission-engagement layer on 2026-10-01. The later combat amendment may add armour/health/first-aid, blast protection, multi-wave hostile encounters, moving civilians and longer sessions. It must not create hidden hitbox advantages or invalidate deterministic fairness.
+
+Preserve:
 - stable reticle;
 - subtle scenic drift/parallax;
 - premium focus treatment;
@@ -100,3 +102,21 @@ The slice is technically eligible for founder review only when:
 8. the new presentation is present on the tested build, not only in source.
 
 This constitution does not authorize mass production of Worlds 2–7 yet.
+
+
+## Founder combat-layer amendment
+
+Canonical detail lives in `FX01_FOUNDER_COMBAT_AMENDMENT_2026-10-01.md`; do not duplicate that full specification here.
+
+World-1 must now prove:
+- Environmental View and Telescopic View as real playable modes;
+- Binoculars as one-tap observation with no-fire state;
+- 10 fictional loadouts including Field Catapult;
+- live animated environment/objectives rather than test/cardboard presentation;
+- moving protected civilians with visible deterministic score penalty on civilian hit;
+- Rudraa armour, health, blast protection and first-aid recovery;
+- longer multi-wave encounters with fictional hostile operatives;
+- short non-graphic defeat reactions only;
+- no real organisations/ethnic coding/real weapon models/gore.
+
+This amendment reopens the combat layer only. World identity, accessibility, PWA, privacy, performance and release-quality laws remain in force.
