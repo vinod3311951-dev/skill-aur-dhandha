@@ -443,3 +443,78 @@ html[data-reduced-effects="true"] .impact-pulse {
 }
 html[data-reduced-effects="true"] .market-home.scene-ready::after { opacity:.32; transform:none; }
 html[data-reduced-effects="true"] .rudraa-portrait img { transform:translate(-3%,-1%) scale(1.012); }
+
+
+/* FX-01 visual rough-edge pass after real built screenshot review. */
+.world-condition {
+  grid-template-columns:1fr;
+  gap:5px;
+  padding:10px 12px;
+}
+.world-condition span {
+  display:block;
+  line-height:1.2;
+}
+.world-condition strong {
+  display:block;
+  line-height:1.4;
+  overflow-wrap:anywhere;
+}
+
+.view-toggle {
+  min-width:118px;
+  padding-inline:13px;
+  background:rgba(7,18,22,.84);
+  border-color:rgba(194,232,236,.68);
+  color:#e8f7f7;
+}
+
+.mission-wrap { gap:7px; }
+.mission-worldline {
+  min-height:34px;
+  padding:6px 9px;
+}
+.mission-hud {
+  gap:6px;
+}
+.mission-hud > div {
+  padding:7px 9px;
+  border-radius:11px;
+  background:rgba(14,31,26,.78);
+}
+.mission-hud span {
+  margin-bottom:2px;
+  font-size:.63rem;
+}
+.mission-hud strong {
+  font-size:.82rem;
+}
+.loadout-strip {
+  margin:0;
+  padding:7px 9px;
+  min-height:34px;
+  font-size:.68rem;
+  border-radius:10px;
+}
+.mission-status {
+  min-height:30px;
+  padding:5px 9px;
+}
+.mission-controls {
+  position:relative;
+  z-index:6;
+  padding-bottom:max(2px,env(safe-area-inset-bottom));
+}
+.footer-note {
+  padding:4px 0 2px;
+  font-size:.66rem;
+}
+
+@media (max-width:390px) {
+  .mission-wrap { gap:6px; }
+  .mission-worldline { grid-template-columns:auto minmax(0,1fr); }
+  .mission-worldline em { grid-column:1/-1; font-size:.62rem; }
+  .mission-hud { grid-template-columns:1.15fr .85fr .85fr; }
+  .playfield { min-height:410px; }
+  .view-toggle { min-width:112px; font-size:.61rem; }
+}
