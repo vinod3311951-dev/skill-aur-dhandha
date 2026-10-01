@@ -30,3 +30,8 @@ Every current and future Factory X product contract automatically inherits `FACT
 ## Audio + reward inheritance
 
 Every current and future Factory X PWA master contract automatically inherits `FACTORY_X_AUDIO_REWARD_CELEBRATION_LAW.md`. Product contracts define only their unique genre/audio/reward identity.
+
+
+## Cross-promotion inheritance
+
+Every current and future Factory X master contract automatically inherits `FACTORY_X_CROSS_PROMOTION_DISCOVERY_LAW.md`. Use a central portfolio registry and product-specific recommendation tags rather than duplicating link lists in each app.
