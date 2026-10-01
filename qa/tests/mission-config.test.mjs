@@ -75,6 +75,34 @@ for (const mission of MISSIONS) {
     });
     assert.ok(Number.isFinite(mission.threatMs) && mission.threatMs >= 1000, `${label}: protection threat window invalid`);
   }
+  if (mission.kind === 'protection') {
+    const profile = mission.combatProfile;
+    assert.ok(profile && typeof profile === 'object', `${label}: combat profile missing`);
+    assert.equal(profile.initialHealth, 100, `${label}: initial health must be 100`);
+    assert.equal(profile.initialArmor, 100, `${label}: initial armour must be 100`);
+    assert.ok(Number.isInteger(profile.firstAidKits) && profile.firstAidKits >= 1, `${label}: invalid first-aid count`);
+    assert.ok(profile.firstAidRestore > 0 && profile.firstAidRestore <= 100, `${label}: invalid first-aid restore`);
+    assert.ok(profile.blastResistance >= 0 && profile.blastResistance < 1, `${label}: invalid blast resistance`);
+    assert.ok(Array.isArray(profile.waves) && profile.waves.length >= 3 && profile.waves.length <= 5, `${label}: expected 3-5 combat waves`);
+
+    const hostileIds = new Set();
+    for (const [waveIndex, wave] of profile.waves.entries()) {
+      assert.ok(Number.isFinite(wave.pressureEveryMs) && wave.pressureEveryMs >= 1000, `${label}: wave ${waveIndex + 1} pressure cadence invalid`);
+      assert.ok(Array.isArray(wave.hostiles) && wave.hostiles.length >= 4, `${label}: wave ${waveIndex + 1} needs multiple hostiles`);
+      for (const hostile of wave.hostiles) {
+        assert.ok(!hostileIds.has(hostile.id), `${label}: duplicate hostile id ${hostile.id}`);
+        hostileIds.add(hostile.id);
+        assert.ok(['raider','saboteur','breach'].includes(hostile.role), `${label}: invalid hostile role`);
+        assert.ok(inUnit(hostile.y), `${label}: hostile y out of bounds`);
+        assert.ok(inUnit(hostile.minX) && inUnit(hostile.maxX) && hostile.minX < hostile.maxX, `${label}: hostile movement range invalid`);
+        assert.ok(hostile.cycleMs >= 2000, `${label}: hostile cycle too short`);
+        assert.ok(hostile.radius > 0 && hostile.radius < 0.25, `${label}: hostile radius invalid`);
+        assert.ok(hostile.damage > 0 && hostile.damage <= 25, `${label}: hostile damage invalid`);
+        assert.equal(typeof hostile.blast, 'boolean', `${label}: hostile blast flag invalid`);
+      }
+    }
+  }
+
 }
 
 const familyCounts = Object.fromEntries([...ALLOWED_KINDS].map((kind) => [
