@@ -174,6 +174,18 @@ Evidence state:
 
 Wait until the relevant Factory X production URLs are all real, verified and stable. Then create the central registry and integrate 1–2 post-result recommendations in one portfolio-wide pass.
 
+## Fairness-test timing repair
+
+The open-access browser run proved ordinary access to World 7 / Mission 15 on both Android Chromium and iPhone/WebKit.
+
+Its only failure was unrelated to open access:
+- Vector Needle score 1000;
+- Field Catapult score 999.
+
+Root cause: moving-target position was sampled once for QA aim and again milliseconds later inside `fire()`, creating a one-point timing delta.
+
+Repair: the fairness regression now compares both loadouts against an atomic target/aim snapshot through a verification-only helper. No gameplay threshold or fairness rule was weakened.
+
 ## Next bounded task
 
 1. Wait for browser certification of open-access head `747a77f29dff70fbae8616a039ec94acc06b075b`.
