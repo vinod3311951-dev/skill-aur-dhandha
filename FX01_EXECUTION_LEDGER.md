@@ -116,6 +116,28 @@ Binding Sarhad-specific additions:
 - all of the above must remain one-thumb operable and deterministic;
 - no copied real weapon model/sound.
 
+## Latest architecture batch — ammo / readiness state
+
+Committed on `fx-01-audit1`:
+- new pure `src/game/loadout-state.js`;
+- exactly 11 fictional loadouts including Field Catapult + Siege Rocket;
+- deterministic per-loadout magazine/charge capacity;
+- deterministic reload duration and reload-ready state;
+- deterministic swap cooldown/readiness;
+- unique synthesized firing/launch profile data for every loadout;
+- combat state now includes armour-plate count and deterministic armour restoration;
+- combat profiles now include armour-plate count and restore amount;
+- new pure `qa/tests/loadout-state.test.mjs`;
+- combat/config validators extended for armour recovery;
+- build overlay includes the loadout-state module;
+- service-worker shell caches combat + loadout modules with cache-version bump;
+- CI now gates mission config + combat state + loadout state before browser QA.
+
+Current evidence state:
+- earlier pre-ammo combat-state head was fully green across build, Android/WebKit functional, smoke and visual slice;
+- newest ammo/readiness head `d49faf7d7280e7407b6e55ce1a68bd4f9175754b` is awaiting its own CI slot;
+- do not claim the newest ammo/readiness state browser-certified until that exact head completes.
+
 ## Next bounded task
 
 **Do not start another patch loop until the latest deterministic QA/combat-profile CI result is read.**
