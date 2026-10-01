@@ -46,6 +46,7 @@ const editableFiles=[
   "src/styles.css",
   "src/game/config.js",
   "src/game/combat-state.js",
+  "src/game/loadout-state.js",
   "src/game/diagnostics.js",
   "src/game/engine.js",
   "src/game/storage.js",
