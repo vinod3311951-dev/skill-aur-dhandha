@@ -646,3 +646,102 @@ html[data-reduced-effects="true"] .rudraa-portrait img { transform:translate(-3%
   100% { opacity:0; transform:translate(-50%,-92%) scale(.94); }
 }
 html[data-reduced-effects="true"] .civilian-penalty { animation:none !important; }
+
+
+/* FX-01 live combat readiness */
+.readiness-strip {
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:6px;
+}
+.readiness-strip > div,
+.combat-hud > div {
+  min-width:0;
+  display:grid;
+  gap:3px;
+  padding:7px 8px;
+  border:1px solid rgba(117,153,139,.34);
+  border-radius:11px;
+  background:rgba(8,23,18,.76);
+}
+.readiness-strip span,
+.combat-hud span {
+  color:#93a89e;
+  font-size:.54rem;
+  font-weight:900;
+  letter-spacing:.08em;
+}
+.readiness-strip strong,
+.combat-hud strong {
+  color:#f0f5f2;
+  font-size:.76rem;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.combat-hud {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:6px;
+}
+.combat-hud i {
+  display:block;
+  height:4px;
+  overflow:hidden;
+  border-radius:999px;
+  background:rgba(255,255,255,.09);
+}
+.combat-hud i b {
+  display:block;
+  width:var(--meter,0%);
+  height:100%;
+  border-radius:inherit;
+  background:linear-gradient(90deg,#7fd1c2,#d7b866);
+  transition:width .18s ease;
+}
+.mission-controls.combat-controls {
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr)) minmax(88px,1.3fr);
+  gap:6px;
+  align-items:stretch;
+}
+.mission-controls .btn.compact,
+.mission-controls .btn.utility,
+.mission-controls .btn.aid,
+.mission-controls .btn.armour {
+  min-width:0;
+  min-height:50px;
+  padding:8px 7px;
+  font-size:.64rem;
+  line-height:1.05;
+}
+.mission-controls .btn.utility,
+.mission-controls .btn.aid,
+.mission-controls .btn.armour {
+  border:1px solid rgba(128,202,176,.48);
+  background:#17352b;
+  color:#dff3e9;
+}
+.mission-controls .btn.aid { background:#173b31; }
+.mission-controls .btn.armour { background:#29362f; }
+.mission-controls .btn:disabled {
+  opacity:.42;
+  filter:saturate(.6);
+}
+html[data-reduced-effects="true"] .combat-hud i b {
+  transition:none !important;
+}
+@media (max-width:430px) {
+  .readiness-strip {
+    grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+  .combat-hud {
+    grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+  .mission-controls.combat-controls {
+    grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+  .mission-controls.combat-controls .btn.fire {
+    grid-column:span 2;
+  }
+}
