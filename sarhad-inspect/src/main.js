@@ -28,6 +28,7 @@ let raf = 0;
 let audioContext = null;
 let ambienceNodes = [];
 let ambienceOscillators = [];
+let ambienceTimers = [];
 let lastMissionStars = 1;
 let lastMissionWasPersonalBest = false;
 let lastMissionPreviousBest = 0;
@@ -2612,6 +2613,9 @@ function stopWorldAmbience() {
         }
         catch { /* optional */ }
     }
+    for (const timer of ambienceTimers)
+        window.clearInterval(timer);
+    ambienceTimers = [];
     ambienceOscillators = [];
     ambienceNodes = [];
 }
@@ -2662,6 +2666,28 @@ function startWorldAmbience() {
         air.start();
         lfo.start();
         beat.start();
+
+        // Original, code-generated pulse motif: audible music without third-party recordings.
+        const intervals = world.id % 2 === 0 ? [1, 1.5, 1.25, 1.5] : [1, 1.333, 1.5, 1.25];
+        let step = 0;
+        const playPulse = () => {
+            if (screen !== 'mission' || paused || missionEnded || !save.settings.audioEnabled)
+                return;
+            const tone = context.createOscillator();
+            const toneGain = context.createGain();
+            tone.type = world.scenery === 'glacier' || world.scenery === 'night' ? 'sine' : 'triangle';
+            tone.frequency.setValueAtTime(base * 2 * intervals[step % intervals.length], context.currentTime);
+            toneGain.gain.setValueAtTime(.0001, context.currentTime);
+            toneGain.gain.exponentialRampToValueAtTime(.055, context.currentTime + .012);
+            toneGain.gain.exponentialRampToValueAtTime(.0001, context.currentTime + .22);
+            tone.connect(toneGain).connect(master);
+            tone.start();
+            tone.stop(context.currentTime + .24);
+            step += 1;
+        };
+        playPulse();
+        ambienceTimers.push(window.setInterval(playPulse, Math.max(420, Math.round(60000 / bpm))));
+
         ambienceOscillators = [low, air, lfo, beat];
         ambienceNodes = [master, lowGain, airGain, lfoGain, beatGain];
     }
