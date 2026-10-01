@@ -1,3 +1,4 @@
+import { mountGlacierReferenceScene, activateGlacierReferenceScene, destroyPhaserReferenceScene } from './phaser-reference.js';
 import { MISSIONS, WORLDS, missionsForWorld } from './game/config.js';
 import { evaluateRicochetShot, evaluateShot, masteryLabel, masteryStars, protectedFigureAtElapsed, protectedFigureHitAtElapsed, targetAtElapsed } from './game/engine.js';
 import { activeCombatHostiles, activeCombatWave, applyCombatDamage, combatHostileHitAtElapsed, combatHostilePositionAtElapsed, combatProgress, createCombatState, defeatHostile, useArmorPlate, useFirstAid } from './game/combat-state.js';
@@ -732,7 +733,8 @@ function renderMission() {
         <div><span>WAVE</span><strong id="combatWave">${combatProgress(selectedMission.combatProfile, combatState).wave}/${combatProgress(selectedMission.combatProfile, combatState).totalWaves}</strong></div>
       </div>` : ''}
       <div class="mission-status" id="missionStatus" role="status" aria-live="polite">${missionStatusText(0)}</div>
-      <div class="playfield ${viewMode === 'scope' ? 'scope-view' : 'overview-view'}" id="playfield" data-view="${viewMode}">
+      <div class="playfield ${viewMode === 'scope' ? 'scope-view' : 'overview-view'}${selectedMission.id === 'w1-m1-relay-core' ? ' phaser-reference' : ''}" id="playfield" data-view="${viewMode}">
+        ${selectedMission.id === 'w1-m1-relay-core' ? '<div id="phaserStage" class="phaser-stage" aria-label="Glacier Reach finished presentation reference scene"></div>' : ''}
         <canvas id="scene" aria-label="Precision mission play area with playable telescopic and environmental views"></canvas>
         <div class="scope-mask" aria-hidden="true"></div>
         <div class="scope-glass" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
@@ -759,6 +761,11 @@ function renderMission() {
     </section>`, false);
     bindActions();
     setupPlayfield();
+    if (selectedMission.id === 'w1-m1-relay-core') {
+        const phaserStage = document.querySelector('#phaserStage');
+        if (phaserStage)
+            mountGlacierReferenceScene(phaserStage);
+    }
     updateLoadoutHud(0);
     updateCombatHud();
 }
@@ -2555,6 +2562,8 @@ function goNext() {
     renderBriefing();
 }
 function showEnvironmentActivation() {
+    if (selectedMission.id === 'w1-m1-relay-core')
+        activateGlacierReferenceScene();
     const layer = document.querySelector('#impactLayer');
     if (!layer)
         return;
@@ -2716,6 +2725,7 @@ function effectsReduced() {
     return save.settings.reducedEffects || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 function stopMissionLoop() {
+    destroyPhaserReferenceScene();
     stopWorldAmbience();
     cancelAnimationFrame(raf);
     raf = 0;

@@ -2,7 +2,7 @@ name: Sarhad FX-23 Functional QA
 
 on:
   push:
-    branches: [sarhad-sniper-deploy, fx-01-audit1]
+    branches: [sarhad-sniper-deploy, fx-01-audit1, fx-01-phaser3-presentation]
     paths:
       - "build.mjs"
       - "sarhad-inspect/**"
@@ -26,6 +26,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: Install runtime dependencies
+        run: npm install --no-audit --no-fund
       - name: Build repaired static PWA
         run: node build.mjs
       - name: Upload reconstructed public build

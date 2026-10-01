@@ -746,3 +746,44 @@ html[data-reduced-effects="true"] .combat-hud i b {
     grid-column:span 2;
   }
 }
+
+
+/* FX-01 Phaser 3 presentation reference: Glacier Reach Mission 1 only. */
+.phaser-reference {
+  aspect-ratio: 16 / 9;
+  min-height: 0;
+  background: #abc9d0;
+}
+.phaser-reference #scene {
+  opacity: 0;
+  pointer-events: none;
+}
+.phaser-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: #abc9d0;
+}
+.phaser-stage canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+.phaser-reference .scope-mask,
+.phaser-reference .scope-glass,
+.phaser-reference .binocular-mask,
+.phaser-reference .reticle,
+.phaser-reference .impact-layer,
+.phaser-reference .view-tools,
+.phaser-reference .first-minute-coach,
+.phaser-reference .hint,
+.phaser-reference .pause-layer {
+  z-index: 4;
+}
+@media (orientation: portrait) {
+  .phaser-reference {
+    min-height: min(58vw, 430px);
+  }
+}

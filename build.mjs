@@ -43,6 +43,7 @@ const editableFiles=[
   "index.html",
   "sw.js",
   "src/main.js",
+  "src/phaser-reference.js",
   "src/styles.css",
   "src/game/config.js",
   "src/game/combat-state.js",
@@ -61,6 +62,13 @@ for(const relative of editableFiles){
   mkdirSync(path.dirname(target),{recursive:true});
   copyFileSync(source,target);
 }
+const phaserSource=path.join(root,"node_modules","phaser","dist","phaser.min.js");
+if(!existsSync(phaserSource))throw new Error("Phaser 3 dependency missing; run npm install before build");
+const phaserTarget=path.join(outDir,"vendor","phaser.min.js");
+mkdirSync(path.dirname(phaserTarget),{recursive:true});
+copyFileSync(phaserSource,phaserTarget);
+console.log("Phaser 3.90.0 vendored into public/vendor for offline PWA use");
+
 console.log(`FX-01 editable source overlay applied (${editableFiles.length} files)`);
 console.log("FX-01 editable runtime source is authoritative");
 
