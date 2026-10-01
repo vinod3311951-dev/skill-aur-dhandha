@@ -94,6 +94,22 @@ function qaStateSnapshot() {
         protectedFigures: selectedMission.kind === 'protection'
             ? (selectedMission.protectedFigures ?? []).map((spec) => ({ id: spec.id, ...protectedFigureAtElapsed(spec, elapsed) }))
             : [],
+        combat: selectedMission.combatProfile && combatState
+            ? { ...combatState, ...combatProgress(selectedMission.combatProfile, combatState) }
+            : null,
+        loadout: (() => {
+            const ready = loadoutReadiness(loadoutState, elapsed);
+            return {
+                selectedId: ready.definition.id,
+                ammo: ready.ammo,
+                capacity: ready.capacity,
+                reloading: ready.reloading,
+                reloadRemainingMs: ready.reloadRemainingMs,
+                canReload: ready.canReload,
+                swapRemainingMs: ready.swapRemainingMs,
+                canSwap: ready.canSwap
+            };
+        })(),
         visualPerformanceTier: visualPerformanceTier()
     };
 }
@@ -178,6 +194,50 @@ if (FX23_VERIFICATION_MODE) {
                     positionReticle(reticle);
                 fire();
                 return true;
+            },
+            fireAtFirstCombatHostile() {
+                if (!selectedMission.combatProfile || !combatState || combatState.wavesCleared)
+                    return false;
+                const elapsed = currentElapsed();
+                const waveElapsed = Math.max(0, elapsed - combatWaveStartedAt);
+                const candidates = activeCombatHostiles(selectedMission.combatProfile, combatState)
+                    .map((hostile) => ({ hostile, position: combatHostilePositionAtElapsed(hostile, waveElapsed) }));
+                const candidate = candidates.find(({ position }) => !protectedFigureHitAtElapsed(selectedMission.protectedFigures ?? [], elapsed, position.x, position.y)) ?? candidates[0];
+                if (!candidate)
+                    return false;
+                aimX = candidate.position.x;
+                aimY = candidate.position.y;
+                const reticle = document.querySelector('#reticle');
+                if (reticle)
+                    positionReticle(reticle);
+                fire();
+                return true;
+            },
+            damageRudraa(amount = 120, blast = false) {
+                if (!selectedMission.combatProfile || !combatState)
+                    return false;
+                combatState = applyCombatDamage(selectedMission.combatProfile, combatState, amount, { blast });
+                updateCombatHud();
+                return true;
+            },
+            clearCombatWaves() {
+                if (!selectedMission.combatProfile || !combatState)
+                    return false;
+                while (!combatState.wavesCleared) {
+                    const hostiles = activeCombatHostiles(selectedMission.combatProfile, combatState);
+                    if (!hostiles.length)
+                        break;
+                    const previousWave = combatState.currentWaveIndex;
+                    for (const hostile of hostiles)
+                        combatState = defeatHostile(selectedMission.combatProfile, combatState, hostile.id);
+                    if (!combatState.wavesCleared && combatState.currentWaveIndex !== previousWave) {
+                        combatWaveStartedAt = currentElapsed();
+                        combatPressureTick = 0;
+                    }
+                }
+                updateCombatHud();
+                updateMissionStatus(currentElapsed());
+                return combatState.wavesCleared;
             }
         }
     });
