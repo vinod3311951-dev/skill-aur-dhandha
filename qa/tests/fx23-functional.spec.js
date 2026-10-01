@@ -54,3 +54,22 @@ for (const level of [5, 10, 25, 50, 100]) {
     expect(after).toBeLessThan(before);
   });
 }
+
+
+test('World 1 presents Glacier Reach and Captain Rudraa briefing identity', async ({ page }) => {
+  await page.goto(BASE, { waitUntil: 'domcontentloaded' });
+  await page.getByRole('button', { name: /Start Campaign|Continue Campaign/i }).click();
+  await expect(page.getByText(/WORLD 1 • MISSION 1/i)).toBeVisible();
+  await expect(page.locator('.briefing-scenic span')).toHaveText('Glacier Reach');
+  await expect(page.locator('.rudraa-note-portrait img')).toHaveCount(1);
+});
+
+test('Reduced effects setting visibly binds to the document presentation state', async ({ page }) => {
+  await page.goto(BASE, { waitUntil: 'domcontentloaded' });
+  await page.getByRole('button', { name: /Settings/i }).click();
+  const toggle = page.locator('[data-setting="effects"]');
+  await expect(toggle).toBeVisible();
+  await toggle.click();
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+  await expect.poll(() => page.evaluate(() => document.documentElement.dataset.reducedEffects)).toBe('true');
+});
