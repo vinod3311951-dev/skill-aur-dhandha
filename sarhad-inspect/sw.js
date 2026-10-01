@@ -1,4 +1,4 @@
-const CACHE = 'sarhad-sniper-shell-v6';
+const CACHE = 'sarhad-sniper-shell-v7';
 const APP_SHELL = [
   '/',
   '/index.html',
@@ -6,6 +6,8 @@ const APP_SHELL = [
   '/src/styles.css',
   '/src/main.js',
   '/src/game/config.js',
+  '/src/game/combat-state.js',
+  '/src/game/loadout-state.js',
   '/src/game/engine.js',
   '/src/game/storage.js',
   '/src/game/diagnostics.js',
