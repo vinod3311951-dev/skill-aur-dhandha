@@ -253,3 +253,44 @@ Stop only for a genuine creative authority conflict, external permission/credent
 ## Audit-1 readiness
 
 **NOT READY — execution has begun.**
+
+
+## Certified presentation-overlap repair — 2026-10-01
+
+**Certified runtime head:** `51179056fe3f8aa3c2bd75dd42f9c6faeb93fd63`  
+**GitHub Actions run:** `36890524764` — **SUCCESS**
+
+Fresh visual inspection of the certified World-1 artifact found a real mobile presentation defect: the Mission-1 first-minute coaching card overlapped the Binoculars / Environmental-Telescope controls.
+
+Repair:
+- moved the first-minute coaching card below the view-control row;
+- preserved target visibility and one-thumb control access;
+- added an explicit Android + iPhone/WebKit bounding-box regression proving the coaching card does not overlap the view tools.
+
+Evidence on the repaired head:
+- deterministic mission/combat/loadout validation: PASS;
+- Android Chromium + iPhone/WebKit functional matrix: **36/36 PASS**;
+- Android smoke repeat: **2/2 PASS**;
+- iPhone/WebKit smoke repeat: **2/2 PASS**;
+- World-1 built visual-slice capture: PASS;
+- full workflow: **SUCCESS**;
+- visual artifact: `11176433604`;
+- QA log artifact: `11176063664`;
+- public-build artifact: `11176627185`.
+
+The fresh built Mission-1 screenshot was visually inspected after CI and the overlap is removed.
+
+## Founder verification sequence — binding
+
+1. Present the current final-quality representative Sarhad slice to the founder for Android/play inspection before mass-scaling presentation treatment across Worlds 2–7.
+2. After the founder accepts the representative slice, complete the remaining world/level presentation and full automated regression.
+3. Once the complete Sarhad level set is created and automated evidence is green, **directly ask the founder to verify all Sarhad levels**. Do not silently substitute automated QA for this founder all-level inspection.
+4. Only after that founder verification continue through final Audit/release gates.
+
+## Interruption signal — binding
+
+At any development stage, if the active creation/build/test/deploy/audit/debug sequence should not be interrupted by routine `Continue mate` messages, ChatGPT must proactively display **LONG RUN — HOLD MESSAGES ❤️🔥** before the uninterrupted sequence. Only after the bounded run genuinely finishes may ChatGPT display **LONG RUN COMPLETE — YOU CAN MESSAGE ❤️**. When no hold signal is active, `Continue mate` remains the normal continuation command.
+
+## Next bounded task after this certification
+
+Prepare the repaired World-1 representative slice for the founder Android checkpoint without overwriting the existing production deployment. After founder approval, scale the proven presentation/audio/reward language across the remaining worlds and complete the all-level verification sequence.
