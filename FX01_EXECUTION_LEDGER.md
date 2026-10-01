@@ -69,7 +69,17 @@ These are **not** permission to weaken the contract. They define the work ahead.
 
 ## Current reasoning mode
 
-**HIGH** — the founder has reopened the combat architecture. Armour/health/first-aid, blast protection, multi-wave hostile AI, civilian-protection scoring and long-session pacing require cross-system design and deterministic QA before returning to Medium.
+**HIGH** — combat architecture remains open, and the new portfolio laws require root-cause research plus Apple/WebKit/media risk review before further legacy-code edits. The latest deterministic QA/combat-profile batch is currently under CI validation.
+
+## Portfolio-wide laws now inherited
+
+FX-01 and all future Factory X products must now obey these canonical cross-portfolio files:
+
+- `FACTORY_X_ONE_THUMB_GAMEPLAY_LAW.md` — every Factory X game must be fully playable one-handed with one thumb on mobile.
+- `FACTORY_X_ROOT_CAUSE_AND_WEBKIT_STABILITY_LAW.md` — research repeated failure classes and reverse-risk rich media / Apple-WebKit stability before another legacy-code edit.
+- `FACTORY_X_AUDIO_REWARD_CELEBRATION_LAW.md` — genre-specific original/licence-clean audio, provenance, earned reward celebrations, Reduced Motion and combined graphics+audio WebKit testing.
+
+These laws are pre-edit/release gates, not optional notes.
 
 ## Current phase
 
@@ -98,21 +108,22 @@ Important: the newest binocular / 10-loadout / combat-amendment head has **not y
 
 ## Next bounded task
 
-**HIGH — reconcile and implement the founder combat amendment without weakening the proven view/aim engine.**
+**Do not start another patch loop until the latest deterministic QA/combat-profile CI result is read.**
 
-Immediate order:
-1. run build + 105-mission validator + Android/WebKit regression on the current binocular/10-loadout head;
-2. lock loadout fairness: presentation/audio/feel may differ, authoritative hit geometry may not;
-3. replace any remaining consumer-visible practice/cardboard feel with live mechanical/world graphics;
-4. strengthen animated civilian crossing and implement a deterministic, clearly visible civilian-hit score penalty;
-5. design/implement Rudraa armour, health, blast protection and first-aid state;
-6. design/implement longer multi-wave missions using fictional hostile operatives only;
-7. add short non-graphic hostile-defeat vocal feedback where appropriate;
-8. regression-test save/progression, Reduced Motion, pause/background fairness, both playable views, Binoculars, all 10 loadouts, civilian safety and combat state;
-9. capture fresh real built screenshots/video evidence;
-10. only then approach the founder Android vertical-slice checkpoint.
+If green:
+1. create a clean pure combat-state module (health, armour, blast resistance, first aid, waves);
+2. add pure deterministic unit validation;
+3. integrate that module into protection missions as the World-1 long-form combat prototype;
+4. preserve one-thumb Environmental / Telescopic / Binocular controls;
+5. add genre-safe combat audio/reward hooks under the portfolio audio law;
+6. run one consolidated Android/WebKit + mission-config + combat regression batch;
+7. capture fresh built visual evidence.
 
-No mass production of Worlds 2–7 until the amended World-1 slice is proven.
+If red:
+- classify the failure first;
+- research the shared cause;
+- repair the root cause in one bounded batch;
+- do not resume symptom-by-symptom HTML/CSS/JS patching.
 
 ## Founder interruption policy
 
