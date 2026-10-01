@@ -49,9 +49,15 @@ test('game loads, becomes ready, renders, stays error-free and holds frame rate'
 
   expect(luma, 'canvas looks blank').toBeGreaterThan(GATES.minLumaStdDev);
 
-  const fps = fpsAfter;
-  await testInfo.attach('fps.json', { body: JSON.stringify(fps, null, 2), contentType: 'application/json' });
+  // Game-performance gates must use the sample captured BEFORE screenshot work.
+  // WebKit screenshot capture can synchronously stall the harness; fpsAfter remains
+  // diagnostic evidence only and must not be misattributed to the game.
+  const fps = fpsBefore;
+  await testInfo.attach('fps.json', {
+    body: JSON.stringify({ gateSample: fpsBefore, postScreenshotDiagnostic: fpsAfter, interpretation }, null, 2),
+    contentType: 'application/json'
+  });
   expect(fps.frames, 'too few frames rendered').toBeGreaterThan(30);
   expect(fps.p95Fps, `p95 FPS (${fps.p95Fps}) below gate`).toBeGreaterThanOrEqual(GATES.minP95Fps);
-  expect(fps.freezes, 'frames longer than 1s').toBeLessThanOrEqual(GATES.maxFreezes);
+  expect(fps.freezes, 'game frames longer than 1s before screenshot').toBeLessThanOrEqual(GATES.maxFreezes);
 });
