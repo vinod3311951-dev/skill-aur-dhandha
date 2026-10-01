@@ -82,6 +82,8 @@ for (const mission of MISSIONS) {
     assert.equal(profile.initialArmor, 100, `${label}: initial armour must be 100`);
     assert.ok(Number.isInteger(profile.firstAidKits) && profile.firstAidKits >= 1, `${label}: invalid first-aid count`);
     assert.ok(profile.firstAidRestore > 0 && profile.firstAidRestore <= 100, `${label}: invalid first-aid restore`);
+    assert.ok(Number.isInteger(profile.armorPlates) && profile.armorPlates >= 1, `${label}: invalid armour-plate count`);
+    assert.ok(profile.armorRestore > 0 && profile.armorRestore <= 100, `${label}: invalid armour restore`);
     assert.ok(profile.blastResistance >= 0 && profile.blastResistance < 1, `${label}: invalid blast resistance`);
     assert.ok(Array.isArray(profile.waves) && profile.waves.length >= 3 && profile.waves.length <= 5, `${label}: expected 3-5 combat waves`);
 
