@@ -817,16 +817,16 @@ function renderResult(success) {
     screen = 'result';
     const next = nextMission(selectedMission);
     const world = worldById(selectedMission.worldId);
-    const worldCleared = success && selectedMission.order === 15;
-    const campaignCleared = worldCleared && selectedMission.worldId === WORLDS.length;
-    const nextWorld = worldCleared && !campaignCleared ? worldById(selectedMission.worldId + 1) : null;
+    const worldCleared = success && worldProgress(selectedMission.worldId) === 15;
+    const campaignCleared = success && save.completedMissionIds.length === MISSIONS.length;
+    const nextWorld = selectedMission.worldId < WORLDS.length ? worldById(selectedMission.worldId + 1) : null;
     app.innerHTML = shell(`
     <section class="panel result-card ${success ? 'success' : 'fail'}" style="--c1:${world.palette[0]};--c2:${world.palette[1]};--c3:${world.palette[2]}">
       <p class="eyebrow">${campaignCleared ? 'CAMPAIGN COMPLETE' : worldCleared ? 'WORLD COMPLETE' : success ? 'MISSION COMPLETE' : 'MISSION FAILED'}</p>
       <h2>${campaignCleared ? 'Seven worlds secured.' : worldCleared ? `${world.name} secured.` : success ? 'Objective complete.' : 'Objective still active.'}</h2>
       <p>${lastShot?.reason ?? 'Mission ended.'}</p>
       ${success ? `<div class="mastery-badge"><span>${'★'.repeat(lastMissionStars)}${'☆'.repeat(3 - lastMissionStars)}</span><strong>${masteryLabel(lastMissionStars)}</strong><small>mission mastery</small></div>` : ''}
-      ${worldCleared ? `<div class="world-clear-card"><span>${campaignCleared ? '7/7' : `WORLD ${world.id}`}</span><strong>${campaignCleared ? 'Sarhad campaign complete' : world.name}</strong><small>${campaignCleared ? 'All 105 missions are now complete.' : `${nextWorld?.name ?? 'Next route'} is now unlocked.`}</small></div>` : ''}
+      ${worldCleared ? `<div class="world-clear-card"><span>${campaignCleared ? '7/7' : `WORLD ${world.id}`}</span><strong>${campaignCleared ? 'Sarhad campaign complete' : world.name}</strong><small>${campaignCleared ? 'All 105 missions are now complete.' : `${world.name} mastery route complete.`}</small></div>` : ''}
       ${campaignCleared ? `<div class="campaign-finale" aria-label="Campaign completion summary">
         <span class="campaign-finale-kicker">PRECISION JOURNEY COMPLETE</span>
         <div class="campaign-finale-nodes" aria-hidden="true">${WORLDS.map((item) => `<i style="--finale:${item.palette[0]}"></i>`).join('')}</div>
@@ -838,8 +838,9 @@ function renderResult(success) {
       ${success ? `<div class="personal-best-card ${lastMissionWasPersonalBest ? 'new-best' : ''}" aria-label="Mission personal best"><span>${lastMissionWasPersonalBest ? 'NEW PERSONAL BEST' : 'PERSONAL BEST'}</span><strong>${save.missionRecords[selectedMission.id]?.bestScore ?? missionScore}</strong><small>${lastMissionWasPersonalBest && lastMissionPreviousBest > 0 ? `Previous ${lastMissionPreviousBest}` : 'Best score for this mission'}</small></div>` : ''}
       ${success ? `<div class="achievement-card" aria-label="Share-ready achievement card"><span>SARHAD SNIPER</span><strong>${world.name} • Mission ${selectedMission.order}</strong><small>${masteryLabel(lastMissionStars)} • ${'★'.repeat(lastMissionStars)}${'☆'.repeat(3 - lastMissionStars)} • Score ${missionScore}</small></div>` : ''}
       <div class="mission-debrief" aria-label="Mission debrief">
-        <div><span>Attempts saved</span><strong>${Math.max(0, attemptsLeft)}</strong></div>
-        <div><span>Decision</span><strong>${success ? 'Objective clear' : 'Retry ready'}</strong></div>
+        ${selectedMission.combatProfile && combatState
+            ? `<div><span>Rudraa</span><strong>${Math.round(combatState.health)} health • ${Math.round(combatState.armor)} armour</strong></div><div><span>Waves</span><strong>${combatProgress(selectedMission.combatProfile, combatState).wave}/${combatProgress(selectedMission.combatProfile, combatState).totalWaves}</strong></div>`
+            : `<div><span>Attempts saved</span><strong>${Math.max(0, attemptsLeft)}</strong></div><div><span>Decision</span><strong>${success ? 'Objective clear' : 'Retry ready'}</strong></div>`}
         ${selectedMission.kind === 'protection' ? `<div><span>Civilian safety</span><strong>${civilianHits === 0 ? 'Clear' : `${civilianHits} hit${civilianHits === 1 ? '' : 's'} • −${civilianHits * CIVILIAN_HIT_PENALTY}`}</strong></div>` : ''}
       </div>
       <div class="result-score"><span>Mission score</span><strong>${missionScore}</strong></div>
@@ -2054,8 +2055,226 @@ function drawProtectionTimer(ctx, w, total, elapsed) {
     ctx.fillStyle = remaining > .35 ? '#d7b866' : '#dc8b73';
     ctx.fillRect(w * .1, 16, w * .8 * remaining, 8);
 }
+function updateLoadoutHud(elapsed = currentElapsed()) {
+    const ready = loadoutReadiness(loadoutState, elapsed);
+    loadoutState = ready.state;
+    selectedLoadoutId = ready.definition.id;
+    const active = document.querySelector('#activeLoadout');
+    const ammo = document.querySelector('#ammoCount');
+    const reload = document.querySelector('#reloadState');
+    const swap = document.querySelector('#swapState');
+    if (active)
+        active.textContent = ready.definition.name;
+    if (ammo)
+        ammo.textContent = `${ready.ammo}/${ready.capacity}`;
+    if (reload)
+        reload.textContent = ready.reloading ? `${(ready.reloadRemainingMs / 1000).toFixed(1)}s` : ready.canReload ? 'READY' : 'FULL';
+    if (swap)
+        swap.textContent = ready.canSwap ? 'READY' : `${(ready.swapRemainingMs / 1000).toFixed(1)}s`;
+}
+function updateCombatHud() {
+    if (!selectedMission.combatProfile || !combatState)
+        return;
+    const progress = combatProgress(selectedMission.combatProfile, combatState);
+    const values = [
+        ['#combatHealth', Math.round(combatState.health)],
+        ['#combatArmor', Math.round(combatState.armor)],
+        ['#combatWave', `${progress.wave}/${progress.totalWaves}`],
+        ['#aidState', combatState.firstAidKits],
+        ['#plateState', combatState.armorPlates]
+    ];
+    for (const [selector, value] of values) {
+        const element = document.querySelector(selector);
+        if (element)
+            element.textContent = String(value);
+    }
+    const healthBar = document.querySelector('#combatHealthBar');
+    const armorBar = document.querySelector('#combatArmorBar');
+    if (healthBar)
+        healthBar.style.setProperty('--meter', `${combatState.health}%`);
+    if (armorBar)
+        armorBar.style.setProperty('--meter', `${combatState.armor}%`);
+    const aid = document.querySelector('#firstAidButton');
+    if (aid) {
+        aid.textContent = `Aid ×${combatState.firstAidKits}`;
+        aid.disabled = combatState.firstAidKits <= 0 || combatState.health >= 100 || combatState.down;
+    }
+    const plate = document.querySelector('#armorButton');
+    if (plate) {
+        plate.textContent = `Armour ×${combatState.armorPlates}`;
+        plate.disabled = combatState.armorPlates <= 0 || combatState.armor >= 100 || combatState.down;
+    }
+}
+function reloadAction() {
+    if (screen !== 'mission' || paused || missionEnded)
+        return;
+    const result = beginLoadoutReload(loadoutState, currentElapsed());
+    loadoutState = result.state;
+    updateLoadoutHud();
+    const hint = document.querySelector('#hint');
+    if (hint)
+        hint.textContent = result.started ? 'Reloading…' : 'Reload not needed or already in progress.';
+}
+function swapLoadoutAction() {
+    if (screen !== 'mission' || paused || missionEnded)
+        return;
+    const result = cycleLoadout(loadoutState, currentElapsed());
+    loadoutState = result.state;
+    selectedLoadoutId = loadoutState.selectedId;
+    updateLoadoutHud();
+    const hint = document.querySelector('#hint');
+    if (hint)
+        hint.textContent = result.swapped ? `Swapped to ${selectedLoadout().name}.` : 'Swap cooling down.';
+}
+function firstAidAction() {
+    if (!selectedMission.combatProfile || !combatState || paused || missionEnded)
+        return;
+    const next = useFirstAid(selectedMission.combatProfile, combatState);
+    const used = next !== combatState;
+    combatState = next;
+    updateCombatHud();
+    const hint = document.querySelector('#hint');
+    if (hint)
+        hint.textContent = used ? 'First aid applied.' : 'First aid unavailable.';
+}
+function armorPlateAction() {
+    if (!selectedMission.combatProfile || !combatState || paused || missionEnded)
+        return;
+    const next = useArmorPlate(selectedMission.combatProfile, combatState);
+    const used = next !== combatState;
+    combatState = next;
+    updateCombatHud();
+    const hint = document.querySelector('#hint');
+    if (hint)
+        hint.textContent = used ? 'Armour restored.' : 'Armour plate unavailable.';
+}
+function processCombatPressure(elapsed) {
+    if (!selectedMission.combatProfile || !combatState || combatState.wavesCleared || combatState.down)
+        return;
+    const wave = activeCombatWave(selectedMission.combatProfile, combatState);
+    const hostiles = activeCombatHostiles(selectedMission.combatProfile, combatState);
+    if (!wave || !hostiles.length)
+        return;
+    const due = Math.floor(Math.max(0, elapsed - combatWaveStartedAt) / Math.max(1000, wave.pressureEveryMs));
+    if (due <= combatPressureTick)
+        return;
+    combatPressureTick = due;
+    const attacker = hostiles[(due - 1) % hostiles.length];
+    combatState = applyCombatDamage(selectedMission.combatProfile, combatState, attacker.damage, { blast: attacker.blast });
+    updateCombatHud();
+    if (combatState.down) {
+        missionEnded = true;
+        lastShot = { hit: false, score: 0, distance: 1, reason: 'Rudraa is down. Retry with armour and first-aid timing.' };
+        finishMissionDiagnostics(false, currentElapsed());
+        window.setTimeout(() => renderResult(false), 220);
+    }
+}
+function fireProtectionCombat(elapsed) {
+    const profile = selectedMission.combatProfile;
+    if (!profile || !combatState)
+        return;
+    const protectedHit = protectedFigureHitAtElapsed(selectedMission.protectedFigures ?? [], elapsed, aimX, aimY);
+    if (protectedHit) {
+        civilianHits += 1;
+        missionScore -= CIVILIAN_HIT_PENALTY;
+        lastShot = { hit: false, score: -CIVILIAN_HIT_PENALTY, distance: 0, reason: `Civilian hit — −${CIVILIAN_HIT_PENALTY} points.` };
+        feedback(false);
+        showCivilianPenaltyFeedback();
+        const hint = document.querySelector('#hint');
+        const score = document.querySelector('#missionScore');
+        const civilian = document.querySelector('#civilianHits');
+        if (hint)
+            hint.textContent = lastShot.reason;
+        if (score)
+            score.textContent = String(missionScore);
+        if (civilian)
+            civilian.textContent = String(civilianHits);
+        return;
+    }
+
+    if (!combatState.wavesCleared) {
+        const waveElapsed = Math.max(0, elapsed - combatWaveStartedAt);
+        const hit = combatHostileHitAtElapsed(profile, combatState, waveElapsed, aimX, aimY);
+        const hint = document.querySelector('#hint');
+        if (!hit) {
+            lastShot = { hit: false, score: 0, distance: 1, reason: 'No clean hostile target. Reacquire.' };
+            feedback(false);
+            if (hint)
+                hint.textContent = lastShot.reason;
+            return;
+        }
+        const previousWave = combatState.currentWaveIndex;
+        combatState = defeatHostile(profile, combatState, hit.hostile.id);
+        missionScore += 120;
+        lastShot = { hit: true, score: 120, distance: hit.distance, reason: 'Hostile cleared.' };
+        feedback(true);
+        const score = document.querySelector('#missionScore');
+        if (score)
+            score.textContent = String(missionScore);
+        if (combatState.wavesCleared) {
+            if (hint)
+                hint.textContent = 'Hostile waves clear. Disable the exposed carrier.';
+        }
+        else if (combatState.currentWaveIndex !== previousWave) {
+            combatWaveStartedAt = elapsed;
+            combatPressureTick = 0;
+            if (hint)
+                hint.textContent = `Wave ${previousWave + 1} clear. Next wave.`;
+        }
+        else if (hint) {
+            hint.textContent = 'Clean hit. Keep civilians out of the sightline.';
+        }
+        updateCombatHud();
+        updateMissionStatus(elapsed);
+        return;
+    }
+
+    const result = evaluateShot(currentTarget(elapsed), aimX, aimY);
+    lastShot = result;
+    feedback(result.hit);
+    const hint = document.querySelector('#hint');
+    if (!result.hit) {
+        if (hint)
+            hint.textContent = 'Carrier still active. Settle the sight and fire again.';
+        return;
+    }
+    missionScore += result.score + 250;
+    const score = document.querySelector('#missionScore');
+    if (score)
+        score.textContent = String(missionScore);
+    lastShot = { ...result, score: result.score + 250, reason: 'Carrier disabled after all hostile waves cleared.' };
+    missionEnded = true;
+    completeMission();
+}
+function playLoadoutFireSound() {
+    if (!save.settings.audioEnabled)
+        return;
+    try {
+        const context = ensureAudioContext();
+        if (!context)
+            return;
+        const ready = loadoutReadiness(loadoutState, currentElapsed());
+        const profile = ready.definition.fire;
+        for (const layer of profile.layers) {
+            const oscillator = context.createOscillator();
+            const gain = context.createGain();
+            oscillator.type = layer.type;
+            oscillator.frequency.setValueAtTime(layer.from, context.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(Math.max(20, layer.to), context.currentTime + profile.duration);
+            gain.gain.setValueAtTime(.0001, context.currentTime);
+            gain.gain.exponentialRampToValueAtTime(Math.max(.001, layer.gain), context.currentTime + .008);
+            gain.gain.exponentialRampToValueAtTime(.0001, context.currentTime + profile.duration);
+            oscillator.connect(gain).connect(context.destination);
+            oscillator.start();
+            oscillator.stop(context.currentTime + profile.duration + .02);
+        }
+    }
+    catch {
+        // Audio is an enhancement; gameplay state is authoritative.
+    }
+}
 function fire() {
-    if (screen !== 'mission' || paused || missionEnded || attemptsLeft <= 0)
+    if (screen !== 'mission' || paused || missionEnded)
         return;
     if (binocularsActive) {
         const hint = document.querySelector('#hint');
@@ -2064,7 +2283,26 @@ function fire() {
         return;
     }
     const elapsed = currentElapsed();
+    const consumed = consumeLoadoutShot(loadoutState, elapsed);
+    loadoutState = consumed.state;
+    if (!consumed.fired) {
+        const hint = document.querySelector('#hint');
+        if (hint)
+            hint.textContent = consumed.reason === 'reloading' ? 'Reload in progress.' : 'Ammo empty — Reload or Swap.';
+        updateLoadoutHud(elapsed);
+        return;
+    }
     noteShot();
+    playLoadoutFireSound();
+    updateLoadoutHud(elapsed);
+
+    if (selectedMission.combatProfile && combatState) {
+        fireProtectionCombat(elapsed);
+        return;
+    }
+    if (attemptsLeft <= 0)
+        return;
+
     if (selectedMission.kind === 'protection' && selectedMission.protectedFigures) {
         const protectedHit = protectedFigureHitAtElapsed(selectedMission.protectedFigures, elapsed, aimX, aimY);
         if (protectedHit) {
@@ -2094,6 +2332,7 @@ function fire() {
             return;
         }
     }
+
     let result;
     if (selectedMission.kind === 'ricochet' && selectedMission.ricochet) {
         result = evaluateRicochetShot(selectedMission.target, selectedMission.ricochet, aimX, aimY);
@@ -2114,6 +2353,7 @@ function fire() {
     else {
         result = evaluateShot(currentTarget(elapsed), aimX, aimY);
     }
+
     lastShot = result;
     attemptsLeft -= 1;
     feedback(result.hit);
@@ -2122,14 +2362,14 @@ function fire() {
     const scoreEl = document.querySelector('#missionScore');
     if (attempts)
         attempts.textContent = String(attemptsLeft);
+
     if (result.hit) {
         missionScore += result.score;
         if (scoreEl)
             scoreEl.textContent = String(missionScore);
         if (selectedMission.kind === 'sequence' && selectedMission.sequence) {
             sequenceIndex += 1;
-            const sequenceComplete = sequenceIndex >= selectedMission.sequence.length;
-            if (!sequenceComplete) {
+            if (sequenceIndex < selectedMission.sequence.length) {
                 const next = selectedMission.sequence[sequenceIndex];
                 if (hint)
                     hint.textContent = `${result.reason} Next target: ${next.label}.`;
@@ -2140,6 +2380,7 @@ function fire() {
         completeMission();
         return;
     }
+
     if (hint)
         hint.textContent = result.reason;
     if (attemptsLeft <= 0) {
@@ -2366,29 +2607,6 @@ function feedback(success) {
     showImpactFeedback(success);
     if (save.settings.hapticsEnabled && 'vibrate' in navigator)
         navigator.vibrate(success ? 18 : 8);
-    if (!save.settings.audioEnabled)
-        return;
-    try {
-        const context = ensureAudioContext();
-        if (!context)
-            return;
-        const oscillator = context.createOscillator();
-        const gain = context.createGain();
-        const loadout = selectedLoadout();
-        const loadoutTone = loadout.tone;
-        const duration = loadout.duration;
-        oscillator.type = loadout.wave;
-        oscillator.frequency.value = success ? loadoutTone : Math.max(140, loadoutTone * 0.42);
-        gain.gain.setValueAtTime(0.0001, context.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.045, context.currentTime + 0.008);
-        gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + duration);
-        oscillator.connect(gain).connect(context.destination);
-        oscillator.start();
-        oscillator.stop(context.currentTime + duration + 0.015);
-    }
-    catch {
-        // Audio is enhancement only; gameplay never depends on it.
-    }
 }
 function effectsReduced() {
     return save.settings.reducedEffects || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -2447,6 +2665,14 @@ function bindActions() {
                 toggleViewMode();
             else if (action === 'binoculars')
                 toggleBinoculars();
+            else if (action === 'reload')
+                reloadAction();
+            else if (action === 'swap')
+                swapLoadoutAction();
+            else if (action === 'firstAid')
+                firstAidAction();
+            else if (action === 'armorPlate')
+                armorPlateAction();
             else if (action === 'resume')
                 resumeMission();
             else if (action === 'next')
@@ -2475,6 +2701,7 @@ function bindActions() {
             if (!LOADOUTS.some((item) => item.id === id))
                 return;
             selectedLoadoutId = id;
+            loadoutState = createLoadoutState(selectedLoadoutId);
             document.querySelectorAll('[data-loadout-id]').forEach((button) => {
                 const active = button.dataset.loadoutId === selectedLoadoutId;
                 button.classList.toggle('active', active);
