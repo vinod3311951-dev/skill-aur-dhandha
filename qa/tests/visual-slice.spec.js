@@ -30,4 +30,18 @@ test('capture FX-01 World-1 vertical slice surfaces', async ({ page }, testInfo)
     path: testInfo.outputPath('fx01-mission.png'),
     fullPage: true,
   });
+
+  // Founder-relevant combat evidence: World 1 Mission 7 is the first protection/combat mission.
+  await page.goto(BASE, { waitUntil: 'domcontentloaded' });
+  await page.getByRole('button', { name: 'Mission Map' }).click();
+  await page.locator('[data-world-id="1"]').click();
+  await page.locator('[data-mission-id="w1-m07"]').click();
+  await page.getByRole('button', { name: /^Begin$/i }).click();
+  await expect(page.locator('#combatHud')).toBeVisible();
+  await page.waitForTimeout(1250);
+
+  await page.screenshot({
+    path: testInfo.outputPath('fx01-combat-mission7.png'),
+    fullPage: true,
+  });
 });
