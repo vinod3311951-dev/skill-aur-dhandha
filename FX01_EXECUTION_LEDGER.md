@@ -144,6 +144,16 @@ Factory X now inherits `FACTORY_X_CROSS_PROMOTION_DISCOVERY_LAW.md`.
 
 For Sarhad: after a genuine mission result, show at most 1–2 other Factory X game links + **See all games**, below the primary Next/Retry/Replay action. Do not implement cross-promotion during active play. Use a central registry so URLs are not duplicated across screens.
 
+## Open-access launch authority
+
+`FACTORY_X_OPEN_ACCESS_LAUNCH_LAW.md` now applies portfolio-wide.
+
+For Sarhad:
+- all 7 worlds and all 105 missions must be selectable from first launch in ordinary consumer mode;
+- completion still drives score/mastery/postcards/history;
+- no subscription/ad/account gate blocks normal progression in the current phase;
+- future monetisation requires a later explicit founder-approved implementation phase.
+
 ## Next bounded task
 
 **Do not start another patch loop until the latest deterministic QA/combat-profile CI result is read.**

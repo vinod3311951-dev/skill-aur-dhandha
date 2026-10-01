@@ -269,12 +269,7 @@ function scheduleHomeScene() {
         window.addEventListener('load', apply, { once: true });
 }
 function worldUnlocked(worldId) {
-    if (FX23_VERIFICATION_MODE)
-        return true;
-    if (worldId === 1)
-        return true;
-    const previous = missionsForWorld(worldId - 1);
-    return previous.length === 15 && previous.every((mission) => save.completedMissionIds.includes(mission.id));
+    return WORLDS.some((world) => world.id === worldId);
 }
 function worldProgress(worldId) {
     return missionsForWorld(worldId).filter((mission) => save.completedMissionIds.includes(mission.id)).length;
@@ -355,7 +350,8 @@ function renderWorldSelect() {
     <section class="panel world-select">
       <button class="text-btn" data-action="home" aria-label="Back to home">← Home</button>
       <p class="eyebrow">SEVEN FICTIONAL WORLDS</p>
-      <h2>Choose your route.</h2>
+      <h2>Choose any route.</h2>
+      <p class="open-access-note">All seven worlds and all 105 missions are open from the start.</p>
       <div class="world-list">
         ${WORLDS.map((world) => {
         const unlocked = worldUnlocked(world.id);
@@ -380,14 +376,7 @@ function renderWorldSelect() {
     });
 }
 function missionUnlocked(mission) {
-    if (FX23_VERIFICATION_MODE)
-        return true;
-    if (!worldUnlocked(mission.worldId))
-        return false;
-    if (mission.order === 1)
-        return true;
-    const previous = missionsForWorld(mission.worldId).find((item) => item.order === mission.order - 1);
-    return Boolean(previous && save.completedMissionIds.includes(previous.id));
+    return Boolean(mission && worldUnlocked(mission.worldId));
 }
 function renderMissionSelect() {
     stopMissionLoop();

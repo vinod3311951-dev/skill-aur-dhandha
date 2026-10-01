@@ -203,3 +203,25 @@ test('civilian hit applies deterministic visible negative score penalty', async 
   await expect(page.locator('#hint')).toContainText(/Civilian hit.*400 points/i);
   await expect(page.locator('.civilian-penalty')).toContainText('400');
 });
+
+
+test('all seven worlds and 105 missions are open in ordinary consumer mode', async ({ page }) => {
+  await page.goto(BASE, { waitUntil: 'domcontentloaded' });
+  await page.getByRole('button', { name: /Mission Map/i }).click();
+
+  const worlds = page.locator('[data-world-id]');
+  await expect(worlds).toHaveCount(7);
+  for (let i = 0; i < 7; i += 1)
+    await expect(worlds.nth(i)).toBeEnabled();
+
+  await page.locator('[data-world-id="7"]').click();
+  const missions = page.locator('[data-mission-id]');
+  await expect(missions).toHaveCount(15);
+  for (let i = 0; i < 15; i += 1)
+    await expect(missions.nth(i)).toBeEnabled();
+
+  const mission15 = missions.filter({ has: page.locator('.mission-order:text-is("15")') }).first();
+  await mission15.click();
+  await expect(page.getByRole('button', { name: /^Begin$/i })).toBeVisible();
+  await expect(page.getByText(/WORLD 7 • MISSION 15/i)).toBeVisible();
+});

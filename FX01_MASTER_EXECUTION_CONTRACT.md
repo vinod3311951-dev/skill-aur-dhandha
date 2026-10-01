@@ -244,6 +244,12 @@ Retention must come from:
 
 No manipulative streak rescue, deceptive timers or dark-pattern compulsion.
 
+## 12A. Open-access launch inheritance
+
+FX-01 inherits `FACTORY_X_OPEN_ACCESS_LAUNCH_LAW.md`.
+
+All seven worlds and all 105 missions are selectable from first launch in ordinary consumer mode. Completion continues to drive scores, mastery, records, postcards and campaign history, but does not lock access. No subscription/ad/account gate blocks normal missions during the current launch phase.
+
 ## 13. Campaign/content architecture
 
 Keep the 105-mission / 7×15 campaign structure unless later explicitly changed.
