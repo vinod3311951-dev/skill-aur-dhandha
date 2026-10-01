@@ -2494,7 +2494,8 @@ function completeMission() {
         missionRecords: { ...save.missionRecords, [selectedMission.id]: record }
     };
     saveProgress(save);
-    window.setTimeout(() => renderResult(true), effectsReduced() ? 90 : 560);
+    const resultDelay = effectsReduced() ? 90 : (selectedMission.id === 'w1-m1-relay-core' ? 1250 : 560);
+    window.setTimeout(() => renderResult(true), resultDelay);
 }
 function startMission() {
     stopMissionLoop();
