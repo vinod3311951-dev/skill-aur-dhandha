@@ -77,3 +77,31 @@ When no HOLD signal is active, **Continue mate** remains the normal continuation
 ## Next bounded task
 
 Prepare a safe founder-testable representative build/preview **without overwriting current production**, then conduct the founder Android checkpoint. After approval, scale the proven final-quality presentation/audio/reward language across the remaining worlds.
+
+
+## Founder checkpoint result — 2026-10-01
+
+**RESULT: REJECTED FOR PRESENTATION QUALITY.**
+
+Founder Android evidence showed:
+- mission playfield still read as cardboard / placeholder character presentation;
+- no acceptable consumer-grade animation feel;
+- music/SFX were not audibly present on the real device;
+- Captain Rudraa needed the locked moustache + beard treatment.
+
+Binding consequence:
+- do **not** scale this presentation to Worlds 2–7;
+- functional green CI is not equivalent to final-quality approval;
+- representative slice must be rebuilt, visually evidenced, WebKit-reverse-audited and founder-approved first.
+
+Current repair head includes:
+- mobile-safe Web Audio feature detection + user-gesture unlock;
+- stronger differentiated loadout SFX;
+- original code-generated audible world pulse music;
+- Rudraa moustache + beard correction;
+- service-worker shell cache bump;
+- animated, shaped hostile/civilian scene art replacing label/cardboard presentation;
+- dedicated World-1 Mission-7 combat visual evidence capture.
+
+Portfolio law is now also recorded in /AMIT ULTRA/00_CHAT_REFRESH/09_FACTORY_X_VISUAL_APPLE_REVERSE_AUDIT.md:
+no cardboard/placeholder consumer visuals in any future PWA; every new screen addition requires forward verification plus reverse Apple/WebKit risk research before Audit 2.
