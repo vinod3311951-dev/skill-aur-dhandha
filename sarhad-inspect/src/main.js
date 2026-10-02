@@ -281,7 +281,7 @@ function shell(content, showSettings = true) {
         </div>
       </header>
       ${content}
-      <footer class="footer-note">Fictional worlds • Object targets • No real conflicts</footer>
+      <footer class="footer-note">Fictional worlds • Mechanical objectives • No real conflicts</footer>
     </section>`;
 }
 function renderHome() {
@@ -2068,11 +2068,11 @@ function drawTarget(ctx, w, h, target, active, completed, candidateIndex) {
     // The authoritative marker remains centered so art never changes hit truth.
     drawMarker(ctx, tx, ty, Math.max(size * .34, 5), marker, completed);
     if (active && !completed) {
-        ctx.strokeStyle = 'rgba(240,215,124,.38)';
-        ctx.lineWidth = 1.2;
+        // Small equipment-status glint, never a target halo.
+        ctx.fillStyle = 'rgba(240,215,124,.72)';
         ctx.beginPath();
-        ctx.arc(tx, ty, size * 1.72, 0, Math.PI * 2);
-        ctx.stroke();
+        ctx.arc(tx + size * .88, ty - size * .72, Math.max(1.5, size * .08), 0, Math.PI * 2);
+        ctx.fill();
     }
     if (candidateIndex !== undefined) {
         ctx.fillStyle = 'rgba(255,255,255,.88)';
@@ -2084,35 +2084,69 @@ function drawTarget(ctx, w, h, target, active, completed, candidateIndex) {
     ctx.restore();
 }
 function drawMarker(ctx, x, y, size, marker, completed) {
-    ctx.strokeStyle = completed ? '#789d83' : '#f0d77c';
-    ctx.fillStyle = completed ? '#789d83' : '#d7b866';
-    ctx.lineWidth = 2.4;
+    // Physical interaction cue only: never render a bullseye, crosshair, ring target or diamond target.
+    // Deterministic hit truth remains centered at x/y and is independent of this presentation.
+    const metal = completed ? '#6f8f82' : '#d3b765';
+    const edge = completed ? 'rgba(154,187,171,.72)' : 'rgba(240,215,124,.84)';
+    const dark = '#13201c';
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.strokeStyle = edge;
+    ctx.fillStyle = metal;
+    ctx.lineWidth = Math.max(1.4, size * .18);
+
     if (marker === 'ring') {
+        // Drone access latch: offset keyed clamp, not a concentric target.
         ctx.beginPath();
-        ctx.arc(x, y, size, 0, Math.PI * 2);
+        roundedRectPath(ctx, -size * .72, -size * .34, size * 1.44, size * .68, size * .18);
+        ctx.fill();
         ctx.stroke();
+        ctx.fillStyle = dark;
         ctx.beginPath();
-        ctx.arc(x, y, size * .5, 0, Math.PI * 2);
-        ctx.stroke();
+        roundedRectPath(ctx, -size * .31, -size * .15, size * .67, size * .30, size * .08);
+        ctx.fill();
+        ctx.fillStyle = edge;
+        ctx.fillRect(size * .18, -size * .22, size * .13, size * .44);
     }
     else if (marker === 'bar') {
-        ctx.fillRect(x - size, y - size * .24, size * 2, size * .48);
-        ctx.fillRect(x - size * .24, y - size, size * .48, size * 2);
+        // Junction bus connector: asymmetric conductor blades.
+        ctx.fillRect(-size * .82, -size * .20, size * 1.08, size * .40);
+        ctx.fillRect(size * .17, -size * .58, size * .34, size * 1.16);
+        ctx.fillStyle = dark;
+        ctx.fillRect(-size * .26, -size * .10, size * .26, size * .20);
     }
     else if (marker === 'diamond') {
+        // Beacon key: irregular keyed plate with two bolts.
         ctx.beginPath();
-        ctx.moveTo(x, y - size);
-        ctx.lineTo(x + size, y);
-        ctx.lineTo(x, y + size);
-        ctx.lineTo(x - size, y);
+        ctx.moveTo(-size * .76, -size * .40);
+        ctx.lineTo(size * .24, -size * .62);
+        ctx.lineTo(size * .78, -size * .04);
+        ctx.lineTo(size * .45, size * .56);
+        ctx.lineTo(-size * .58, size * .43);
         ctx.closePath();
         ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = dark;
+        ctx.fillRect(-size * .08, -size * .28, size * .20, size * .56);
+        ctx.fillStyle = edge;
+        ctx.beginPath(); ctx.arc(-size * .42, -size * .04, Math.max(1.2, size * .10), 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(size * .42, size * .08, Math.max(1.2, size * .10), 0, Math.PI * 2); ctx.fill();
     }
     else {
+        // Relay/service coupler: keyed socket and latch, matching the Level-1 physical-language rule.
         ctx.beginPath();
-        ctx.arc(x, y, size, 0, Math.PI * 2);
+        roundedRectPath(ctx, -size * .74, -size * .48, size * 1.48, size * .96, size * .20);
         ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = dark;
+        ctx.beginPath();
+        roundedRectPath(ctx, -size * .32, -size * .18, size * .58, size * .36, size * .08);
+        ctx.fill();
+        ctx.fillStyle = edge;
+        ctx.fillRect(size * .18, -size * .30, size * .15, size * .60);
+        ctx.fillRect(-size * .50, size * .20, size * .24, size * .10);
     }
+    ctx.restore();
 }
 function drawRicochetSurface(ctx, w, h, axis, coordinate) {
     ctx.save();
