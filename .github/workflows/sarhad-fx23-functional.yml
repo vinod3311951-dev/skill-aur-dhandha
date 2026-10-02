@@ -79,6 +79,14 @@ jobs:
           GAME_URL: http://127.0.0.1:4173
         run: npx playwright test tests/all-worlds-render.spec.js --project=local-android-chrome --project=local-iphone-webkit --workers=4 --reporter=line
 
+      - name: Preserve exhaustive 105-mission rendered evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: fx01-all-105-rendered-evidence
+          path: qa/test-results/**/world-*.png
+          if-no-files-found: error
+          retention-days: 7
+
       - name: Capture built World-1 signature visual slice on Android and WebKit
         working-directory: qa
         env:
@@ -89,9 +97,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: fx01-visual-evidence
-          path: |
-            qa/test-results/**/fx01-*.png
-            qa/test-results/**/world-*.png
+          path: qa/test-results/**/fx01-*.png
           if-no-files-found: error
           retention-days: 7
       - name: Upload FX-01 QA diagnostic log
