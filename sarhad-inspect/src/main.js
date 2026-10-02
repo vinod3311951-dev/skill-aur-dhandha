@@ -1,5 +1,8 @@
+import { mountGlacierReferenceScene, activateGlacierReferenceScene, destroyPhaserReferenceScene } from './phaser-reference.js';
 import { MISSIONS, WORLDS, missionsForWorld } from './game/config.js';
 import { evaluateRicochetShot, evaluateShot, masteryLabel, masteryStars, protectedFigureAtElapsed, protectedFigureHitAtElapsed, targetAtElapsed } from './game/engine.js';
+import { activeCombatHostiles, activeCombatWave, applyCombatDamage, combatHostileHitAtElapsed, combatHostilePositionAtElapsed, combatProgress, createCombatState, defeatHostile, useArmorPlate, useFirstAid } from './game/combat-state.js';
+import { LOADOUTS, beginLoadoutReload, consumeLoadoutShot, createLoadoutState, cycleLoadout, loadoutReadiness, syncLoadoutState } from './game/loadout-state.js';
 import { loadSave, resetProgress, saveProgress } from './game/storage.js';
 import { beginMissionDiagnostics, finishMissionDiagnostics, markRuntimeReady, noteContextLoss, noteFrame, notePause, noteShot, recordAssetFailure, recordUncaughtError, recordUnhandledRejection, runtimeHealthSnapshot, runtimeSnapshot } from './game/diagnostics.js';
 const appElement = document.querySelector('#app');
@@ -26,25 +29,42 @@ let raf = 0;
 let audioContext = null;
 let ambienceNodes = [];
 let ambienceOscillators = [];
+let ambienceTimers = [];
 let lastMissionStars = 1;
 let lastMissionWasPersonalBest = false;
 let lastMissionPreviousBest = 0;
 let civilianHits = 0;
 let viewMode = 'scope';
+let binocularsActive = false;
+let selectedLoadoutId = 'vector-needle';
+let loadoutState = createLoadoutState(selectedLoadoutId);
+let combatState = null;
+let combatWaveStartedAt = 0;
+let combatPressureTick = 0;
 let missionStatusCache = '';
+let settingsReturnToMission = false;
+let settingsMissionElapsedMs = 0;
+let pendingMissionElapsedRestoreMs = null;
 const SCOPE_ZOOM = 1.78;
+const CIVILIAN_HIT_PENALTY = 400;
 const WORLD_SCENE_SOURCES = {
-    1: '/assets/worlds/sarhad-cliffs.webp',
-    2: '/assets/worlds/dune-outpost.webp',
-    3: '/assets/worlds/frost-ridge.webp',
-    4: '/assets/worlds/jungle-pass.webp',
-    5: '/assets/worlds/coastal-watch.webp',
-    6: '/assets/worlds/canyon-base.webp',
-    7: '/assets/worlds/sky-fortress.webp'
+    1: '/assets/worlds/glacier-reach.svg',
+    2: '/assets/worlds/amber-desert.svg',
+    3: '/assets/worlds/pine-watch.svg',
+    4: '/assets/worlds/monsoon-pass.svg',
+    5: '/assets/worlds/glacier-line.svg',
+    6: '/assets/worlds/red-canyon.svg',
+    7: '/assets/worlds/night-ridge.svg'
 };
 const worldSceneImages = new Map();
 let deferredInstallPrompt = null;
 let resetArmed = false;
+const FX23_VERIFICATION_MODE = new URLSearchParams(location.search).get('fx23') === '1';
+function syncReducedEffectsPresentation() {
+    const reduced = save.settings.reducedEffects || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    document.documentElement.dataset.reducedEffects = reduced ? 'true' : 'false';
+}
+syncReducedEffectsPresentation();
 Object.defineProperty(window, '__SARHAD_DIAGNOSTICS__', {
     configurable: false,
     enumerable: false,
@@ -56,6 +76,7 @@ Object.defineProperty(window, '__SARHAD_HEALTH__', {
     get: () => runtimeHealthSnapshot()
 });
 function qaStateSnapshot() {
+    const elapsed = screen === 'mission' ? currentElapsed() : 0;
     return {
         screen,
         selectedMissionId: selectedMission.id,
@@ -65,7 +86,32 @@ function qaStateSnapshot() {
         attemptsLeft,
         missionScore,
         civilianHits,
+        civilianHitPenalty: CIVILIAN_HIT_PENALTY,
         viewMode,
+        binocularsActive,
+        selectedLoadoutId,
+        selectedLoadoutName: selectedLoadout().name,
+        aimX,
+        aimY,
+        protectedFigures: selectedMission.kind === 'protection'
+            ? (selectedMission.protectedFigures ?? []).map((spec) => ({ id: spec.id, ...protectedFigureAtElapsed(spec, elapsed) }))
+            : [],
+        combat: selectedMission.combatProfile && combatState
+            ? { ...combatState, ...combatProgress(selectedMission.combatProfile, combatState) }
+            : null,
+        loadout: (() => {
+            const ready = loadoutReadiness(loadoutState, elapsed);
+            return {
+                selectedId: ready.definition.id,
+                ammo: ready.ammo,
+                capacity: ready.capacity,
+                reloading: ready.reloading,
+                reloadRemainingMs: ready.reloadRemainingMs,
+                canReload: ready.canReload,
+                swapRemainingMs: ready.swapRemainingMs,
+                canSwap: ready.canSwap
+            };
+        })(),
         visualPerformanceTier: visualPerformanceTier()
     };
 }
@@ -81,12 +127,129 @@ if (new URLSearchParams(location.search).get('test') === '1') {
         value: () => JSON.stringify(qaStateSnapshot())
     });
 }
+if (FX23_VERIFICATION_MODE) {
+    Object.defineProperty(window, '__SARHAD_QA_CONTROL__', {
+        configurable: true,
+        enumerable: false,
+        value: {
+            aimAtCurrentTarget() {
+                if (screen !== 'mission')
+                    return false;
+                const target = currentTarget(currentElapsed());
+                aimX = target.x;
+                aimY = target.y;
+                const reticle = document.querySelector('#reticle');
+                if (reticle)
+                    positionReticle(reticle);
+                return true;
+            },
+            fireAtCurrentTarget() {
+                if (screen !== 'mission')
+                    return false;
+                const target = currentTarget(currentElapsed());
+                aimX = target.x;
+                aimY = target.y;
+                const reticle = document.querySelector('#reticle');
+                if (reticle)
+                    positionReticle(reticle);
+                fire();
+                return true;
+            },
+            shotTruthAtCurrentTarget() {
+                if (screen !== 'mission')
+                    return null;
+                const elapsed = currentElapsed();
+                const target = currentTarget(elapsed);
+                const result = evaluateShot(target, target.x, target.y);
+                return {
+                    loadoutId: selectedLoadoutId,
+                    hit: result.hit,
+                    score: result.score,
+                    distance: result.distance
+                };
+            },
+            aimAtProtectedFigure(index = 0) {
+                if (screen !== 'mission' || selectedMission.kind !== 'protection')
+                    return false;
+                const spec = selectedMission.protectedFigures?.[index];
+                if (!spec)
+                    return false;
+                const position = protectedFigureAtElapsed(spec, currentElapsed());
+                aimX = position.x;
+                aimY = position.y;
+                const reticle = document.querySelector('#reticle');
+                if (reticle)
+                    positionReticle(reticle);
+                return true;
+            },
+            fireAtProtectedFigure(index = 0) {
+                if (screen !== 'mission' || selectedMission.kind !== 'protection')
+                    return false;
+                const spec = selectedMission.protectedFigures?.[index];
+                if (!spec)
+                    return false;
+                const position = protectedFigureAtElapsed(spec, currentElapsed());
+                aimX = position.x;
+                aimY = position.y;
+                const reticle = document.querySelector('#reticle');
+                if (reticle)
+                    positionReticle(reticle);
+                fire();
+                return true;
+            },
+            fireAtFirstCombatHostile() {
+                if (!selectedMission.combatProfile || !combatState || combatState.wavesCleared)
+                    return false;
+                const elapsed = currentElapsed();
+                const waveElapsed = Math.max(0, elapsed - combatWaveStartedAt);
+                const candidates = activeCombatHostiles(selectedMission.combatProfile, combatState)
+                    .map((hostile) => ({ hostile, position: combatHostilePositionAtElapsed(hostile, waveElapsed) }));
+                const candidate = candidates.find(({ position }) => !protectedFigureHitAtElapsed(selectedMission.protectedFigures ?? [], elapsed, position.x, position.y)) ?? candidates[0];
+                if (!candidate)
+                    return false;
+                aimX = candidate.position.x;
+                aimY = candidate.position.y;
+                const reticle = document.querySelector('#reticle');
+                if (reticle)
+                    positionReticle(reticle);
+                fire();
+                return true;
+            },
+            damageRudraa(amount = 120, blast = false) {
+                if (!selectedMission.combatProfile || !combatState)
+                    return false;
+                combatState = applyCombatDamage(selectedMission.combatProfile, combatState, amount, { blast });
+                updateCombatHud();
+                return true;
+            },
+            clearCombatWaves() {
+                if (!selectedMission.combatProfile || !combatState)
+                    return false;
+                while (!combatState.wavesCleared) {
+                    const hostiles = activeCombatHostiles(selectedMission.combatProfile, combatState);
+                    if (!hostiles.length)
+                        break;
+                    const previousWave = combatState.currentWaveIndex;
+                    for (const hostile of hostiles)
+                        combatState = defeatHostile(selectedMission.combatProfile, combatState, hostile.id);
+                    if (!combatState.wavesCleared && combatState.currentWaveIndex !== previousWave) {
+                        combatWaveStartedAt = currentElapsed();
+                        combatPressureTick = 0;
+                    }
+                }
+                updateCombatHud();
+                updateMissionStatus(currentElapsed());
+                return combatState.wavesCleared;
+            }
+        }
+    });
+}
 Object.defineProperty(window, 'render_game_to_text', {
     configurable: false,
     enumerable: false,
     value: () => JSON.stringify({
         screen, selectedMissionId: selectedMission.id, selectedWorldId, paused, missionEnded,
-        attemptsLeft, missionScore, civilianHits, viewMode, visualPerformanceTier: visualPerformanceTier()
+        attemptsLeft, missionScore, civilianHits, viewMode, aimX, aimY, visualPerformanceTier: visualPerformanceTier()
     })
 });
 window.addEventListener('error', (event) => {
@@ -118,16 +281,16 @@ function shell(content, showSettings = true) {
         </div>
       </header>
       ${content}
-      <footer class="footer-note">Fictional worlds • Object targets • No real conflicts</footer>
+      <footer class="footer-note">Fictional worlds • Mechanical objectives • No real conflicts</footer>
     </section>`;
 }
 function renderHome() {
     stopMissionLoop();
     screen = 'home';
     app.innerHTML = shell(`
-    <section class="home-card market-home" style="--home-scene:url('/assets/worlds/sarhad-cliffs.webp')">
+    <section class="home-card market-home">
       <div class="rudraa-lockup" aria-label="Captain Rudraa">
-        <div class="rudraa-portrait" aria-hidden="true"><img src="/assets/characters/captain-rudraa.webp" alt="" loading="eager" decoding="async"></div>
+        <div class="rudraa-portrait" aria-hidden="true"><img src="/assets/characters/captain-rudraa.svg" alt="" loading="eager" decoding="async"></div>
         <div><p class="eyebrow">CAPTAIN RUDRAA</p><strong class="hero-callout">Precision over force.</strong><small class="hero-subcall">Observe first. Protect civilians. Act only on a clean objective.</small></div>
       </div>
       <h2>Observe. Decide. Fire once.</h2>
@@ -159,12 +322,23 @@ function renderHome() {
       ${button('Scenic Archive', 'postcards', 'secondary')}
     </section>`);
     bindActions();
+    scheduleHomeScene();
+}
+function scheduleHomeScene() {
+    const apply = () => requestAnimationFrame(() => requestAnimationFrame(() => {
+        const homeCard = document.querySelector('.home-card');
+        if (!homeCard || screen !== 'home')
+            return;
+        homeCard.style.setProperty('--home-scene', "url('/assets/worlds/glacier-reach.svg')");
+        homeCard.classList.add('scene-ready');
+    }));
+    if (document.readyState === 'complete')
+        apply();
+    else
+        window.addEventListener('load', apply, { once: true });
 }
 function worldUnlocked(worldId) {
-    if (worldId === 1)
-        return true;
-    const previous = missionsForWorld(worldId - 1);
-    return previous.length === 15 && previous.every((mission) => save.completedMissionIds.includes(mission.id));
+    return WORLDS.some((world) => world.id === worldId);
 }
 function worldProgress(worldId) {
     return missionsForWorld(worldId).filter((mission) => save.completedMissionIds.includes(mission.id)).length;
@@ -245,7 +419,8 @@ function renderWorldSelect() {
     <section class="panel world-select">
       <button class="text-btn" data-action="home" aria-label="Back to home">← Home</button>
       <p class="eyebrow">SEVEN FICTIONAL WORLDS</p>
-      <h2>Choose your route.</h2>
+      <h2>Choose any route.</h2>
+      <p class="open-access-note">All seven worlds and all 105 missions are open from the start.</p>
       <div class="world-list">
         ${WORLDS.map((world) => {
         const unlocked = worldUnlocked(world.id);
@@ -270,17 +445,13 @@ function renderWorldSelect() {
     });
 }
 function missionUnlocked(mission) {
-    if (!worldUnlocked(mission.worldId))
-        return false;
-    if (mission.order === 1)
-        return true;
-    const previous = missionsForWorld(mission.worldId).find((item) => item.order === mission.order - 1);
-    return Boolean(previous && save.completedMissionIds.includes(previous.id));
+    return Boolean(mission && worldUnlocked(mission.worldId));
 }
 function renderMissionSelect() {
     stopMissionLoop();
     screen = 'missionSelect';
     const world = worldById(selectedWorldId);
+    ensureWorldScene(world.id);
     const missions = missionsForWorld(selectedWorldId);
     app.innerHTML = shell(`
     <section class="panel mission-select" style="--c1:${world.palette[0]};--c2:${world.palette[1]};--c3:${world.palette[2]}">
@@ -322,18 +493,27 @@ function mechanicLabel(mission) {
     };
     return labels[mission.kind];
 }
+function recommendedLoadoutForMission(mission) {
+    const family = mission.weaponClass;
+    return LOADOUTS.find((item) => item.family === family) ?? LOADOUTS[0];
+}
+function selectedLoadout() {
+    return LOADOUTS.find((item) => item.id === selectedLoadoutId) ?? recommendedLoadoutForMission(selectedMission);
+}
 function weaponLabel(mission) {
-    const labels = {
-        precision: 'Precision class',
-        rapid: 'Rapid class',
-        heavy: 'Heavy class',
-        launcher: 'Launcher class'
-    };
-    return labels[mission.weaponClass];
+    const recommended = recommendedLoadoutForMission(mission);
+    return recommended.name;
+}
+function renderLoadoutRack() {
+    return `<div class="loadout-rack" aria-label="Choose fictional loadout">
+      ${LOADOUTS.map((item) => `<button class="loadout-choice ${item.id === selectedLoadoutId ? 'active' : ''}" data-loadout-id="${item.id}" aria-pressed="${item.id === selectedLoadoutId}">
+        <span>${item.name}</span><small>${item.id === 'field-catapult' ? 'CATAPULT' : item.id === 'siege-rocket' ? 'ROCKET' : item.family.toUpperCase()}</small>
+      </button>`).join('')}
+    </div>`;
 }
 function worldFieldNote(world) {
     const notes = {
-        1: 'Cold ridge air • long clear sightlines',
+        1: 'Ice light • distant cloud • clean sightlines',
         2: 'Warm haze • shifting open windows',
         3: 'Layered pine cover • marker discipline',
         4: 'Rain and mist • moving visibility',
@@ -350,7 +530,7 @@ function fieldNote(mission) {
         sequence: 'Read the order before the first shot. Do not rush the chain.',
         identification: 'The marker is the clue. Confirm it before you commit.',
         ricochet: 'Think in angles. The surface is part of the solution.',
-        protection: 'Read the crossing pattern. Protect civilians first, then take the clean opening.',
+        protection: 'Protect civilians, clear each hostile wave, manage armour, then disable the exposed carrier.',
         disablement: 'Ignore the machine. Find the exposed weakness.'
     };
     return notes[mission.kind];
@@ -359,6 +539,7 @@ function renderBriefing() {
     stopMissionLoop();
     screen = 'briefing';
     const world = worldById(selectedMission.worldId);
+    ensureWorldScene(world.id);
     app.innerHTML = shell(`
     <section class="panel briefing" style="--c1:${world.palette[0]};--c2:${world.palette[1]};--c3:${world.palette[2]}">
       <button class="text-btn" data-action="missionSelect" aria-label="Back to missions">← Missions</button>
@@ -366,27 +547,44 @@ function renderBriefing() {
       <div class="briefing-scenic" style="--world-scene:url('${WORLD_SCENE_SOURCES[world.id]}')" aria-hidden="true"><span>${world.name}</span></div>
       <h2>${selectedMission.title}</h2>
       <p class="objective"><strong>Objective:</strong> ${selectedMission.objective}</p>
-      <div class="world-condition" aria-label="World conditions"><span>${world.name}</span><strong>${worldFieldNote(world)}</strong></div>
-      <div class="rudraa-note"><span aria-hidden="true">R</span><p><strong>Rudraa field note:</strong> ${fieldNote(selectedMission)}</p></div>
+      <div class="world-condition" aria-label="Environmental conditions"><span>ENVIRONMENT • ${world.name}</span><strong>${worldFieldNote(world)}</strong></div>
+      <div class="rudraa-note"><span class="rudraa-note-portrait" aria-hidden="true"><img src="/assets/characters/captain-rudraa.svg" alt="" loading="eager" decoding="async"></span><p><strong>Rudraa field note:</strong> ${fieldNote(selectedMission)}</p></div>
       <div class="brief-grid four">
         <div><span>Mission</span><strong>${mechanicLabel(selectedMission)}</strong></div>
-        <div><span>Attempts</span><strong>${selectedMission.maxAttempts}</strong></div>
-        <div><span>Loadout</span><strong>${weaponLabel(selectedMission)}</strong></div>
-        <div><span>Input</span><strong>Drag + Fire</strong></div>
+        <div><span>${selectedMission.combatProfile ? 'Combat' : 'Attempts'}</span><strong>${selectedMission.combatProfile ? 'Waves + carrier' : selectedMission.maxAttempts}</strong></div>
+        <div><span>Recommended</span><strong>${weaponLabel(selectedMission)}</strong></div>
+        <div><span>Scout</span><strong>Binoculars</strong></div>
       </div>
+      <p class="loadout-help">Choose any fictional loadout. Style, sound and impact feel change — mission hitboxes do not.</p>
+      ${renderLoadoutRack()}
       ${button('Begin', 'start')}
     </section>`);
     bindActions();
 }
-function renderSettings() {
-    stopMissionLoop();
+function renderSettings(returnToMission = false) {
+    if (returnToMission && screen === 'mission') {
+        if (!paused)
+            pauseMission('settings');
+        settingsReturnToMission = true;
+        settingsMissionElapsedMs = currentElapsed();
+        stopWorldAmbience();
+        cancelAnimationFrame(raf);
+        raf = 0;
+        canvas = null;
+    }
+    else if (!returnToMission) {
+        settingsReturnToMission = false;
+        settingsMissionElapsedMs = 0;
+        stopMissionLoop();
+    }
     screen = 'settings';
     const { audioEnabled, hapticsEnabled, reducedEffects } = save.settings;
     app.innerHTML = shell(`
     <section class="panel settings-panel">
-      <button class="text-btn" data-action="home" aria-label="Back to home">← Home</button>
+      <button class="text-btn" data-action="${settingsReturnToMission ? 'returnMission' : 'home'}" aria-label="${settingsReturnToMission ? 'Return to active mission' : 'Back to home'}">← ${settingsReturnToMission ? 'Mission' : 'Home'}</button>
       <p class="eyebrow">SETTINGS</p>
       <h2>Comfort controls.</h2>
+      ${settingsReturnToMission ? '<p class="settings-mission-held" role="status">Active mission held safely while you adjust comfort controls.</p>' : ''}
       <div class="setting-list">
         ${settingRow('Sound', 'audio', audioEnabled)}
         ${settingRow('Haptics', 'haptics', hapticsEnabled)}
@@ -397,7 +595,7 @@ function renderSettings() {
         ${button(isStandaloneDisplay() ? 'Installed' : 'Install', 'install', 'secondary', isStandaloneDisplay())}
       </div>
       <div class="settings-info" aria-label="How to play and privacy">
-        <div><span>HOW TO PLAY</span><strong>Drag to aim • switch Scope / Overview • FIRE only when the objective is clear.</strong><small>Pause is always available. Mission information never depends on sound, colour or motion alone.</small></div>
+        <div><span>HOW TO PLAY</span><strong>Drag to aim • Environmental / Telescope are playable • Binoculars scout the scene • FIRE only when the objective is clear.</strong><small>Pause is always available. Mission information never depends on sound, colour or motion alone.</small></div>
         <div><span>PRIVACY</span><strong>Local-first. No account or sensitive device permissions required.</strong><small>Progress and settings stay in this browser unless the browser clears local storage.</small></div>
       </div>
       <div class="reset-card" aria-label="Reset local progress">
@@ -407,6 +605,19 @@ function renderSettings() {
       <p class="microcopy">Gameplay information remains visible even when effects are reduced.</p>
     </section>`, false);
     bindActions();
+}
+function returnToHeldMission() {
+    if (!settingsReturnToMission) {
+        renderHome();
+        return;
+    }
+    pendingMissionElapsedRestoreMs = settingsMissionElapsedMs;
+    settingsReturnToMission = false;
+    settingsMissionElapsedMs = 0;
+    paused = false;
+    pauseStartedAt = 0;
+    renderMission();
+    startWorldAmbience();
 }
 function settingRow(label, key, enabled) {
     return `<button class="setting-row" data-setting="${key}" aria-pressed="${enabled}"><span>${label}</span><strong>${enabled ? 'ON' : 'OFF'}</strong></button>`;
@@ -421,19 +632,21 @@ function toggleSetting(key) {
         settings.reducedEffects = !settings.reducedEffects;
     save = { ...save, settings };
     saveProgress(save);
-    renderSettings();
+    syncReducedEffectsPresentation();
+    renderSettings(settingsReturnToMission);
 }
 function armReset() {
     resetArmed = true;
-    renderSettings();
+    renderSettings(settingsReturnToMission);
 }
 function cancelReset() {
     resetArmed = false;
-    renderSettings();
+    renderSettings(settingsReturnToMission);
 }
 function confirmReset() {
     stopMissionLoop();
     save = resetProgress();
+    syncReducedEffectsPresentation();
     selectedWorldId = 1;
     selectedMission = MISSIONS[0];
     attemptsLeft = selectedMission.maxAttempts;
@@ -442,6 +655,9 @@ function confirmReset() {
     civilianHits = 0;
     viewMode = 'scope';
     resetArmed = false;
+    settingsReturnToMission = false;
+    settingsMissionElapsedMs = 0;
+    pendingMissionElapsedRestoreMs = null;
     renderHome();
 }
 function isStandaloneDisplay() {
@@ -494,41 +710,75 @@ function currentTarget(elapsedMs) {
 function renderMission() {
     screen = 'mission';
     const world = worldById(selectedMission.worldId);
+    const combatMode = Boolean(selectedMission.combatProfile && combatState);
+    const ready = loadoutReadiness(loadoutState, 0);
     app.innerHTML = shell(`
     <section class="mission-wrap" style="--c1:${world.palette[0]};--c2:${world.palette[1]};--c3:${world.palette[2]}">
       <div class="mission-worldline"><span>WORLD ${world.id}</span><strong>${world.name}</strong><em>${mechanicLabel(selectedMission)}</em></div>
       <div class="mission-hud">
         <div><span>Mission</span><strong>${selectedMission.order}/15</strong></div>
-        <div><span>Attempts</span><strong id="attempts">${attemptsLeft}</strong></div>
+        <div><span>${combatMode ? 'Shots' : 'Attempts'}</span><strong id="attempts">${combatMode ? '∞' : attemptsLeft}</strong></div>
         <div><span>Score</span><strong id="missionScore">${missionScore}</strong></div>
       </div>
-      <div class="loadout-strip"><span>Fictional loadout</span><strong>${weaponLabel(selectedMission)}</strong>${selectedMission.kind === 'protection' ? '<em>Civilian hits <b id="civilianHits">0</b></em>' : ''}</div>
+      <div class="loadout-strip"><span>Fictional loadout</span><strong id="activeLoadout">${ready.definition.name}</strong>${selectedMission.kind === 'protection' ? `<em>Protected civilians • hits <b id="civilianHits">${civilianHits}</b> • −${CIVILIAN_HIT_PENALTY}/hit</em>` : ''}</div>
+      <div class="readiness-strip" id="readinessStrip" aria-label="Loadout readiness">
+        <div><span>AMMO</span><strong id="ammoCount">${ready.ammo}/${ready.capacity}</strong></div>
+        <div><span>RELOAD</span><strong id="reloadState">${ready.reloading ? '...' : ready.canReload ? 'READY' : 'FULL'}</strong></div>
+        <div><span>SWAP</span><strong id="swapState">${ready.canSwap ? 'READY' : 'WAIT'}</strong></div>
+        ${combatMode ? `<div><span>FIRST AID</span><strong id="aidState">${combatState.firstAidKits}</strong></div><div><span>ARMOUR PLATE</span><strong id="plateState">${combatState.armorPlates}</strong></div>` : ''}
+      </div>
+      ${combatMode ? `<div class="combat-hud" id="combatHud" aria-label="Rudraa combat status">
+        <div><span>HEALTH</span><strong id="combatHealth">${Math.round(combatState.health)}</strong><i><b id="combatHealthBar" style="--meter:${combatState.health}%"></b></i></div>
+        <div><span>ARMOUR</span><strong id="combatArmor">${Math.round(combatState.armor)}</strong><i><b id="combatArmorBar" style="--meter:${combatState.armor}%"></b></i></div>
+        <div><span>WAVE</span><strong id="combatWave">${combatProgress(selectedMission.combatProfile, combatState).wave}/${combatProgress(selectedMission.combatProfile, combatState).totalWaves}</strong></div>
+      </div>` : ''}
       <div class="mission-status" id="missionStatus" role="status" aria-live="polite">${missionStatusText(0)}</div>
-      <div class="playfield ${viewMode === 'scope' ? 'scope-view' : 'overview-view'}" id="playfield" data-view="${viewMode}">
-        <canvas id="scene" aria-label="Precision mission play area"></canvas>
+      <div class="playfield ${viewMode === 'scope' ? 'scope-view' : 'overview-view'}${selectedMission.id === 'w1-m1-relay-core' ? ' phaser-reference' : ''}" id="playfield" data-view="${viewMode}">
+        ${selectedMission.id === 'w1-m1-relay-core' ? '<div id="phaserStage" class="phaser-stage" aria-label="Glacier Reach finished presentation reference scene"></div>' : ''}
+        <canvas id="scene" aria-label="Precision mission play area with playable telescopic and environmental views"></canvas>
         <div class="scope-mask" aria-hidden="true"></div>
         <div class="scope-glass" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+        <div class="binocular-mask" id="binocularMask" aria-hidden="true"><i></i></div>
         <div class="reticle" id="reticle" aria-hidden="true"></div>
         <div class="impact-layer" id="impactLayer" aria-hidden="true"></div>
-        <button class="view-toggle" id="viewToggle" data-action="viewToggle" aria-pressed="${viewMode === 'overview'}" aria-label="Switch to ${viewMode === 'scope' ? 'overview' : 'telescopic'} view">${viewMode === 'scope' ? 'OVERVIEW' : 'SCOPE'}</button>
-        ${selectedMission.id === 'w1-m1-relay-core' && !save.completedMissionIds.includes(selectedMission.id) ? '<div class="first-minute-coach" id="firstMinuteCoach" role="status"><strong>DRAG TO AIM</strong><span>Overview is one tap away • FIRE when the sight is settled</span></div>' : ''}
+        <div class="view-tools" aria-label="View tools">
+          <button class="binocular-toggle" id="binocularToggle" data-action="binoculars" aria-pressed="${binocularsActive}" aria-label="${binocularsActive ? 'Exit binoculars' : 'Use binoculars'}">${binocularsActive ? 'BACK TO AIM' : 'BINOCULARS'}</button>
+          <button class="view-toggle" id="viewToggle" data-action="viewToggle" aria-pressed="${viewMode === 'overview'}" aria-label="Switch to ${viewMode === 'scope' ? 'environmental' : 'telescopic'} view">${viewMode === 'scope' ? 'ENVIRONMENT' : 'TELESCOPE'}</button>
+        </div>
+        ${selectedMission.id === 'w1-m1-relay-core' && !save.completedMissionIds.includes(selectedMission.id) ? '<div class="first-minute-coach" id="firstMinuteCoach" role="status"><strong>DRAG TO AIM</strong><span>Use Binoculars to scout • switch views anytime • FIRE when the sight is settled</span></div>' : ''}
         <div class="hint" id="hint">${initialHint()}</div>
         <div class="pause-layer" id="pauseLayer" hidden>
-          <p class="eyebrow">PAUSED</p><h2>Mission held.</h2>${button('Resume', 'resume')}${button('Missions', 'missionSelect', 'secondary')}
+          <p class="eyebrow">PAUSED</p><h2>Mission held.</h2>${button('Resume', 'resume')}${button('Settings', 'missionSettings', 'secondary')}${button('Missions', 'missionSelect', 'secondary')}
         </div>
       </div>
-      <div class="mission-controls">
-        <button class="btn secondary" data-action="pause">Pause</button>
+      <div class="mission-controls ${combatMode ? 'combat-controls' : ''}">
+        <button class="btn secondary compact" data-action="pause">Pause</button>
+        <button class="btn secondary compact" data-action="reload">Reload</button>
+        <button class="btn secondary compact" data-action="swap">Swap</button>
+        ${combatMode ? `<button class="btn aid compact" id="firstAidButton" data-action="firstAid">Aid ×${combatState.firstAidKits}</button><button class="btn armour compact" id="armorButton" data-action="armorPlate">Armour ×${combatState.armorPlates}</button>` : ''}
         <button class="btn fire" data-action="fire">FIRE</button>
       </div>
     </section>`, false);
     bindActions();
     setupPlayfield();
+    if (selectedMission.id === 'w1-m1-relay-core') {
+        const phaserStage = document.querySelector('#phaserStage');
+        if (phaserStage)
+            mountGlacierReferenceScene(phaserStage);
+    }
+    updateLoadoutHud(0);
+    updateCombatHud();
 }
 function missionStatusText(elapsedMs) {
     if (selectedMission.kind === 'sequence' && selectedMission.sequence) {
         const current = Math.min(sequenceIndex + 1, selectedMission.sequence.length);
         return `SEQUENCE • NODE ${current}/${selectedMission.sequence.length}`;
+    }
+    if (selectedMission.combatProfile && combatState) {
+        const progress = combatProgress(selectedMission.combatProfile, combatState);
+        if (progress.wavesCleared)
+            return 'CARRIER EXPOSED • DISABLE DEVICE';
+        return `PROTECT CIVILIANS • WAVE ${progress.wave}/${progress.totalWaves} • ${activeCombatHostiles(selectedMission.combatProfile, combatState).length} HOSTILES`;
     }
     if (selectedMission.kind === 'protection' && selectedMission.threatMs) {
         const seconds = Math.max(0, (selectedMission.threatMs - elapsedMs) / 1000);
@@ -562,6 +812,8 @@ function initialHint() {
         return selectedMission.objective;
     if (selectedMission.kind === 'ricochet')
         return 'Aim at the marked rebound surface.';
+    if (selectedMission.combatProfile)
+        return 'Clear each hostile wave, protect civilians, manage armour, then disable the carrier.';
     if (selectedMission.kind === 'protection')
         return 'Disable the carrier device. Do not hit civilians.';
     if (selectedMission.kind === 'disablement')
@@ -573,16 +825,16 @@ function renderResult(success) {
     screen = 'result';
     const next = nextMission(selectedMission);
     const world = worldById(selectedMission.worldId);
-    const worldCleared = success && selectedMission.order === 15;
-    const campaignCleared = worldCleared && selectedMission.worldId === WORLDS.length;
-    const nextWorld = worldCleared && !campaignCleared ? worldById(selectedMission.worldId + 1) : null;
+    const worldCleared = success && worldProgress(selectedMission.worldId) === 15;
+    const campaignCleared = success && save.completedMissionIds.length === MISSIONS.length;
+    const nextWorld = selectedMission.worldId < WORLDS.length ? worldById(selectedMission.worldId + 1) : null;
     app.innerHTML = shell(`
     <section class="panel result-card ${success ? 'success' : 'fail'}" style="--c1:${world.palette[0]};--c2:${world.palette[1]};--c3:${world.palette[2]}">
       <p class="eyebrow">${campaignCleared ? 'CAMPAIGN COMPLETE' : worldCleared ? 'WORLD COMPLETE' : success ? 'MISSION COMPLETE' : 'MISSION FAILED'}</p>
       <h2>${campaignCleared ? 'Seven worlds secured.' : worldCleared ? `${world.name} secured.` : success ? 'Objective complete.' : 'Objective still active.'}</h2>
       <p>${lastShot?.reason ?? 'Mission ended.'}</p>
       ${success ? `<div class="mastery-badge"><span>${'★'.repeat(lastMissionStars)}${'☆'.repeat(3 - lastMissionStars)}</span><strong>${masteryLabel(lastMissionStars)}</strong><small>mission mastery</small></div>` : ''}
-      ${worldCleared ? `<div class="world-clear-card"><span>${campaignCleared ? '7/7' : `WORLD ${world.id}`}</span><strong>${campaignCleared ? 'Sarhad campaign complete' : world.name}</strong><small>${campaignCleared ? 'All 105 missions are now complete.' : `${nextWorld?.name ?? 'Next route'} is now unlocked.`}</small></div>` : ''}
+      ${worldCleared ? `<div class="world-clear-card"><span>${campaignCleared ? '7/7' : `WORLD ${world.id}`}</span><strong>${campaignCleared ? 'Sarhad campaign complete' : world.name}</strong><small>${campaignCleared ? 'All 105 missions are now complete.' : `${world.name} mastery route complete.`}</small></div>` : ''}
       ${campaignCleared ? `<div class="campaign-finale" aria-label="Campaign completion summary">
         <span class="campaign-finale-kicker">PRECISION JOURNEY COMPLETE</span>
         <div class="campaign-finale-nodes" aria-hidden="true">${WORLDS.map((item) => `<i style="--finale:${item.palette[0]}"></i>`).join('')}</div>
@@ -594,9 +846,10 @@ function renderResult(success) {
       ${success ? `<div class="personal-best-card ${lastMissionWasPersonalBest ? 'new-best' : ''}" aria-label="Mission personal best"><span>${lastMissionWasPersonalBest ? 'NEW PERSONAL BEST' : 'PERSONAL BEST'}</span><strong>${save.missionRecords[selectedMission.id]?.bestScore ?? missionScore}</strong><small>${lastMissionWasPersonalBest && lastMissionPreviousBest > 0 ? `Previous ${lastMissionPreviousBest}` : 'Best score for this mission'}</small></div>` : ''}
       ${success ? `<div class="achievement-card" aria-label="Share-ready achievement card"><span>SARHAD SNIPER</span><strong>${world.name} • Mission ${selectedMission.order}</strong><small>${masteryLabel(lastMissionStars)} • ${'★'.repeat(lastMissionStars)}${'☆'.repeat(3 - lastMissionStars)} • Score ${missionScore}</small></div>` : ''}
       <div class="mission-debrief" aria-label="Mission debrief">
-        <div><span>Attempts saved</span><strong>${Math.max(0, attemptsLeft)}</strong></div>
-        <div><span>Decision</span><strong>${success ? 'Objective clear' : 'Retry ready'}</strong></div>
-        ${selectedMission.kind === 'protection' ? `<div><span>Civilian safety</span><strong>${civilianHits === 0 ? 'Clear' : `${civilianHits} penalty`}</strong></div>` : ''}
+        ${selectedMission.combatProfile && combatState
+            ? `<div><span>Rudraa</span><strong>${Math.round(combatState.health)} health • ${Math.round(combatState.armor)} armour</strong></div><div><span>Waves</span><strong>${combatProgress(selectedMission.combatProfile, combatState).wave}/${combatProgress(selectedMission.combatProfile, combatState).totalWaves}</strong></div>`
+            : `<div><span>Attempts saved</span><strong>${Math.max(0, attemptsLeft)}</strong></div><div><span>Decision</span><strong>${success ? 'Objective clear' : 'Retry ready'}</strong></div>`}
+        ${selectedMission.kind === 'protection' ? `<div><span>Civilian safety</span><strong>${civilianHits === 0 ? 'Clear' : `${civilianHits} hit${civilianHits === 1 ? '' : 's'} • −${civilianHits * CIVILIAN_HIT_PENALTY}`}</strong></div>` : ''}
       </div>
       <div class="result-score"><span>Mission score</span><strong>${missionScore}</strong></div>
       <div class="button-row">
@@ -666,7 +919,9 @@ function setupPlayfield() {
             playfield.releasePointerCapture(event.pointerId);
     });
     positionReticle(reticle);
-    missionStartedAt = performance.now();
+    const restoredElapsed = pendingMissionElapsedRestoreMs;
+    pendingMissionElapsedRestoreMs = null;
+    missionStartedAt = performance.now() - (restoredElapsed ?? 0);
     totalPausedMs = 0;
     pauseStartedAt = 0;
     paused = false;
@@ -708,10 +963,29 @@ function toggleViewMode() {
     if (reticle)
         positionReticle(reticle);
     if (toggle) {
-        toggle.textContent = viewMode === 'scope' ? 'OVERVIEW' : 'SCOPE';
+        toggle.textContent = viewMode === 'scope' ? 'ENVIRONMENT' : 'TELESCOPE';
         toggle.setAttribute('aria-pressed', String(viewMode === 'overview'));
-        toggle.setAttribute('aria-label', `Switch to ${viewMode === 'scope' ? 'overview' : 'telescopic'} view`);
+        toggle.setAttribute('aria-label', `Switch to ${viewMode === 'scope' ? 'environmental' : 'telescopic'} view`);
     }
+}
+function toggleBinoculars() {
+    if (screen !== 'mission' || paused || missionEnded)
+        return;
+    binocularsActive = !binocularsActive;
+    const playfield = document.querySelector('#playfield');
+    const button = document.querySelector('#binocularToggle');
+    if (playfield)
+        playfield.classList.toggle('binocular-view', binocularsActive);
+    if (button) {
+        button.textContent = binocularsActive ? 'BACK TO AIM' : 'BINOCULARS';
+        button.setAttribute('aria-pressed', String(binocularsActive));
+        button.setAttribute('aria-label', binocularsActive ? 'Exit binoculars' : 'Use binoculars');
+    }
+    const hint = document.querySelector('#hint');
+    if (hint)
+        hint.textContent = binocularsActive
+            ? 'Observation mode — scan the environment, then return to aim.'
+            : initialHint();
 }
 function visualPerformanceTier() {
     const nav = navigator;
@@ -747,10 +1021,24 @@ function drawLoop() {
     const now = performance.now();
     noteFrame(now);
     const elapsed = currentElapsed();
+
+    loadoutState = syncLoadoutState(loadoutState, elapsed);
+    updateLoadoutHud(elapsed);
+    if (selectedMission.combatProfile && combatState)
+        processCombatPressure(elapsed);
+    if (missionEnded)
+        return;
+
     updateMissionStatus(elapsed);
     const world = worldById(selectedMission.worldId);
     ctx.save();
-    if (viewMode === 'scope') {
+    if (binocularsActive) {
+        const binocularZoom = 1.28;
+        ctx.translate(w * 0.5, h * 0.5);
+        ctx.scale(binocularZoom, binocularZoom);
+        ctx.translate(-aimX * w, -aimY * h);
+    }
+    else if (viewMode === 'scope') {
         ctx.translate(w * 0.5, h * 0.5);
         ctx.scale(SCOPE_ZOOM, SCOPE_ZOOM);
         ctx.translate(-aimX * w, -aimY * h);
@@ -758,7 +1046,8 @@ function drawLoop() {
     drawWorld(ctx, w, h, world, elapsed);
     drawMissionObjects(ctx, w, h, elapsed);
     ctx.restore();
-    if (selectedMission.kind === 'protection' && selectedMission.threatMs) {
+
+    if (selectedMission.kind === 'protection' && selectedMission.threatMs && !selectedMission.combatProfile) {
         drawProtectionTimer(ctx, w, selectedMission.threatMs, elapsed);
         if (elapsed >= selectedMission.threatMs) {
             missionEnded = true;
@@ -770,16 +1059,26 @@ function drawLoop() {
     }
     raf = requestAnimationFrame(drawLoop);
 }
-function preloadWorldScenes() {
-    Object.entries(WORLD_SCENE_SOURCES).forEach(([worldId, src]) => {
-        const image = new Image();
-        image.decoding = 'async';
-        image.src = src;
-        image.addEventListener('load', () => {
-            worldSceneImages.set(Number(worldId), image);
-        }, { once: true });
-        image.addEventListener('error', () => recordAssetFailure(src), { once: true });
-    });
+const worldSceneLoading = new Set();
+function ensureWorldScene(worldId) {
+    const id = Number(worldId);
+    if (worldSceneImages.has(id) || worldSceneLoading.has(id))
+        return;
+    const src = WORLD_SCENE_SOURCES[id];
+    if (!src)
+        return;
+    worldSceneLoading.add(id);
+    const image = new Image();
+    image.decoding = 'async';
+    image.addEventListener('load', () => {
+        worldSceneLoading.delete(id);
+        worldSceneImages.set(id, image);
+    }, { once: true });
+    image.addEventListener('error', () => {
+        worldSceneLoading.delete(id);
+        recordAssetFailure(src);
+    }, { once: true });
+    image.src = src;
 }
 function drawCoverImage(ctx, image, w, h) {
     const imageRatio = image.naturalWidth / image.naturalHeight;
@@ -798,12 +1097,28 @@ function drawCoverImage(ctx, image, w, h) {
     }
     ctx.drawImage(image, sx, sy, sw, sh, 0, 0, w, h);
 }
+function drawCinematicScenePlate(ctx, image, w, h, world, elapsed) {
+    const reduced = effectsReduced();
+    const lowTier = visualPerformanceTier() === 'low';
+    if (reduced || lowTier) {
+        drawCoverImage(ctx, image, w, h);
+        return;
+    }
+    const driftX = Math.sin(elapsed / 8200 + world.id * 0.7) * w * 0.006;
+    const driftY = Math.cos(elapsed / 10400 + world.id * 0.4) * h * 0.004;
+    ctx.save();
+    ctx.translate(w * 0.5 + driftX, h * 0.5 + driftY);
+    ctx.scale(1.038, 1.038);
+    ctx.translate(-w * 0.5, -h * 0.5);
+    drawCoverImage(ctx, image, w, h);
+    ctx.restore();
+}
 function drawWorld(ctx, w, h, world, elapsed) {
     const [light, mid, dark] = world.palette;
     const visualBand = Math.max(0, Math.min(4, Math.floor((selectedMission.order - 1) / 3)));
     const sceneImage = worldSceneImages.get(world.id);
     if (sceneImage?.complete && sceneImage.naturalWidth > 0) {
-        drawCoverImage(ctx, sceneImage, w, h);
+        drawCinematicScenePlate(ctx, sceneImage, w, h, world, elapsed);
         const cinematicShade = ctx.createLinearGradient(0, 0, 0, h);
         cinematicShade.addColorStop(0, 'rgba(5,12,10,.04)');
         cinematicShade.addColorStop(.58, 'rgba(5,12,10,.10)');
@@ -1008,11 +1323,42 @@ function drawMissionAtmosphere(ctx, w, h, world, visualBand, elapsed) {
         ctx.strokeStyle = `rgba(245,253,255,${.1 + visualBand * .02})`;
         ctx.lineWidth = 1;
         for (let i = 0; i < density; i += 1) {
-            const x = ((i * 61 + selectedMission.order * 31) % 100) / 100 * w;
+            const xBase = ((i * 61 + selectedMission.order * 31) % 100) / 100 * w;
+            const drift = reduced ? 0 : ((elapsed * (0.004 + i * 0.0004)) % (w * .06));
+            const x = (xBase + drift) % w;
             ctx.beginPath();
-            ctx.moveTo(x, h * .18);
-            ctx.lineTo(x + w * .04, h * .28);
+            ctx.moveTo(x, h * .14);
+            ctx.lineTo(x + w * .035, h * .24);
             ctx.stroke();
+        }
+        // World-1 depth planes: decorative cloud/ice framing only.
+        if (world.id === 1) {
+            const cloudShift = reduced ? 0 : Math.sin(elapsed / 6800) * w * .018;
+            const cloud = ctx.createLinearGradient(0, h * .08, 0, h * .34);
+            cloud.addColorStop(0, 'rgba(226,244,249,.09)');
+            cloud.addColorStop(1, 'rgba(226,244,249,0)');
+            ctx.fillStyle = cloud;
+            ctx.beginPath();
+            ctx.ellipse(w * .24 + cloudShift, h * .16, w * .22, h * .065, 0, 0, Math.PI * 2);
+            ctx.ellipse(w * .68 - cloudShift * .6, h * .20, w * .26, h * .075, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            const edge = ctx.createLinearGradient(0, h * .78, 0, h);
+            edge.addColorStop(0, 'rgba(9,27,34,0)');
+            edge.addColorStop(1, 'rgba(5,18,24,.34)');
+            ctx.fillStyle = edge;
+            ctx.beginPath();
+            ctx.moveTo(0, h);
+            ctx.lineTo(0, h * .91);
+            ctx.lineTo(w * .12, h * .86);
+            ctx.lineTo(w * .28, h * .94);
+            ctx.lineTo(w * .48, h * .88);
+            ctx.lineTo(w * .66, h * .95);
+            ctx.lineTo(w * .84, h * .89);
+            ctx.lineTo(w, h * .93);
+            ctx.lineTo(w, h);
+            ctx.closePath();
+            ctx.fill();
         }
     }
     else if (world.scenery === 'monsoon') {
@@ -1138,6 +1484,18 @@ function alpha(hex, opacity) {
     const b = Number.parseInt(normalized.slice(4, 6), 16);
     return `rgba(${r},${g},${b},${opacity})`;
 }
+function roundedRectPath(ctx, x, y, w, h, radius) {
+    const r = Math.max(0, Math.min(radius, Math.abs(w) / 2, Math.abs(h) / 2));
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+}
 function drawMissionObjects(ctx, w, h, elapsed) {
     if (selectedMission.kind === 'sequence' && selectedMission.sequence) {
         selectedMission.sequence.forEach((node, index) => drawTarget(ctx, w, h, node, index === sequenceIndex, index < sequenceIndex));
@@ -1153,13 +1511,167 @@ function drawMissionObjects(ctx, w, h, elapsed) {
         return;
     }
     if (selectedMission.kind === 'protection') {
-        drawProtectionOpposition(ctx, w, h, elapsed);
+        if (selectedMission.combatProfile && combatState)
+            drawCombatHostiles(ctx, w, h, elapsed);
+        else
+            drawProtectionOpposition(ctx, w, h, elapsed);
         drawProtectionCrossfire(ctx, w, h, elapsed);
         drawProtectedFigures(ctx, w, h, elapsed);
-        drawThreatCarrier(ctx, w, h, currentTarget(elapsed));
+        if (!selectedMission.combatProfile || combatState?.wavesCleared)
+            drawThreatCarrier(ctx, w, h, currentTarget(elapsed));
         return;
     }
     drawTarget(ctx, w, h, currentTarget(elapsed), true, false);
+}
+function drawCombatHostiles(ctx, w, h, elapsed) {
+    if (!selectedMission.combatProfile || !combatState || combatState.wavesCleared)
+        return;
+    const world = worldById(selectedMission.worldId);
+    const waveElapsed = Math.max(0, elapsed - combatWaveStartedAt);
+    const hostiles = activeCombatHostiles(selectedMission.combatProfile, combatState);
+    for (let index = 0; index < hostiles.length; index += 1) {
+        const hostile = hostiles[index];
+        const position = combatHostilePositionAtElapsed(hostile, waveElapsed);
+        const x = position.x * w;
+        const y = position.y * h;
+        const scale = Math.max(.86, Math.min(1.34, (w / 390) * (.9 + position.y * .22)));
+        const stride = effectsReduced() ? 0 : Math.sin(elapsed / 155 + index * 1.31);
+        const bob = effectsReduced() ? 0 : Math.abs(stride) * 2.1 * scale;
+        const sway = effectsReduced() ? 0 : Math.sin(elapsed / 420 + index) * 1.8 * scale;
+        const yy = y + bob;
+        const accent = hostile.blast ? '#e6b66b' : world.palette[0];
+
+        ctx.save();
+        ctx.translate(sway, 0);
+
+        const shadow = ctx.createRadialGradient(x, yy + 39 * scale, 0, x, yy + 39 * scale, 22 * scale);
+        shadow.addColorStop(0, 'rgba(0,0,0,.36)');
+        shadow.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = shadow;
+        ctx.beginPath();
+        ctx.ellipse(x, yy + 39 * scale, 22 * scale, 6 * scale, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Fictional black diving/tactical suit silhouette with articulated limbs.
+        const torso = ctx.createLinearGradient(x - 15 * scale, yy - 18 * scale, x + 16 * scale, yy + 20 * scale);
+        torso.addColorStop(0, '#394641');
+        torso.addColorStop(.32, '#17201d');
+        torso.addColorStop(.72, '#090e0c');
+        torso.addColorStop(1, '#020403');
+        ctx.fillStyle = torso;
+        ctx.strokeStyle = 'rgba(198,218,208,.38)';
+        ctx.lineWidth = 1.1 * scale;
+        ctx.beginPath();
+        ctx.moveTo(x - 10 * scale, yy - 17 * scale);
+        ctx.quadraticCurveTo(x - 16 * scale, yy - 5 * scale, x - 11 * scale, yy + 15 * scale);
+        ctx.quadraticCurveTo(x, yy + 21 * scale, x + 11 * scale, yy + 15 * scale);
+        ctx.quadraticCurveTo(x + 16 * scale, yy - 5 * scale, x + 10 * scale, yy - 17 * scale);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Compact fictional air/tool pack adds depth without real-world insignia.
+        ctx.fillStyle = '#101815';
+        ctx.beginPath();
+        ctx.moveTo(x + 8 * scale, yy - 13 * scale);
+        ctx.lineTo(x + 17 * scale, yy - 9 * scale);
+        ctx.lineTo(x + 18 * scale, yy + 10 * scale);
+        ctx.lineTo(x + 10 * scale, yy + 14 * scale);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(123,150,139,.3)';
+        ctx.stroke();
+
+        // Hood + reflective visor.
+        ctx.fillStyle = '#080c0b';
+        ctx.beginPath();
+        ctx.ellipse(x, yy - 29 * scale, 9.6 * scale, 11.8 * scale, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(190,211,202,.34)';
+        ctx.stroke();
+        const visor = ctx.createLinearGradient(x - 7 * scale, yy - 32 * scale, x + 7 * scale, yy - 27 * scale);
+        visor.addColorStop(0, 'rgba(75,116,116,.82)');
+        visor.addColorStop(.5, 'rgba(189,226,220,.62)');
+        visor.addColorStop(1, 'rgba(31,55,55,.9)');
+        ctx.fillStyle = visor;
+        ctx.beginPath();
+        ctx.moveTo(x - 7 * scale, yy - 32 * scale);
+        ctx.quadraticCurveTo(x, yy - 35 * scale, x + 7 * scale, yy - 32 * scale);
+        ctx.lineTo(x + 6 * scale, yy - 27 * scale);
+        ctx.quadraticCurveTo(x, yy - 25 * scale, x - 6 * scale, yy - 27 * scale);
+        ctx.closePath();
+        ctx.fill();
+
+        // Shoulder armour and seam work.
+        ctx.fillStyle = '#222d29';
+        ctx.beginPath(); ctx.ellipse(x - 10 * scale, yy - 13 * scale, 6 * scale, 3.6 * scale, -.28, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(x + 10 * scale, yy - 13 * scale, 6 * scale, 3.6 * scale, .28, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = 'rgba(117,160,150,.26)';
+        ctx.beginPath(); ctx.moveTo(x, yy - 15 * scale); ctx.lineTo(x, yy + 12 * scale); ctx.stroke();
+
+        // Bent arms with a compact fictional directional module.
+        const arm = stride * 5.5 * scale;
+        ctx.strokeStyle = '#0a0f0d';
+        ctx.lineWidth = 5.4 * scale;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(x - 9 * scale, yy - 10 * scale);
+        ctx.lineTo(x - 14 * scale, yy + arm * .45);
+        ctx.lineTo(x - 10 * scale, yy + 11 * scale + arm);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x + 9 * scale, yy - 10 * scale);
+        ctx.lineTo(x + 13 * scale, yy - arm * .35);
+        ctx.lineTo(x + 18 * scale, yy - 3 * scale);
+        ctx.stroke();
+        ctx.strokeStyle = '#31423c';
+        ctx.lineWidth = 4 * scale;
+        ctx.beginPath(); ctx.moveTo(x + 15 * scale, yy - 4 * scale); ctx.lineTo(x + 30 * scale, yy - 9 * scale); ctx.stroke();
+        ctx.fillStyle = accent;
+        ctx.beginPath(); ctx.arc(x + 31 * scale, yy - 9 * scale, 2 * scale, 0, Math.PI * 2); ctx.fill();
+
+        // Articulated knees and boots produce an obvious walk cycle.
+        ctx.strokeStyle = '#070b09';
+        ctx.lineWidth = 6 * scale;
+        const leg = stride * 6.2 * scale;
+        ctx.beginPath();
+        ctx.moveTo(x - 4 * scale, yy + 12 * scale);
+        ctx.lineTo(x - 6 * scale - leg * .35, yy + 25 * scale);
+        ctx.lineTo(x - 10 * scale - leg, yy + 39 * scale);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x + 4 * scale, yy + 12 * scale);
+        ctx.lineTo(x + 6 * scale + leg * .35, yy + 25 * scale);
+        ctx.lineTo(x + 10 * scale + leg, yy + 39 * scale);
+        ctx.stroke();
+        ctx.strokeStyle = '#1b2722';
+        ctx.lineWidth = 4 * scale;
+        ctx.beginPath(); ctx.moveTo(x - 14 * scale - leg, yy + 40 * scale); ctx.lineTo(x - 7 * scale - leg, yy + 40 * scale); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x + 7 * scale + leg, yy + 40 * scale); ctx.lineTo(x + 14 * scale + leg, yy + 40 * scale); ctx.stroke();
+        ctx.lineCap = 'butt';
+
+        // Consumer target cue is a floating optical lock, never a cardboard rectangle or text label.
+        const cueR = Math.max(13, position.radius * Math.min(w, h));
+        const pulse = effectsReduced() ? .45 : .42 + (Math.sin(elapsed / 180 + index) + 1) * .08;
+        ctx.strokeStyle = alpha(accent, pulse);
+        ctx.lineWidth = 1.6 * scale;
+        ctx.beginPath();
+        ctx.arc(x, yy - 3 * scale, cueR * 1.18, -.72, .72);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(x, yy - 3 * scale, cueR * 1.18, Math.PI - .72, Math.PI + .72);
+        ctx.stroke();
+        if (hostile.blast) {
+            ctx.fillStyle = alpha(accent, .68);
+            for (let k = 0; k < 4; k += 1) {
+                const a = elapsed / 420 + k * Math.PI / 2;
+                ctx.beginPath();
+                ctx.arc(x + Math.cos(a) * cueR * 1.45, yy - 3 * scale + Math.sin(a) * cueR * 1.45, 1.7 * scale, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        ctx.restore();
+    }
 }
 function drawProtectionOpposition(ctx, w, h, elapsed) {
     // Fictional opposing figures provide urgency only. They are scenery, never valid targets.
@@ -1191,7 +1703,7 @@ function drawProtectionOpposition(ctx, w, h, elapsed) {
         ctx.stroke();
         ctx.fillStyle = '#16221e';
         ctx.beginPath();
-        ctx.roundRect(x - 6.2 * scale, y - 30.5 * scale, 12.4 * scale, 5.2 * scale, 2.2 * scale);
+        roundedRectPath(ctx, x - 6.2 * scale, y - 30.5 * scale, 12.4 * scale, 5.2 * scale, 2.2 * scale);
         ctx.fill();
         ctx.fillStyle = 'rgba(164,196,185,.48)';
         ctx.fillRect(x - 4.7 * scale, y - 28.9 * scale, 9.4 * scale, 1.6 * scale);
@@ -1217,7 +1729,7 @@ function drawProtectionOpposition(ctx, w, h, elapsed) {
         ctx.stroke();
         ctx.fillStyle = '#111915';
         ctx.beginPath();
-        ctx.roundRect(x - position.facing * 12 * scale - 4 * scale, y - 15 * scale, 8 * scale, 22 * scale, 3 * scale);
+        roundedRectPath(ctx, x - position.facing * 12 * scale - 4 * scale, y - 15 * scale, 8 * scale, 22 * scale, 3 * scale);
         ctx.fill();
         // Articulated arms with a compact fictional directional tool. It intentionally avoids a real weapon silhouette.
         const armSwing = walk * 3.6 * scale;
@@ -1309,124 +1821,97 @@ function drawProtectedFigures(ctx, w, h, elapsed) {
         const figure = selectedMission.protectedFigures[index];
         const position = protectedFigureAtElapsed(figure, elapsed);
         const x = position.x * w;
-        const walk = effectsReduced() ? 0 : Math.sin(elapsed / 210 + index * 2.1);
-        const y = position.y * h + Math.abs(walk) * 1.2;
-        const depthScale = 0.92 + Math.max(0, Math.min(0.34, (position.y - 0.48) * 1.2));
-        const scale = Math.max(0.94, Math.min(1.32, (w / 390) * depthScale));
+        const stride = effectsReduced() ? 0 : Math.sin(elapsed / 175 + index * 1.9);
+        const y = position.y * h + (effectsReduced() ? 0 : Math.abs(stride) * 1.7);
+        const depthScale = .92 + Math.max(0, Math.min(.36, (position.y - .46) * 1.2));
+        const scale = Math.max(.94, Math.min(1.34, (w / 390) * depthScale));
         const facing = index % 2 === 0 ? 1 : -1;
         const skin = index % 3 === 0 ? '#bf8f6e' : index % 3 === 1 ? '#d0a07d' : '#9e7157';
-        const jacket = index % 3 === 0 ? '#465b69' : index % 3 === 1 ? '#6b5947' : '#3e5650';
+        const jacket = index % 3 === 0 ? '#486477' : index % 3 === 1 ? '#735d48' : '#49665d';
+        const darkJacket = index % 3 === 0 ? '#263845' : index % 3 === 1 ? '#3d3027' : '#263b35';
         const trouser = index % 2 === 0 ? '#26302d' : '#303638';
-        const swing = walk * 5.2 * scale;
-        // Soft grounded shadow for depth against the scenic plate.
-        ctx.fillStyle = 'rgba(0,0,0,.26)';
-        ctx.beginPath();
-        ctx.ellipse(x, y + 37 * scale, 13 * scale, 3.5 * scale, 0, 0, Math.PI * 2);
-        ctx.fill();
-        // Hair + head with layered face shading; no stereotyped cultural markers.
-        ctx.fillStyle = '#141816';
-        ctx.beginPath();
-        ctx.ellipse(x - facing * 1.1 * scale, y - 31.2 * scale, 7.8 * scale, 9.2 * scale, -facing * 0.06, 0, Math.PI * 2);
-        ctx.fill();
-        const faceGrad = ctx.createLinearGradient(x - 6 * scale, y - 35 * scale, x + 7 * scale, y - 22 * scale);
-        faceGrad.addColorStop(0, skin);
-        faceGrad.addColorStop(1, '#75513f');
-        ctx.fillStyle = faceGrad;
-        ctx.beginPath();
-        ctx.ellipse(x + facing * 1.7 * scale, y - 28.8 * scale, 6.2 * scale, 7.5 * scale, facing * 0.06, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = 'rgba(20,24,22,.6)';
-        ctx.beginPath();
-        ctx.arc(x + facing * 3.4 * scale, y - 30.1 * scale, 0.8 * scale, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = skin;
-        ctx.fillRect(x - 2.2 * scale, y - 22.5 * scale, 4.4 * scale, 4.8 * scale);
-        // Layered jacket body creates a recognisable human profile instead of a mannequin block.
-        const bodyGrad = ctx.createLinearGradient(x - 10 * scale, y - 20 * scale, x + 10 * scale, y + 12 * scale);
-        bodyGrad.addColorStop(0, jacket);
-        bodyGrad.addColorStop(1, '#1f2c29');
-        ctx.fillStyle = bodyGrad;
-        ctx.strokeStyle = 'rgba(7,15,12,.65)';
+        const armSwing = stride * 6.2 * scale;
+        const legSwing = stride * 5.2 * scale;
+
+        const shadow = ctx.createRadialGradient(x, y + 40 * scale, 0, x, y + 40 * scale, 20 * scale);
+        shadow.addColorStop(0, 'rgba(0,0,0,.3)');
+        shadow.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = shadow;
+        ctx.beginPath(); ctx.ellipse(x, y + 40 * scale, 20 * scale, 5 * scale, 0, 0, Math.PI * 2); ctx.fill();
+
+        // Hair, face and neck.
+        ctx.fillStyle = '#151817';
+        ctx.beginPath(); ctx.ellipse(x - facing * 1.5 * scale, y - 31 * scale, 8.8 * scale, 10.3 * scale, -facing * .08, 0, Math.PI * 2); ctx.fill();
+        const face = ctx.createLinearGradient(x - 7 * scale, y - 34 * scale, x + 8 * scale, y - 23 * scale);
+        face.addColorStop(0, skin);
+        face.addColorStop(1, '#75513f');
+        ctx.fillStyle = face;
+        ctx.beginPath(); ctx.ellipse(x + facing * 2 * scale, y - 29 * scale, 6.6 * scale, 8.1 * scale, facing * .08, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = 'rgba(18,22,20,.72)';
+        ctx.beginPath(); ctx.arc(x + facing * 4 * scale, y - 30 * scale, .9 * scale, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = skin; ctx.fillRect(x - 2.3 * scale, y - 22.5 * scale, 4.6 * scale, 5 * scale);
+
+        // Layered winter field clothing, shaped rather than boxed.
+        const body = ctx.createLinearGradient(x - 12 * scale, y - 20 * scale, x + 12 * scale, y + 15 * scale);
+        body.addColorStop(0, jacket);
+        body.addColorStop(.62, darkJacket);
+        body.addColorStop(1, '#17231f');
+        ctx.fillStyle = body;
+        ctx.strokeStyle = 'rgba(9,17,14,.58)';
         ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.moveTo(x - 7.8 * scale, y - 19 * scale);
-        ctx.quadraticCurveTo(x - 11 * scale, y - 5 * scale, x - 7 * scale, y + 9 * scale);
-        ctx.quadraticCurveTo(x, y + 13 * scale, x + 7 * scale, y + 9 * scale);
-        ctx.quadraticCurveTo(x + 11 * scale, y - 5 * scale, x + 7.8 * scale, y - 19 * scale);
+        ctx.moveTo(x - 8 * scale, y - 19 * scale);
+        ctx.quadraticCurveTo(x - 13 * scale, y - 5 * scale, x - 9 * scale, y + 12 * scale);
+        ctx.quadraticCurveTo(x, y + 17 * scale, x + 9 * scale, y + 12 * scale);
+        ctx.quadraticCurveTo(x + 13 * scale, y - 5 * scale, x + 8 * scale, y - 19 * scale);
         ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-        ctx.strokeStyle = 'rgba(207,222,214,.20)';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(x, y - 18 * scale);
-        ctx.lineTo(x, y + 8 * scale);
-        ctx.stroke();
-        // Articulated arms with hands and walking swing.
-        ctx.strokeStyle = jacket;
-        ctx.lineWidth = 4.8 * scale;
+        ctx.fill(); ctx.stroke();
+        ctx.strokeStyle = 'rgba(225,235,230,.22)';
+        ctx.beginPath(); ctx.moveTo(x, y - 18 * scale); ctx.lineTo(x, y + 10 * scale); ctx.stroke();
+
+        // Moving arms and hands.
+        ctx.strokeStyle = darkJacket;
+        ctx.lineWidth = 5.2 * scale;
         ctx.lineCap = 'round';
-        ctx.beginPath();
-        ctx.moveTo(x - 6.2 * scale, y - 13 * scale);
-        ctx.lineTo(x - 10.5 * scale, y - 1 * scale + swing);
-        ctx.lineTo(x - 8.2 * scale, y + 8 * scale);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(x + 6.2 * scale, y - 13 * scale);
-        ctx.lineTo(x + 10.5 * scale, y - 1 * scale - swing);
-        ctx.lineTo(x + 8.2 * scale, y + 8 * scale);
-        ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x - 7 * scale, y - 13 * scale); ctx.lineTo(x - 12 * scale, y - 1 * scale + armSwing); ctx.lineTo(x - 9 * scale, y + 9 * scale); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x + 7 * scale, y - 13 * scale); ctx.lineTo(x + 12 * scale, y - 1 * scale - armSwing); ctx.lineTo(x + 9 * scale, y + 9 * scale); ctx.stroke();
         ctx.fillStyle = skin;
-        ctx.beginPath();
-        ctx.arc(x - 8.2 * scale, y + 8 * scale, 2.2 * scale, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(x + 8.2 * scale, y + 8 * scale, 2.2 * scale, 0, Math.PI * 2);
-        ctx.fill();
-        // Separated legs + shoes sell a real walking cycle while hitboxes remain engine-owned.
+        ctx.beginPath(); ctx.arc(x - 9 * scale, y + 9 * scale, 2.2 * scale, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(x + 9 * scale, y + 9 * scale, 2.2 * scale, 0, Math.PI * 2); ctx.fill();
+
+        // Legs and shoes with a stronger visible gait.
         ctx.strokeStyle = trouser;
-        ctx.lineWidth = 5.4 * scale;
-        ctx.beginPath();
-        ctx.moveTo(x - 3.2 * scale, y + 7 * scale);
-        ctx.lineTo(x - 4.5 * scale - walk * 2.5, y + 23 * scale);
-        ctx.lineTo(x - 7.5 * scale - walk * 4, y + 34 * scale);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(x + 3.2 * scale, y + 7 * scale);
-        ctx.lineTo(x + 4.5 * scale + walk * 2.5, y + 23 * scale);
-        ctx.lineTo(x + 7.5 * scale + walk * 4, y + 34 * scale);
-        ctx.stroke();
-        ctx.strokeStyle = '#111815';
-        ctx.lineWidth = 3.4 * scale;
-        ctx.beginPath();
-        ctx.moveTo(x - 9 * scale - walk * 4, y + 35 * scale);
-        ctx.lineTo(x - 4 * scale - walk * 4, y + 35 * scale);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(x + 4 * scale + walk * 4, y + 35 * scale);
-        ctx.lineTo(x + 9 * scale + walk * 4, y + 35 * scale);
-        ctx.stroke();
+        ctx.lineWidth = 5.8 * scale;
+        ctx.beginPath(); ctx.moveTo(x - 3 * scale, y + 10 * scale); ctx.lineTo(x - 5 * scale - legSwing * .35, y + 25 * scale); ctx.lineTo(x - 9 * scale - legSwing, y + 39 * scale); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x + 3 * scale, y + 10 * scale); ctx.lineTo(x + 5 * scale + legSwing * .35, y + 25 * scale); ctx.lineTo(x + 9 * scale + legSwing, y + 39 * scale); ctx.stroke();
+        ctx.strokeStyle = '#111815'; ctx.lineWidth = 3.6 * scale;
+        ctx.beginPath(); ctx.moveTo(x - 13 * scale - legSwing, y + 40 * scale); ctx.lineTo(x - 6 * scale - legSwing, y + 40 * scale); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x + 6 * scale + legSwing, y + 40 * scale); ctx.lineTo(x + 13 * scale + legSwing, y + 40 * scale); ctx.stroke();
         ctx.lineCap = 'butt';
-        // Neutral carry bag/backpack adds silhouette variety without real-world branding.
+
         if (index % 2 === 1) {
-            ctx.fillStyle = '#283934';
+            ctx.fillStyle = '#2d403a';
             ctx.beginPath();
-            ctx.roundRect(x - facing * 11 * scale - 4 * scale, y - 13 * scale, 8 * scale, 16 * scale, 3 * scale);
-            ctx.fill();
+            ctx.moveTo(x - facing * 14 * scale, y - 11 * scale);
+            ctx.lineTo(x - facing * 7 * scale, y - 14 * scale);
+            ctx.lineTo(x - facing * 7 * scale, y + 6 * scale);
+            ctx.lineTo(x - facing * 15 * scale, y + 4 * scale);
+            ctx.closePath(); ctx.fill();
         }
-        // Compact neutral marker is redundant to the human silhouette and keeps colour from being the only safety cue.
-        ctx.fillStyle = 'rgba(6,16,12,.82)';
+
+        // Safety cue is a small shield/check glyph, never a text placard.
+        const sx = x + facing * 18 * scale, sy = y - 17 * scale;
+        ctx.strokeStyle = 'rgba(223,243,233,.76)';
+        ctx.lineWidth = 1.5 * scale;
         ctx.beginPath();
-        ctx.roundRect(x - 21 * scale, y + 40 * scale, 42 * scale, 12 * scale, 6 * scale);
-        ctx.fill();
-        ctx.strokeStyle = 'rgba(220,232,226,.32)';
-        ctx.lineWidth = 0.8;
+        ctx.moveTo(sx, sy - 6 * scale);
+        ctx.lineTo(sx + 6 * scale, sy - 3 * scale);
+        ctx.lineTo(sx + 5 * scale, sy + 4 * scale);
+        ctx.quadraticCurveTo(sx, sy + 9 * scale, sx - 5 * scale, sy + 4 * scale);
+        ctx.lineTo(sx - 6 * scale, sy - 3 * scale);
+        ctx.closePath();
         ctx.stroke();
-        ctx.fillStyle = '#edf3ef';
-        ctx.font = `800 ${Math.max(6.5, 7.5 * scale)}px system-ui`;
-        ctx.textAlign = 'center';
-        ctx.fillText('CIVILIAN', x, y + 49 * scale);
-        ctx.textAlign = 'start';
+        ctx.beginPath(); ctx.moveTo(sx - 3 * scale, sy + 1 * scale); ctx.lineTo(sx - .5 * scale, sy + 4 * scale); ctx.lineTo(sx + 4 * scale, sy - 2 * scale); ctx.stroke();
     }
     ctx.restore();
 }
@@ -1444,7 +1929,7 @@ function drawThreatCarrier(ctx, w, h, target) {
     ctx.fill();
     ctx.stroke();
     ctx.beginPath();
-    ctx.roundRect(x - 9 * scale, y - 5 * scale, 18 * scale, 25 * scale, 5 * scale);
+    roundedRectPath(ctx, x - 9 * scale, y - 5 * scale, 18 * scale, 25 * scale, 5 * scale);
     ctx.fill();
     ctx.stroke();
     ctx.fillStyle = '#6f5d3e';
@@ -1501,14 +1986,14 @@ function drawTarget(ctx, w, h, target, active, completed, candidateIndex) {
         }
         ctx.fillStyle = '#0c1411';
         ctx.beginPath();
-        ctx.roundRect(tx - size * .48, ty - size * .24, size * .96, size * .55, size * .16);
+        roundedRectPath(ctx, tx - size * .48, ty - size * .24, size * .96, size * .55, size * .16);
         ctx.fill();
     }
     else if (marker === 'bar') {
         // Power junction with protective side rails and exposed center bus.
         ctx.fillStyle = metal;
         ctx.beginPath();
-        ctx.roundRect(tx - size * .88, ty - size * 1.02, size * 1.76, size * 2.04, size * .16);
+        roundedRectPath(ctx, tx - size * .88, ty - size * 1.02, size * 1.76, size * 2.04, size * .16);
         ctx.fill();
         ctx.stroke();
         ctx.fillStyle = '#111815';
@@ -1562,12 +2047,12 @@ function drawTarget(ctx, w, h, target, active, completed, candidateIndex) {
         ctx.fill();
         ctx.fillStyle = metal;
         ctx.beginPath();
-        ctx.roundRect(tx - size * .82, ty - size * .84, size * 1.64, size * 1.62, size * .18);
+        roundedRectPath(ctx, tx - size * .82, ty - size * .84, size * 1.64, size * 1.62, size * .18);
         ctx.fill();
         ctx.stroke();
         ctx.fillStyle = '#0b1411';
         ctx.beginPath();
-        ctx.roundRect(tx - size * .52, ty - size * .46, size * 1.04, size * .86, size * .11);
+        roundedRectPath(ctx, tx - size * .52, ty - size * .46, size * 1.04, size * .86, size * .11);
         ctx.fill();
         ctx.fillStyle = 'rgba(180,204,191,.26)';
         ctx.fillRect(tx - size * .40, ty - size * .30, size * .8, size * .08);
@@ -1583,11 +2068,11 @@ function drawTarget(ctx, w, h, target, active, completed, candidateIndex) {
     // The authoritative marker remains centered so art never changes hit truth.
     drawMarker(ctx, tx, ty, Math.max(size * .34, 5), marker, completed);
     if (active && !completed) {
-        ctx.strokeStyle = 'rgba(240,215,124,.38)';
-        ctx.lineWidth = 1.2;
+        // Small equipment-status glint, never a target halo.
+        ctx.fillStyle = 'rgba(240,215,124,.72)';
         ctx.beginPath();
-        ctx.arc(tx, ty, size * 1.72, 0, Math.PI * 2);
-        ctx.stroke();
+        ctx.arc(tx + size * .88, ty - size * .72, Math.max(1.5, size * .08), 0, Math.PI * 2);
+        ctx.fill();
     }
     if (candidateIndex !== undefined) {
         ctx.fillStyle = 'rgba(255,255,255,.88)';
@@ -1599,35 +2084,69 @@ function drawTarget(ctx, w, h, target, active, completed, candidateIndex) {
     ctx.restore();
 }
 function drawMarker(ctx, x, y, size, marker, completed) {
-    ctx.strokeStyle = completed ? '#789d83' : '#f0d77c';
-    ctx.fillStyle = completed ? '#789d83' : '#d7b866';
-    ctx.lineWidth = 2.4;
+    // Physical interaction cue only: never render a bullseye, crosshair, ring target or diamond target.
+    // Deterministic hit truth remains centered at x/y and is independent of this presentation.
+    const metal = completed ? '#6f8f82' : '#d3b765';
+    const edge = completed ? 'rgba(154,187,171,.72)' : 'rgba(240,215,124,.84)';
+    const dark = '#13201c';
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.strokeStyle = edge;
+    ctx.fillStyle = metal;
+    ctx.lineWidth = Math.max(1.4, size * .18);
+
     if (marker === 'ring') {
+        // Drone access latch: offset keyed clamp, not a concentric target.
         ctx.beginPath();
-        ctx.arc(x, y, size, 0, Math.PI * 2);
+        roundedRectPath(ctx, -size * .72, -size * .34, size * 1.44, size * .68, size * .18);
+        ctx.fill();
         ctx.stroke();
+        ctx.fillStyle = dark;
         ctx.beginPath();
-        ctx.arc(x, y, size * .5, 0, Math.PI * 2);
-        ctx.stroke();
+        roundedRectPath(ctx, -size * .31, -size * .15, size * .67, size * .30, size * .08);
+        ctx.fill();
+        ctx.fillStyle = edge;
+        ctx.fillRect(size * .18, -size * .22, size * .13, size * .44);
     }
     else if (marker === 'bar') {
-        ctx.fillRect(x - size, y - size * .24, size * 2, size * .48);
-        ctx.fillRect(x - size * .24, y - size, size * .48, size * 2);
+        // Junction bus connector: asymmetric conductor blades.
+        ctx.fillRect(-size * .82, -size * .20, size * 1.08, size * .40);
+        ctx.fillRect(size * .17, -size * .58, size * .34, size * 1.16);
+        ctx.fillStyle = dark;
+        ctx.fillRect(-size * .26, -size * .10, size * .26, size * .20);
     }
     else if (marker === 'diamond') {
+        // Beacon key: irregular keyed plate with two bolts.
         ctx.beginPath();
-        ctx.moveTo(x, y - size);
-        ctx.lineTo(x + size, y);
-        ctx.lineTo(x, y + size);
-        ctx.lineTo(x - size, y);
+        ctx.moveTo(-size * .76, -size * .40);
+        ctx.lineTo(size * .24, -size * .62);
+        ctx.lineTo(size * .78, -size * .04);
+        ctx.lineTo(size * .45, size * .56);
+        ctx.lineTo(-size * .58, size * .43);
         ctx.closePath();
         ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = dark;
+        ctx.fillRect(-size * .08, -size * .28, size * .20, size * .56);
+        ctx.fillStyle = edge;
+        ctx.beginPath(); ctx.arc(-size * .42, -size * .04, Math.max(1.2, size * .10), 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(size * .42, size * .08, Math.max(1.2, size * .10), 0, Math.PI * 2); ctx.fill();
     }
     else {
+        // Relay/service coupler: keyed socket and latch, matching the Level-1 physical-language rule.
         ctx.beginPath();
-        ctx.arc(x, y, size, 0, Math.PI * 2);
+        roundedRectPath(ctx, -size * .74, -size * .48, size * 1.48, size * .96, size * .20);
         ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = dark;
+        ctx.beginPath();
+        roundedRectPath(ctx, -size * .32, -size * .18, size * .58, size * .36, size * .08);
+        ctx.fill();
+        ctx.fillStyle = edge;
+        ctx.fillRect(size * .18, -size * .30, size * .15, size * .60);
+        ctx.fillRect(-size * .50, size * .20, size * .24, size * .10);
     }
+    ctx.restore();
 }
 function drawRicochetSurface(ctx, w, h, axis, coordinate) {
     ctx.save();
@@ -1653,19 +2172,263 @@ function drawProtectionTimer(ctx, w, total, elapsed) {
     ctx.fillStyle = remaining > .35 ? '#d7b866' : '#dc8b73';
     ctx.fillRect(w * .1, 16, w * .8 * remaining, 8);
 }
-function fire() {
-    if (screen !== 'mission' || paused || missionEnded || attemptsLeft <= 0)
+function updateLoadoutHud(elapsed = currentElapsed()) {
+    const ready = loadoutReadiness(loadoutState, elapsed);
+    loadoutState = ready.state;
+    selectedLoadoutId = ready.definition.id;
+    const active = document.querySelector('#activeLoadout');
+    const ammo = document.querySelector('#ammoCount');
+    const reload = document.querySelector('#reloadState');
+    const swap = document.querySelector('#swapState');
+    if (active)
+        active.textContent = ready.definition.name;
+    if (ammo)
+        ammo.textContent = `${ready.ammo}/${ready.capacity}`;
+    if (reload)
+        reload.textContent = ready.reloading ? `${(ready.reloadRemainingMs / 1000).toFixed(1)}s` : ready.canReload ? 'READY' : 'FULL';
+    if (swap)
+        swap.textContent = ready.canSwap ? 'READY' : `${(ready.swapRemainingMs / 1000).toFixed(1)}s`;
+}
+function updateCombatHud() {
+    if (!selectedMission.combatProfile || !combatState)
         return;
+    const progress = combatProgress(selectedMission.combatProfile, combatState);
+    const values = [
+        ['#combatHealth', Math.round(combatState.health)],
+        ['#combatArmor', Math.round(combatState.armor)],
+        ['#combatWave', `${progress.wave}/${progress.totalWaves}`],
+        ['#aidState', combatState.firstAidKits],
+        ['#plateState', combatState.armorPlates]
+    ];
+    for (const [selector, value] of values) {
+        const element = document.querySelector(selector);
+        if (element)
+            element.textContent = String(value);
+    }
+    const healthBar = document.querySelector('#combatHealthBar');
+    const armorBar = document.querySelector('#combatArmorBar');
+    if (healthBar)
+        healthBar.style.setProperty('--meter', `${combatState.health}%`);
+    if (armorBar)
+        armorBar.style.setProperty('--meter', `${combatState.armor}%`);
+    const aid = document.querySelector('#firstAidButton');
+    if (aid) {
+        aid.textContent = `Aid ×${combatState.firstAidKits}`;
+        aid.disabled = combatState.firstAidKits <= 0 || combatState.health >= 100 || combatState.down;
+    }
+    const plate = document.querySelector('#armorButton');
+    if (plate) {
+        plate.textContent = `Armour ×${combatState.armorPlates}`;
+        plate.disabled = combatState.armorPlates <= 0 || combatState.armor >= 100 || combatState.down;
+    }
+}
+function reloadAction() {
+    if (screen !== 'mission' || paused || missionEnded)
+        return;
+    const result = beginLoadoutReload(loadoutState, currentElapsed());
+    loadoutState = result.state;
+    updateLoadoutHud();
+    const hint = document.querySelector('#hint');
+    if (hint)
+        hint.textContent = result.started ? 'Reloading…' : 'Reload not needed or already in progress.';
+}
+function swapLoadoutAction() {
+    if (screen !== 'mission' || paused || missionEnded)
+        return;
+    const result = cycleLoadout(loadoutState, currentElapsed());
+    loadoutState = result.state;
+    selectedLoadoutId = loadoutState.selectedId;
+    updateLoadoutHud();
+    const hint = document.querySelector('#hint');
+    if (hint)
+        hint.textContent = result.swapped ? `Swapped to ${selectedLoadout().name}.` : 'Swap cooling down.';
+}
+function firstAidAction() {
+    if (!selectedMission.combatProfile || !combatState || paused || missionEnded)
+        return;
+    const next = useFirstAid(selectedMission.combatProfile, combatState);
+    const used = next !== combatState;
+    combatState = next;
+    updateCombatHud();
+    const hint = document.querySelector('#hint');
+    if (hint)
+        hint.textContent = used ? 'First aid applied.' : 'First aid unavailable.';
+}
+function armorPlateAction() {
+    if (!selectedMission.combatProfile || !combatState || paused || missionEnded)
+        return;
+    const next = useArmorPlate(selectedMission.combatProfile, combatState);
+    const used = next !== combatState;
+    combatState = next;
+    updateCombatHud();
+    const hint = document.querySelector('#hint');
+    if (hint)
+        hint.textContent = used ? 'Armour restored.' : 'Armour plate unavailable.';
+}
+function processCombatPressure(elapsed) {
+    if (!selectedMission.combatProfile || !combatState || combatState.wavesCleared || combatState.down)
+        return;
+    const wave = activeCombatWave(selectedMission.combatProfile, combatState);
+    const hostiles = activeCombatHostiles(selectedMission.combatProfile, combatState);
+    if (!wave || !hostiles.length)
+        return;
+    const due = Math.floor(Math.max(0, elapsed - combatWaveStartedAt) / Math.max(1000, wave.pressureEveryMs));
+    if (due <= combatPressureTick)
+        return;
+    combatPressureTick = due;
+    const attacker = hostiles[(due - 1) % hostiles.length];
+    combatState = applyCombatDamage(selectedMission.combatProfile, combatState, attacker.damage, { blast: attacker.blast });
+    updateCombatHud();
+    if (combatState.down) {
+        missionEnded = true;
+        lastShot = { hit: false, score: 0, distance: 1, reason: 'Rudraa is down. Retry with armour and first-aid timing.' };
+        finishMissionDiagnostics(false, currentElapsed());
+        window.setTimeout(() => renderResult(false), 220);
+    }
+}
+function fireProtectionCombat(elapsed) {
+    const profile = selectedMission.combatProfile;
+    if (!profile || !combatState)
+        return;
+    const protectedHit = protectedFigureHitAtElapsed(selectedMission.protectedFigures ?? [], elapsed, aimX, aimY);
+    if (protectedHit) {
+        civilianHits += 1;
+        missionScore -= CIVILIAN_HIT_PENALTY;
+        lastShot = { hit: false, score: -CIVILIAN_HIT_PENALTY, distance: 0, reason: `Civilian hit — −${CIVILIAN_HIT_PENALTY} points.` };
+        feedback(false);
+        showCivilianPenaltyFeedback();
+        const hint = document.querySelector('#hint');
+        const score = document.querySelector('#missionScore');
+        const civilian = document.querySelector('#civilianHits');
+        if (hint)
+            hint.textContent = lastShot.reason;
+        if (score)
+            score.textContent = String(missionScore);
+        if (civilian)
+            civilian.textContent = String(civilianHits);
+        return;
+    }
+
+    if (!combatState.wavesCleared) {
+        const waveElapsed = Math.max(0, elapsed - combatWaveStartedAt);
+        const hit = combatHostileHitAtElapsed(profile, combatState, waveElapsed, aimX, aimY);
+        const hint = document.querySelector('#hint');
+        if (!hit) {
+            lastShot = { hit: false, score: 0, distance: 1, reason: 'No clean hostile target. Reacquire.' };
+            feedback(false);
+            if (hint)
+                hint.textContent = lastShot.reason;
+            return;
+        }
+        const previousWave = combatState.currentWaveIndex;
+        combatState = defeatHostile(profile, combatState, hit.hostile.id);
+        missionScore += 120;
+        lastShot = { hit: true, score: 120, distance: hit.distance, reason: 'Hostile cleared.' };
+        feedback(true);
+        const score = document.querySelector('#missionScore');
+        if (score)
+            score.textContent = String(missionScore);
+        if (combatState.wavesCleared) {
+            if (hint)
+                hint.textContent = 'Hostile waves clear. Disable the exposed carrier.';
+        }
+        else if (combatState.currentWaveIndex !== previousWave) {
+            combatWaveStartedAt = elapsed;
+            combatPressureTick = 0;
+            if (hint)
+                hint.textContent = `Wave ${previousWave + 1} clear. Next wave.`;
+        }
+        else if (hint) {
+            hint.textContent = 'Clean hit. Keep civilians out of the sightline.';
+        }
+        updateCombatHud();
+        updateMissionStatus(elapsed);
+        return;
+    }
+
+    const result = evaluateShot(currentTarget(elapsed), aimX, aimY);
+    lastShot = result;
+    feedback(result.hit);
+    const hint = document.querySelector('#hint');
+    if (!result.hit) {
+        if (hint)
+            hint.textContent = 'Carrier still active. Settle the sight and fire again.';
+        return;
+    }
+    missionScore += result.score + 250;
+    const score = document.querySelector('#missionScore');
+    if (score)
+        score.textContent = String(missionScore);
+    lastShot = { ...result, score: result.score + 250, reason: 'Carrier disabled after all hostile waves cleared.' };
+    missionEnded = true;
+    completeMission();
+}
+function playLoadoutFireSound() {
+    if (!save.settings.audioEnabled)
+        return;
+    try {
+        const context = ensureAudioContext();
+        if (!context)
+            return;
+        const ready = loadoutReadiness(loadoutState, currentElapsed());
+        const profile = ready.definition.fire;
+        for (const layer of profile.layers) {
+            const oscillator = context.createOscillator();
+            const gain = context.createGain();
+            oscillator.type = layer.type;
+            oscillator.frequency.setValueAtTime(layer.from, context.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(Math.max(20, layer.to), context.currentTime + profile.duration);
+            gain.gain.setValueAtTime(.0001, context.currentTime);
+            gain.gain.exponentialRampToValueAtTime(Math.max(.018, layer.gain * 1.9), context.currentTime + .008);
+            gain.gain.exponentialRampToValueAtTime(.0001, context.currentTime + profile.duration);
+            oscillator.connect(gain).connect(context.destination);
+            oscillator.start();
+            oscillator.stop(context.currentTime + profile.duration + .02);
+        }
+    }
+    catch {
+        // Audio is an enhancement; gameplay state is authoritative.
+    }
+}
+function fire() {
+    if (screen !== 'mission' || paused || missionEnded)
+        return;
+    if (binocularsActive) {
+        const hint = document.querySelector('#hint');
+        if (hint)
+            hint.textContent = 'Binoculars are for observation. Tap BACK TO AIM before firing.';
+        return;
+    }
     const elapsed = currentElapsed();
+    const consumed = consumeLoadoutShot(loadoutState, elapsed);
+    loadoutState = consumed.state;
+    if (!consumed.fired) {
+        const hint = document.querySelector('#hint');
+        if (hint)
+            hint.textContent = consumed.reason === 'reloading' ? 'Reload in progress.' : 'Ammo empty — Reload or Swap.';
+        updateLoadoutHud(elapsed);
+        return;
+    }
     noteShot();
+    playLoadoutFireSound();
+    updateLoadoutHud(elapsed);
+
+    if (selectedMission.combatProfile && combatState) {
+        fireProtectionCombat(elapsed);
+        return;
+    }
+    if (attemptsLeft <= 0)
+        return;
+
     if (selectedMission.kind === 'protection' && selectedMission.protectedFigures) {
         const protectedHit = protectedFigureHitAtElapsed(selectedMission.protectedFigures, elapsed, aimX, aimY);
         if (protectedHit) {
             attemptsLeft -= 1;
             civilianHits += 1;
-            missionScore = Math.max(0, missionScore - 400);
-            lastShot = { hit: false, score: 0, distance: 0, reason: 'Civilian hit — score penalty.' };
+            missionScore -= CIVILIAN_HIT_PENALTY;
+            lastShot = { hit: false, score: -CIVILIAN_HIT_PENALTY, distance: 0, reason: `Civilian hit — −${CIVILIAN_HIT_PENALTY} points.` };
             feedback(false);
+            showCivilianPenaltyFeedback();
             const hint = document.querySelector('#hint');
             const attempts = document.querySelector('#attempts');
             const scoreEl = document.querySelector('#missionScore');
@@ -1686,6 +2449,7 @@ function fire() {
             return;
         }
     }
+
     let result;
     if (selectedMission.kind === 'ricochet' && selectedMission.ricochet) {
         result = evaluateRicochetShot(selectedMission.target, selectedMission.ricochet, aimX, aimY);
@@ -1706,6 +2470,7 @@ function fire() {
     else {
         result = evaluateShot(currentTarget(elapsed), aimX, aimY);
     }
+
     lastShot = result;
     attemptsLeft -= 1;
     feedback(result.hit);
@@ -1714,14 +2479,14 @@ function fire() {
     const scoreEl = document.querySelector('#missionScore');
     if (attempts)
         attempts.textContent = String(attemptsLeft);
+
     if (result.hit) {
         missionScore += result.score;
         if (scoreEl)
             scoreEl.textContent = String(missionScore);
         if (selectedMission.kind === 'sequence' && selectedMission.sequence) {
             sequenceIndex += 1;
-            const sequenceComplete = sequenceIndex >= selectedMission.sequence.length;
-            if (!sequenceComplete) {
+            if (sequenceIndex < selectedMission.sequence.length) {
                 const next = selectedMission.sequence[sequenceIndex];
                 if (hint)
                     hint.textContent = `${result.reason} Next target: ${next.label}.`;
@@ -1732,6 +2497,7 @@ function fire() {
         completeMission();
         return;
     }
+
     if (hint)
         hint.textContent = result.reason;
     if (attemptsLeft <= 0) {
@@ -1762,7 +2528,8 @@ function completeMission() {
         missionRecords: { ...save.missionRecords, [selectedMission.id]: record }
     };
     saveProgress(save);
-    window.setTimeout(() => renderResult(true), effectsReduced() ? 90 : 560);
+    const resultDelay = selectedMission.id === 'w1-m1-relay-core' ? 3500 : (effectsReduced() ? 90 : 560);
+    window.setTimeout(() => renderResult(true), resultDelay);
 }
 function startMission() {
     stopMissionLoop();
@@ -1777,7 +2544,13 @@ function startMission() {
     civilianHits = 0;
     sequenceIndex = 0;
     viewMode = 'scope';
+    binocularsActive = false;
     missionEnded = false;
+    missionStatusCache = '';
+    loadoutState = createLoadoutState(selectedLoadoutId);
+    combatState = selectedMission.combatProfile ? createCombatState(selectedMission.combatProfile) : null;
+    combatWaveStartedAt = 0;
+    combatPressureTick = 0;
     beginMissionDiagnostics(selectedMission.id);
     renderMission();
     startWorldAmbience();
@@ -1789,6 +2562,7 @@ function pauseMission(reason = 'manual') {
     pauseStartedAt = performance.now();
     notePause(reason);
     cancelAnimationFrame(raf);
+    stopWorldAmbience();
     const layer = document.querySelector('#pauseLayer');
     if (layer)
         layer.hidden = false;
@@ -1803,6 +2577,7 @@ function resumeMission() {
     if (layer)
         layer.hidden = true;
     drawLoop();
+    startWorldAmbience();
 }
 function nextMission(mission) {
     if (mission.order < 15)
@@ -1822,12 +2597,14 @@ function goNext() {
     renderBriefing();
 }
 function showEnvironmentActivation() {
+    if (selectedMission.id === 'w1-m1-relay-core')
+        activateGlacierReferenceScene();
     const layer = document.querySelector('#impactLayer');
     if (!layer)
         return;
     const world = worldById(selectedMission.worldId);
     const activation = document.createElement('div');
-    activation.className = `environment-activation${effectsReduced() ? ' reduced' : ''}`;
+    activation.className = `environment-activation world-${world.id}${effectsReduced() ? ' reduced' : ''}`;
     activation.style.setProperty('--activation-light', world.palette[0]);
     activation.style.setProperty('--activation-mid', world.palette[1]);
     activation.setAttribute('aria-hidden', 'true');
@@ -1835,12 +2612,25 @@ function showEnvironmentActivation() {
     layer.appendChild(activation);
     window.setTimeout(() => activation.remove(), effectsReduced() ? 180 : 620);
 }
+function showCivilianPenaltyFeedback() {
+    const layer = document.querySelector('#impactLayer');
+    if (!layer)
+        return;
+    const penalty = document.createElement('span');
+    penalty.className = `civilian-penalty${effectsReduced() ? ' reduced' : ''}`;
+    penalty.style.left = `${aimX * 100}%`;
+    penalty.style.top = `${aimY * 100}%`;
+    penalty.textContent = `−${CIVILIAN_HIT_PENALTY}`;
+    layer.appendChild(penalty);
+    window.setTimeout(() => penalty.remove(), effectsReduced() ? 320 : 760);
+}
 function showImpactFeedback(success) {
     const layer = document.querySelector('#impactLayer');
     if (!layer)
         return;
     const pulse = document.createElement('span');
-    pulse.className = `impact-pulse ${success ? 'hit' : 'miss'} weapon-${selectedMission.weaponClass}${effectsReduced() ? ' reduced' : ''}`;
+    const loadout = selectedLoadout();
+    pulse.className = `impact-pulse ${success ? 'hit' : 'miss'} weapon-${loadout.family}${effectsReduced() ? ' reduced' : ''}`;
     pulse.style.left = `${aimX * 100}%`;
     pulse.style.top = `${aimY * 100}%`;
     layer.appendChild(pulse);
@@ -1850,7 +2640,10 @@ function ensureAudioContext() {
     if (!save.settings.audioEnabled)
         return null;
     try {
-        audioContext ??= new AudioContext();
+        const AudioCtor = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtor)
+            return null;
+        audioContext ??= new AudioCtor();
         if (audioContext.state === 'suspended')
             void audioContext.resume().catch(() => undefined);
         return audioContext;
@@ -1876,6 +2669,9 @@ function stopWorldAmbience() {
         }
         catch { /* optional */ }
     }
+    for (const timer of ambienceTimers)
+        window.clearInterval(timer);
+    ambienceTimers = [];
     ambienceOscillators = [];
     ambienceNodes = [];
 }
@@ -1889,10 +2685,12 @@ function startWorldAmbience() {
     try {
         const world = worldById(selectedMission.worldId);
         const baseByWorld = [92, 104, 110, 98, 124, 84, 116];
+        const bpmByWorld = [88, 90, 86, 92, 84, 94, 90];
         const base = baseByWorld[world.id - 1] ?? 96;
+        const bpm = bpmByWorld[world.id - 1] ?? 88;
         const master = context.createGain();
         master.gain.setValueAtTime(0.0001, context.currentTime);
-        master.gain.exponentialRampToValueAtTime(0.012, context.currentTime + 0.35);
+        master.gain.exponentialRampToValueAtTime(0.045, context.currentTime + 0.28);
         master.connect(context.destination);
         const low = context.createOscillator();
         low.type = 'sine';
@@ -1910,13 +2708,44 @@ function startWorldAmbience() {
         lfo.type = 'sine';
         lfo.frequency.value = 0.08 + world.id * 0.006;
         const lfoGain = context.createGain();
-        lfoGain.gain.value = 0.0035;
+        lfoGain.gain.value = 0.0025;
         lfo.connect(lfoGain).connect(master.gain);
+        // Sarhad's restrained pulse is tempo, not forced loudness.
+        // World 1 establishes the approved 82–94 BPM identity at 88 BPM.
+        const beat = context.createOscillator();
+        beat.type = 'sine';
+        beat.frequency.value = bpm / 60;
+        const beatGain = context.createGain();
+        beatGain.gain.value = world.id === 1 ? 0.0018 : 0.0012;
+        beat.connect(beatGain).connect(master.gain);
         low.start();
         air.start();
         lfo.start();
-        ambienceOscillators = [low, air, lfo];
-        ambienceNodes = [master, lowGain, airGain, lfoGain];
+        beat.start();
+
+        // Original, code-generated pulse motif: audible music without third-party recordings.
+        const intervals = world.id % 2 === 0 ? [1, 1.5, 1.25, 1.5] : [1, 1.333, 1.5, 1.25];
+        let step = 0;
+        const playPulse = () => {
+            if (screen !== 'mission' || paused || missionEnded || !save.settings.audioEnabled)
+                return;
+            const tone = context.createOscillator();
+            const toneGain = context.createGain();
+            tone.type = world.scenery === 'glacier' || world.scenery === 'night' ? 'sine' : 'triangle';
+            tone.frequency.setValueAtTime(base * 2 * intervals[step % intervals.length], context.currentTime);
+            toneGain.gain.setValueAtTime(.0001, context.currentTime);
+            toneGain.gain.exponentialRampToValueAtTime(.055, context.currentTime + .012);
+            toneGain.gain.exponentialRampToValueAtTime(.0001, context.currentTime + .22);
+            tone.connect(toneGain).connect(master);
+            tone.start();
+            tone.stop(context.currentTime + .24);
+            step += 1;
+        };
+        playPulse();
+        ambienceTimers.push(window.setInterval(playPulse, Math.max(420, Math.round(60000 / bpm))));
+
+        ambienceOscillators = [low, air, lfo, beat];
+        ambienceNodes = [master, lowGain, airGain, lfoGain, beatGain];
     }
     catch {
         stopWorldAmbience();
@@ -1924,35 +2753,14 @@ function startWorldAmbience() {
 }
 function feedback(success) {
     showImpactFeedback(success);
-    if (save.settings.hapticsEnabled && 'vibrate' in navigator)
+    if (save.settings.hapticsEnabled && typeof navigator.vibrate === 'function')
         navigator.vibrate(success ? 18 : 8);
-    if (!save.settings.audioEnabled)
-        return;
-    try {
-        const context = ensureAudioContext();
-        if (!context)
-            return;
-        const oscillator = context.createOscillator();
-        const gain = context.createGain();
-        const loadoutTone = { precision: 640, rapid: 720, heavy: 360, launcher: 250 }[selectedMission.weaponClass];
-        const duration = { precision: 0.10, rapid: 0.075, heavy: 0.13, launcher: 0.17 }[selectedMission.weaponClass];
-        oscillator.type = selectedMission.weaponClass === 'launcher' ? 'triangle' : selectedMission.weaponClass === 'heavy' ? 'square' : 'sine';
-        oscillator.frequency.value = success ? loadoutTone : Math.max(150, loadoutTone * 0.42);
-        gain.gain.setValueAtTime(0.0001, context.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.045, context.currentTime + 0.008);
-        gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + duration);
-        oscillator.connect(gain).connect(context.destination);
-        oscillator.start();
-        oscillator.stop(context.currentTime + duration + 0.015);
-    }
-    catch {
-        // Audio is enhancement only; gameplay never depends on it.
-    }
 }
 function effectsReduced() {
     return save.settings.reducedEffects || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 function stopMissionLoop() {
+    destroyPhaserReferenceScene();
     stopWorldAmbience();
     cancelAnimationFrame(raf);
     raf = 0;
@@ -2004,12 +2812,26 @@ function bindActions() {
                 pauseMission();
             else if (action === 'viewToggle')
                 toggleViewMode();
+            else if (action === 'binoculars')
+                toggleBinoculars();
+            else if (action === 'reload')
+                reloadAction();
+            else if (action === 'swap')
+                swapLoadoutAction();
+            else if (action === 'firstAid')
+                firstAidAction();
+            else if (action === 'armorPlate')
+                armorPlateAction();
             else if (action === 'resume')
                 resumeMission();
             else if (action === 'next')
                 goNext();
             else if (action === 'settings')
                 renderSettings();
+            else if (action === 'missionSettings')
+                renderSettings(true);
+            else if (action === 'returnMission')
+                returnToHeldMission();
             else if (action === 'share')
                 void shareAchievement();
             else if (action === 'install')
@@ -2022,10 +2844,52 @@ function bindActions() {
                 confirmReset();
         });
     });
+    document.querySelectorAll('[data-loadout-id]').forEach((element) => {
+        element.addEventListener('click', () => {
+            const id = element.dataset.loadoutId ?? '';
+            if (!LOADOUTS.some((item) => item.id === id))
+                return;
+            selectedLoadoutId = id;
+            loadoutState = createLoadoutState(selectedLoadoutId);
+            document.querySelectorAll('[data-loadout-id]').forEach((button) => {
+                const active = button.dataset.loadoutId === selectedLoadoutId;
+                button.classList.toggle('active', active);
+                button.setAttribute('aria-pressed', String(active));
+            });
+        });
+    });
     document.querySelectorAll('[data-setting]').forEach((element) => {
         element.addEventListener('click', () => toggleSetting(element.dataset.setting ?? ''));
     });
 }
+function handleMissionMapDelegatedClick(event) {
+    const node = event.target instanceof Element
+        ? event.target.closest('[data-mission-id],[data-world-id]')
+        : null;
+    if (!node)
+        return;
+    if (node instanceof HTMLButtonElement && node.disabled)
+        return;
+    if (screen === 'worldSelect' && node.hasAttribute('data-world-id')) {
+        const worldId = Number(node.dataset.worldId);
+        if (!Number.isFinite(worldId) || !worldUnlocked(worldId))
+            return;
+        selectedWorldId = worldId;
+        renderMissionSelect();
+        return;
+    }
+    if (screen === 'missionSelect' && node.hasAttribute('data-mission-id')) {
+        const missionId = node.dataset.missionId ?? '';
+        const mission = MISSIONS.find((item) => item.id === missionId);
+        if (!mission || !missionUnlocked(mission))
+            return;
+        selectedMission = mission;
+        selectedWorldId = mission.worldId;
+        renderBriefing();
+    }
+}
+app.addEventListener('click', handleMissionMapDelegatedClick);
+
 function handleVisibilityChange() {
     if (document.hidden && screen === 'mission' && !paused && !missionEnded)
         pauseMission('visibility');
@@ -2046,19 +2910,28 @@ function registerInstallFlow() {
         event.preventDefault();
         deferredInstallPrompt = event;
         if (screen === 'settings')
-            renderSettings();
+            renderSettings(settingsReturnToMission);
     });
     window.addEventListener('appinstalled', () => {
         deferredInstallPrompt = null;
         if (screen === 'settings')
-            renderSettings();
+            renderSettings(settingsReturnToMission);
     });
 }
+function unlockAudioFromGesture() {
+    if (!save.settings.audioEnabled)
+        return;
+    const context = ensureAudioContext();
+    if (context?.state === 'suspended')
+        void context.resume().catch(() => undefined);
+}
+window.addEventListener('pointerdown', unlockAudioFromGesture, { passive: true });
+window.addEventListener('touchstart', unlockAudioFromGesture, { passive: true });
+
 document.addEventListener('visibilitychange', handleVisibilityChange);
 window.addEventListener('pagehide', handlePageHide);
 registerInstallFlow();
 registerServiceWorker();
-preloadWorldScenes();
 renderHome();
 markRuntimeReady();
 const injectedTest = window.__TEST__;

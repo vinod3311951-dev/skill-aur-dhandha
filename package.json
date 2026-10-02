@@ -6,5 +6,8 @@
   "scripts": {
     "build": "node build.mjs",
     "start": "node server.mjs"
+  },
+  "dependencies": {
+    "phaser": "3.90.0"
   }
 }

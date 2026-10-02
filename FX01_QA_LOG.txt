@@ -1,0 +1,107 @@
+
+Running 14 tests using 2 workers
+
+[1/14] [local-android-chrome] › tests/fx23-functional.spec.js:20:1 › level 1 is playable and completion unlocks level 2
+[2/14] [local-android-chrome] › tests/smoke.spec.js:3:1 › game loads, becomes ready, renders, stays error-free and holds frame rate
+[3/14] [local-android-chrome] › tests/fx23-functional.spec.js:49:3 › representative level 5 opens into playable mission
+[4/14] [local-android-chrome] › tests/fx23-functional.spec.js:49:3 › representative level 10 opens into playable mission
+[5/14] [local-android-chrome] › tests/fx23-functional.spec.js:49:3 › representative level 25 opens into playable mission
+[6/14] [local-android-chrome] › tests/fx23-functional.spec.js:49:3 › representative level 50 opens into playable mission
+[7/14] [local-android-chrome] › tests/fx23-functional.spec.js:49:3 › representative level 100 opens into playable mission
+[8/14] [local-iphone-webkit] › tests/fx23-functional.spec.js:20:1 › level 1 is playable and completion unlocks level 2
+[local-android-chrome] › tests/smoke.spec.js:3:1 › game loads, becomes ready, renders, stays error-free and holds frame rate
+[screenshot FPS diagnostic] {
+  "fpsBefore": {
+    "frames": 575,
+    "avgFps": 57.4,
+    "p95FrameMs": 16.8,
+    "p95Fps": 59.5,
+    "p99FrameMs": 33.4,
+    "worstFrameMs": 50,
+    "longFrames": 0,
+    "freezes": 0
+  },
+  "fpsAfter": {
+    "frames": 611,
+    "avgFps": 54,
+    "p95FrameMs": 33.3,
+    "p95Fps": 30,
+    "p99FrameMs": 33.4,
+    "worstFrameMs": 466.6,
+    "longFrames": 4,
+    "freezes": 0
+  },
+  "screenshotDurationMs": 1303,
+  "freezeDelta": 0,
+  "bufferTruncationPossible": false,
+  "interpretation": "NO_FREEZE"
+}
+
+[9/14] [local-iphone-webkit] › tests/smoke.spec.js:3:1 › game loads, becomes ready, renders, stays error-free and holds frame rate
+[local-iphone-webkit] › tests/smoke.spec.js:3:1 › game loads, becomes ready, renders, stays error-free and holds frame rate
+[screenshot FPS diagnostic] {
+  "fpsBefore": {
+    "frames": 111,
+    "avgFps": 11.1,
+    "p95FrameMs": 24,
+    "p95Fps": 41.7,
+    "p99FrameMs": 1193,
+    "worstFrameMs": 6002,
+    "longFrames": 4,
+    "freezes": 2
+  },
+  "fpsAfter": {
+    "frames": 119,
+    "avgFps": 10.2,
+    "p95FrameMs": 25,
+    "p95Fps": 40,
+    "p99FrameMs": 1544,
+    "worstFrameMs": 6002,
+    "longFrames": 5,
+    "freezes": 3
+  },
+  "screenshotDurationMs": 1932,
+  "freezeDelta": 1,
+  "bufferTruncationPossible": false,
+  "interpretation": "GAME_SIDE_FREEZE_BEFORE_SCREENSHOT"
+}
+
+  1) [local-iphone-webkit] › tests/smoke.spec.js:3:1 › game loads, becomes ready, renders, stays error-free and holds frame rate 
+
+    Error: frames longer than 1s
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 0
+    Received:    3
+
+      54 |   expect(fps.frames, 'too few frames rendered').toBeGreaterThan(30);
+      55 |   expect(fps.p95Fps, `p95 FPS (${fps.p95Fps}) below gate`).toBeGreaterThanOrEqual(GATES.minP95Fps);
+    > 56 |   expect(fps.freezes, 'frames longer than 1s').toBeLessThanOrEqual(GATES.maxFreezes);
+         |                                                ^
+      57 | });
+        at /home/runner/work/skill-aur-dhandha/skill-aur-dhandha/qa/tests/smoke.spec.js:56:48
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/smoke-game-loads-becomes-r-ccc56-r-free-and-holds-frame-rate-local-iphone-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/smoke-game-loads-becomes-r-ccc56-r-free-and-holds-frame-rate-local-iphone-webkit/error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/smoke-game-loads-becomes-r-ccc56-r-free-and-holds-frame-rate-local-iphone-webkit/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/smoke-game-loads-becomes-r-ccc56-r-free-and-holds-frame-rate-local-iphone-webkit/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[10/14] [local-iphone-webkit] › tests/fx23-functional.spec.js:49:3 › representative level 5 opens into playable mission
+[11/14] [local-iphone-webkit] › tests/fx23-functional.spec.js:49:3 › representative level 10 opens into playable mission
+[12/14] [local-iphone-webkit] › tests/fx23-functional.spec.js:49:3 › representative level 25 opens into playable mission
+[13/14] [local-iphone-webkit] › tests/fx23-functional.spec.js:49:3 › representative level 50 opens into playable mission
+[14/14] [local-iphone-webkit] › tests/fx23-functional.spec.js:49:3 › representative level 100 opens into playable mission
+  1 failed
+    [local-iphone-webkit] › tests/smoke.spec.js:3:1 › game loads, becomes ready, renders, stays error-free and holds frame rate 
+  13 passed (54.2s)

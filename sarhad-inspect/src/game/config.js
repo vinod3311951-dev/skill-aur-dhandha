@@ -1,5 +1,5 @@
 export const WORLDS = [
-    { id: 1, name: 'Sarhad Cliffs', subtitle: 'High ridges and clean sightlines', palette: ['#8fb6aa', '#48695d', '#162821'], scenery: 'cliffs' },
+    { id: 1, name: 'Glacier Reach', subtitle: 'Ice light, distant cloud and clean sightlines', palette: ['#d8f2f5', '#769aa8', '#17272e'], scenery: 'glacier' },
     { id: 2, name: 'Amber Desert', subtitle: 'Heat shimmer and timed windows', palette: ['#e2b76f', '#9b6638', '#2a2119'], scenery: 'desert' },
     { id: 3, name: 'Pine Watch', subtitle: 'Forest cover and identification', palette: ['#9cb79f', '#4f6a50', '#17251a'], scenery: 'pine' },
     { id: 4, name: 'Monsoon Pass', subtitle: 'Rain, motion and visibility', palette: ['#8faeb6', '#496671', '#15232a'], scenery: 'monsoon' },
@@ -44,6 +44,45 @@ const TITLE_BY_KIND = {
 function seeded(worldId, order, salt) {
     const n = Math.sin(worldId * 173.41 + order * 91.73 + salt * 37.19) * 43758.5453;
     return n - Math.floor(n);
+}
+function combatProfileFor(worldId, order, tier, targetRadius) {
+    const waveCount = Math.min(5, 3 + Math.floor((worldId - 1) / 2));
+    const roles = ['raider', 'saboteur', 'breach'];
+    return {
+        initialHealth: 100,
+        initialArmor: 100,
+        firstAidKits: worldId >= 6 ? 1 : 2,
+        firstAidRestore: 42,
+        armorPlates: worldId >= 6 ? 1 : 2,
+        armorRestore: 48,
+        blastResistance: 0.35,
+        waves: Array.from({ length: waveCount }, (_, waveIndex) => {
+            const hostileCount = Math.min(8, 4 + waveIndex + Math.floor((worldId - 1) / 3));
+            return {
+                id: `w${worldId}-m${order}-wave-${waveIndex + 1}`,
+                pressureEveryMs: Math.max(1450, 2200 - tier * 4 - waveIndex * 80),
+                hostiles: Array.from({ length: hostileCount }, (_, hostileIndex) => {
+                    const salt = 210 + waveIndex * 29 + hostileIndex * 7;
+                    const center = 0.18 + seeded(worldId, order, salt) * 0.64;
+                    const travel = 0.08 + seeded(worldId, order, salt + 1) * 0.11;
+                    const minX = Math.max(0.08, center - travel);
+                    const maxX = Math.min(0.92, center + travel);
+                    return {
+                        id: `hostile-${worldId}-${order}-${waveIndex + 1}-${hostileIndex + 1}`,
+                        role: roles[(worldId + order + waveIndex + hostileIndex) % roles.length],
+                        y: 0.38 + seeded(worldId, order, salt + 2) * 0.33,
+                        minX,
+                        maxX,
+                        cycleMs: Math.max(2600, 4800 - tier * 8 + hostileIndex * 120),
+                        phaseMs: Math.round(seeded(worldId, order, salt + 3) * 1800),
+                        radius: Math.max(0.03, targetRadius * 0.72),
+                        damage: 7 + Math.min(8, worldId + waveIndex),
+                        blast: hostileIndex === hostileCount - 1 && (waveIndex + worldId) % 2 === 0
+                    };
+                })
+            };
+        })
+    };
 }
 function target(worldId, order, salt, label, radius = 0.052, marker = 'core') {
     return {
@@ -178,13 +217,14 @@ function missionFor(worldId, order) {
         const moving = { ...generatedTarget, y: 0.32 + seeded(worldId, order, 84) * 0.10 };
         return {
             id, worldId, order, kind, title,
-            objective: 'Disable the carrier device while civilians cross the danger zone. Civilian hits reduce score.',
+            objective: 'Protect civilians, clear the hostile waves, then disable the exposed carrier device.',
             maxAttempts: 4,
             target: moving,
             motion: { axis: 'x', min: 0.16, max: 0.84, cycleMs: Math.max(2700, 4100 - tier * 7) },
-            threatMs: Math.max(5600, 8200 - tier * 18),
+            threatMs: Math.min(90000, 62000 + worldId * 3500 + order * 350),
             weaponClass: WEAPON_BY_KIND[kind],
-            protectedFigures: protectedFiguresFor(worldId, order, tier)
+            protectedFigures: protectedFiguresFor(worldId, order, tier),
+            combatProfile: combatProfileFor(worldId, order, tier, radius)
         };
     }
     if (kind === 'disablement') {
