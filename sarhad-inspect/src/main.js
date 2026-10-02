@@ -508,6 +508,7 @@ function weaponLabel(mission) {
 function renderLoadoutRack() {
     return `<div class="loadout-rack" aria-label="Choose fictional loadout">
       ${LOADOUTS.map((item) => `<button class="loadout-choice ${item.id === selectedLoadoutId ? 'active' : ''}" data-loadout-id="${item.id}" aria-pressed="${item.id === selectedLoadoutId}">
+        <i class="loadout-glyph" data-loadout="${item.id}" aria-hidden="true"></i>
         <span>${item.name}</span><small>${item.id === 'field-catapult' ? 'CATAPULT' : item.id === 'siege-rocket' ? 'ROCKET' : item.family.toUpperCase()}</small>
       </button>`).join('')}
     </div>`;
@@ -756,7 +757,7 @@ function renderMission() {
         <div><span>${combatMode ? 'Shots' : 'Attempts'}</span><strong id="attempts">${combatMode ? '∞' : attemptsLeft}</strong></div>
         <div><span>Score</span><strong id="missionScore">${missionScore}</strong></div>
       </div>
-      <div class="loadout-strip"><span>Fictional loadout</span><strong id="activeLoadout">${ready.definition.name}</strong>${selectedMission.kind === 'protection' ? `<em>Protected civilians • hits <b id="civilianHits">${civilianHits}</b> • −${CIVILIAN_HIT_PENALTY}/hit</em>` : ''}</div>
+      <div class="loadout-strip"><i class="loadout-glyph mission-loadout-glyph" id="activeLoadoutVisual" data-loadout="${ready.definition.id}" aria-hidden="true"></i><span>Fictional loadout</span><strong id="activeLoadout">${ready.definition.name}</strong>${selectedMission.kind === 'protection' ? `<em>Protected civilians • hits <b id="civilianHits">${civilianHits}</b> • −${CIVILIAN_HIT_PENALTY}/hit</em>` : ''}</div>
       <div class="readiness-strip" id="readinessStrip" aria-label="Loadout readiness">
         <div><span>AMMO</span><strong id="ammoCount">${ready.ammo}/${ready.capacity}</strong></div>
         <div><span>RELOAD</span><strong id="reloadState">${ready.reloading ? '...' : ready.canReload ? 'READY' : 'FULL'}</strong></div>
@@ -2315,11 +2316,14 @@ function updateLoadoutHud(elapsed = currentElapsed()) {
     loadoutState = ready.state;
     selectedLoadoutId = ready.definition.id;
     const active = document.querySelector('#activeLoadout');
+    const activeVisual = document.querySelector('#activeLoadoutVisual');
     const ammo = document.querySelector('#ammoCount');
     const reload = document.querySelector('#reloadState');
     const swap = document.querySelector('#swapState');
     if (active)
         active.textContent = ready.definition.name;
+    if (activeVisual)
+        activeVisual.dataset.loadout = ready.definition.id;
     if (ammo)
         ammo.textContent = `${ready.ammo}/${ready.capacity}`;
     if (reload)
