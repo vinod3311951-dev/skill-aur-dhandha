@@ -10,5 +10,6 @@ module.exports = defineConfig({
   projects: [
     { name: 'local-android-chrome', use: { ...devices['Pixel 7'] } },
     { name: 'local-iphone-webkit', use: { ...devices['iPhone 14'] } },
+    { name: 'local-ipad-webkit', use: { ...devices['iPad Pro 11'] } },
   ],
 });
