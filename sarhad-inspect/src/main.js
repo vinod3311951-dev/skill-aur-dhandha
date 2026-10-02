@@ -2181,11 +2181,16 @@ function drawTarget(ctx, w, h, target, active, completed, candidateIndex) {
         ctx.fill();
     }
     if (candidateIndex !== undefined) {
-        ctx.fillStyle = 'rgba(255,255,255,.88)';
-        ctx.font = '800 11px system-ui';
-        ctx.textAlign = 'center';
-        ctx.fillText(String.fromCharCode(65 + candidateIndex), tx, ty + size * 1.9);
-        ctx.textAlign = 'start';
+        // Identification cue is physical hardware, not A/B/C debug text.
+        const studY = ty + size * 1.72;
+        const count = Math.max(1, Math.min(3, candidateIndex + 1));
+        ctx.fillStyle = 'rgba(227,213,155,.82)';
+        for (let stud = 0; stud < count; stud += 1) {
+            const offset = (stud - (count - 1) / 2) * Math.max(5, size * .30);
+            ctx.beginPath();
+            ctx.arc(tx + offset, studY, Math.max(1.5, size * .085), 0, Math.PI * 2);
+            ctx.fill();
+        }
     }
     ctx.restore();
 }
