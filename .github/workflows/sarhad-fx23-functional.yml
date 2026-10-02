@@ -2,7 +2,7 @@ name: Sarhad FX-23 Functional QA
 
 on:
   push:
-    branches: [sarhad-sniper-deploy, fx-01-audit1, fx-01-phaser3-presentation, fx-01-all-worlds-audit]
+    branches: [sarhad-sniper-deploy, fx-01-audit1, fx-01-phaser3-presentation, fx-01-all-worlds-audit, fx-01-final-audit]
     paths:
       - "build.mjs"
       - "sarhad-inspect/**"
