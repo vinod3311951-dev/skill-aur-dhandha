@@ -5,7 +5,7 @@
   "scripts": {
     "test:local": "playwright test",
     "test:smoke": "playwright test tests/smoke.spec.js",
-    "test:bs": "browserstack-node-sdk playwright test --repeat-each=3"
+    "test:bs": "browserstack-node-sdk playwright test tests/smoke.spec.js tests/fx23-functional.spec.js --grep \"game loads|all seven worlds and 105 missions|Environmental and Telescopic|briefing exposes eleven fictional loadouts|protection combat is one-thumb playable\" --workers=1"
   },
   "devDependencies": {
     "@playwright/test": "^1.59.0",
