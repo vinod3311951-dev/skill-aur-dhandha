@@ -1,0 +1,130 @@
+name: Sarhad Audit1 Live Link Gate
+
+on:
+  push:
+    branches: [sarhad-audit1-live-link-gate]
+    paths:
+      - ".github/workflows/sarhad-live-link-pre-share.yml"
+      - "FACTORY_X_LIVE_LINK_PRE_SHARE_LAW.md"
+      - "00_CHAT_REFRESH/05_FACTORY_X_WORKING_METHOD.md"
+
+permissions:
+  contents: write
+
+jobs:
+  live-link:
+    runs-on: ubuntu-latest
+    env:
+      GAME_URL: https://sarhad-sniper-d46apj12j-vinod3311951-5160.vercel.app
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: sarhad-audit1-live-link-gate
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Confirm exact live deployment responds
+        run: |
+          curl -fsSL "$GAME_URL/" -o /tmp/live.html
+          grep -q "Sarhad Sniper" /tmp/live.html
+
+      - name: Install QA dependencies
+        working-directory: qa
+        run: npm install --no-audit --no-fund
+
+      - name: Install Playwright browsers
+        working-directory: qa
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: Run live FX-23 functional suite on Android + WebKit
+        working-directory: qa
+        run: npx playwright test tests/fx23-functional.spec.js --project=local-android-chrome --project=local-iphone-webkit
+
+      - name: Render every live mission in scope + environment on Android + WebKit
+        working-directory: qa
+        run: npx playwright test tests/all-worlds-render.spec.js --project=local-android-chrome --project=local-iphone-webkit
+
+      - name: Build live-link visual review contact sheets
+        run: |
+          python -m pip install --disable-pip-version-check pillow
+          python - <<'PY'
+          from PIL import Image, ImageOps, ImageDraw
+          from pathlib import Path
+          import re, math
+
+          root=Path("qa/test-results")
+          files=sorted(root.rglob("world-*-mission-*.png"))
+          assert files, "No live mission screenshots found"
+
+          def classify(p):
+              s=str(p).lower()
+              project="webkit" if "webkit" in s or "iphone" in s else "android"
+              m=re.search(r"world-(\d+)-mission-(\d+)-(scope|overview)\.png$", p.name)
+              if not m: return None
+              world,mission,view=m.groups()
+              return int(world),int(mission),project,view
+
+          records=[]
+          for p in files:
+              info=classify(p)
+              if info: records.append((p,*info))
+
+          expected={(w,m,p,v) for w in range(1,8) for m in range(1,16) for p in ("android","webkit") for v in ("scope","overview")}
+          actual={(w,m,p,v) for _,w,m,p,v in records}
+          missing=sorted(expected-actual)
+          extra=sorted(actual-expected)
+          out=Path("qa/live-link-evidence")
+          out.mkdir(parents=True,exist_ok=True)
+
+          with open(out/"manifest.txt","w") as f:
+              f.write("url=https://sarhad-sniper-d46apj12j-vinod3311951-5160.vercel.app\n")
+              f.write("deployment=dpl_Ce48meuvnnM6B7W7SnbT9qQdofoy\n")
+              f.write("source_candidate=e0ef9f9592940065ed4d24261fba559f777242c2\n")
+              f.write(f"records={len(records)}\nexpected={len(expected)}\nmissing={len(missing)}\nextra={len(extra)}\n")
+              for item in missing: f.write(f"MISSING {item}\n")
+              for item in extra: f.write(f"EXTRA {item}\n")
+          if missing:
+              raise SystemExit(f"Missing {len(missing)} expected live screenshots")
+
+          thumb_w,thumb_h,label_h,cols,rows=220,420,34,5,3
+          for world in range(1,8):
+              for project in ("android","webkit"):
+                  for view in ("scope","overview"):
+                      batch=sorted([r for r in records if r[1]==world and r[3]==project and r[4]==view],key=lambda r:r[2])
+                      assert len(batch)==15,(world,project,view,len(batch))
+                      sheet=Image.new("RGB",(cols*thumb_w,rows*(thumb_h+label_h)),(24,24,24))
+                      draw=ImageDraw.Draw(sheet)
+                      for idx,(p,w,m,proj,v) in enumerate(batch):
+                          im=Image.open(p).convert("RGB")
+                          fitted=ImageOps.contain(im,(thumb_w,thumb_h))
+                          cell_x=(idx%cols)*thumb_w
+                          cell_y=(idx//cols)*(thumb_h+label_h)
+                          x=cell_x+(thumb_w-fitted.width)//2
+                          y=cell_y+(thumb_h-fitted.height)//2
+                          sheet.paste(fitted,(x,y))
+                          draw.rectangle((cell_x,cell_y+thumb_h,cell_x+thumb_w,cell_y+thumb_h+label_h),fill=(8,8,8))
+                          draw.text((cell_x+6,cell_y+thumb_h+8),f"W{w} M{m:02d} {proj} {v}",fill=(240,240,240))
+                      sheet.save(out/f"world-{world:02d}-{project}-{view}.jpg","JPEG",quality=82,optimize=True,progressive=True)
+          PY
+
+      - name: Persist live-link evidence on gate branch
+        run: |
+          git config user.name "factory-x-qa"
+          git config user.email "actions@users.noreply.github.com"
+          git add qa/live-link-evidence
+          if git diff --cached --quiet; then
+            echo "No live evidence changes"
+          else
+            git commit -m "Sarhad Audit1: persist exact live-link evidence"
+            git push origin HEAD:sarhad-audit1-live-link-gate
+          fi
+
+      - name: Upload live-link evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: sarhad-audit1-live-link-evidence
+          path: qa/live-link-evidence/
+          if-no-files-found: error
+          retention-days: 7
