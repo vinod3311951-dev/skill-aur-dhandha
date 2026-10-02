@@ -44,3 +44,8 @@ Before founder/release gates, verify the product-specific music/SFX/reward stack
 ## Cross-promotion gate
 
 Before release, verify the first-party discovery module under `FACTORY_X_CROSS_PROMOTION_DISCOVERY_LAW.md`: 1–2 recommendations max, current app excluded, links healthy, primary action dominant, no result-flow dependency, Android/WebKit stable.
+
+
+## Mandatory live-link pre-share gate
+
+For all 9 Factory X PWAs and every future founder/auditor-facing app link, the **exact deployed URL must be functionally exercised and visually inspected before it is shared**. Localhost/build evidence alone is not sufficient. For level/mission products, inspect the deployed content breadth required by the product; Sarhad requires all 105 live missions before Audit-1 handoff. Canonical law: `FACTORY_X_LIVE_LINK_PRE_SHARE_LAW.md`.
