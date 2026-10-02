@@ -60,6 +60,29 @@ Before claiming PASS at ANY stage:
    - No parallel production.
    - One chat per product stage.
 
+
+## URGENT PORTFOLIO-WIDE RENDERED CREATIVE AUDIT LOCK — 2026-10-02
+
+This rule applies to **every current and future Factory X PWA/game**, not only Sarhad Sniper. It is mandatory before Founder Audit 1 and cannot be satisfied by DOM/render-success checks alone.
+
+Canonical authority: `FACTORY_X_RENDERED_CREATIVE_AUDIT_LOCK_2026-10-02.md`.
+
+A rendered audit MUST prove, with screenshot/video/frame-sequence evidence for every required screen/level/state:
+
+- **Blueprint fidelity:** the rendered experience visibly matches the frozen creative/art/gameplay blueprint, not merely the correct labels/data.
+- **Richness/completeness:** intended scenery, characters, props, effects, HUD treatment and presentation are visibly present at production quality.
+- **Animation:** required characters, objects, environment, weapons/effects and transitions actually animate. Verify temporal change across multiple frames/video; a static screenshot cannot prove animation.
+- **Gameplay choreography:** every level/mission/state demonstrates its intended objective, events, escalation, interactions and completion/failure loop rather than merely opening.
+- **Mechanic/loadout differentiation:** where the blueprint specifies distinct weapons/loadouts/mechanics, each must be visibly and functionally distinguishable in behaviour/feedback, not text-only.
+- **World/level differentiation:** worlds/levels intended to differ must show material differences in composition, scenery, atmosphere and, where specified, gameplay grammar. Palette/name swaps alone FAIL.
+- **Finished-product visual gate:** inspect actual evidence and answer: “Would a reasonable human looking at/playing this call it a finished product matching the frozen blueprint?” If no, FAIL.
+- **No evidence, no pass:** each claim must link to captured evidence. “Page rendered”, “asset returned 200”, “test passed”, or “screenshot exists” is insufficient.
+- **Exhaustive coverage:** if the product has N levels/screens/worlds requiring audit, all N are covered unless the frozen blueprint explicitly defines a different scope.
+- **Cross-device evidence:** required mobile/browser/device profiles must be included, including temporal/interaction evidence where animation/gameplay is part of acceptance.
+
+Any failure blocks Founder Audit 1. Founder Audit is approval, not defect discovery.
+
+
 ## RED-FLAG PATTERNS
 
 Any of these → STOP and verify:
