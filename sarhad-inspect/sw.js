@@ -1,30 +1,32 @@
-const CACHE = 'sarhad-sniper-shell-v9';
+const CACHE = 'sarhad-sniper-shell-v10';
 const APP_SHELL = [
   '/',
   '/index.html',
   '/manifest.webmanifest',
   '/src/styles.css',
   '/src/main.js',
+  '/src/phaser-reference.js',
   '/src/game/config.js',
   '/src/game/combat-state.js',
   '/src/game/loadout-state.js',
   '/src/game/engine.js',
   '/src/game/storage.js',
   '/src/game/diagnostics.js',
+  '/src/game/types.js',
+  '/vendor/phaser.min.js',
   '/icons/icon.svg',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
   '/icons/icon-maskable-512.png',
   '/icons/apple-touch-icon.png',
-  '/assets/worlds/sarhad-cliffs.webp',
-  '/assets/worlds/dune-outpost.webp',
-  '/assets/worlds/frost-ridge.webp',
+  '/assets/characters/captain-rudraa.svg',
   '/assets/worlds/glacier-reach.svg',
-  '/assets/worlds/jungle-pass.webp',
-  '/assets/worlds/coastal-watch.webp',
-  '/assets/worlds/canyon-base.webp',
-  '/assets/worlds/sky-fortress.webp'
-  ,'/assets/characters/captain-rudraa.svg'
+  '/assets/worlds/amber-desert.svg',
+  '/assets/worlds/pine-watch.svg',
+  '/assets/worlds/monsoon-pass.svg',
+  '/assets/worlds/glacier-line.svg',
+  '/assets/worlds/red-canyon.svg',
+  '/assets/worlds/night-ridge.svg'
 ];
 
 self.addEventListener('install', (event) => {
