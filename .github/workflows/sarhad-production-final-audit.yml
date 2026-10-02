@@ -1,0 +1,55 @@
+name: Sarhad Production Final Audit
+
+on:
+  push:
+    branches: [fx-01-production-final-audit]
+  workflow_dispatch:
+
+jobs:
+  production-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    defaults:
+      run:
+        working-directory: qa
+    env:
+      GAME_URL: https://sarhad-sniper.vercel.app/
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fx-01-production-final-audit
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: qa/package.json
+
+      - name: Install QA dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Install Playwright dependencies
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: Production smoke on Android iPhone and iPad
+        run: npx playwright test tests/smoke.spec.js --project=local-android-chrome --project=local-iphone-webkit --project=local-ipad-webkit --workers=3 --reporter=line
+
+      - name: Production functional gate on Android iPhone and iPad
+        run: npx playwright test tests/fx23-functional.spec.js --project=local-android-chrome --project=local-iphone-webkit --project=local-ipad-webkit --workers=3 --reporter=line
+
+      - name: Exhaustive 105 mission production render on iPad WebKit
+        run: npx playwright test tests/all-worlds-render.spec.js --project=local-ipad-webkit --workers=2 --reporter=line
+
+      - name: Capture signature production slice on iPhone and iPad
+        run: npx playwright test tests/visual-slice.spec.js --project=local-iphone-webkit --project=local-ipad-webkit --workers=2 --reporter=line
+
+      - name: Upload production audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sarhad-production-final-audit-evidence
+          path: |
+            qa/results.json
+            qa/playwright-report/
+            qa/test-results/
+          if-no-files-found: ignore
