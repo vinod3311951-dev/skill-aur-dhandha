@@ -7,7 +7,7 @@ on:
       - ".github/workflows/sarhad-evidence-contact-sheets.yml"
 
 permissions:
-  contents: read
+  contents: write
   actions: read
 
 jobs:
@@ -102,6 +102,21 @@ jobs:
           if missing:
               raise SystemExit(f"Missing {len(missing)} expected screenshots")
           PY
+      - name: Persist contact sheets on evidence branch
+        run: |
+          rm -rf qa/evidence-contact-sheets
+          mkdir -p qa/evidence-contact-sheets
+          cp -R contact-sheets/. qa/evidence-contact-sheets/
+          git config user.name "factory-x-qa"
+          git config user.email "actions@users.noreply.github.com"
+          git add qa/evidence-contact-sheets
+          if git diff --cached --quiet; then
+            echo "No contact-sheet changes to commit"
+          else
+            git commit -m "FX-01 evidence: persist audit contact sheets"
+            git push origin HEAD:sarhad-evidence-contact-sheets
+          fi
+
       - name: Upload visual-review contact sheets
         uses: actions/upload-artifact@v4
         with:
