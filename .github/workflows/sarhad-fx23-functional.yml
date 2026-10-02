@@ -86,6 +86,19 @@ jobs:
           path: qa/test-results/**/fx01-*.png
           if-no-files-found: error
           retention-days: 7
+      - name: Capture exact Vercel preview on Android and WebKit
+        working-directory: qa
+        env:
+          GAME_URL: https://sarhad-sniper-gkvxryitp-vinod3311951-5160.vercel.app
+        run: npx playwright test tests/visual-slice.spec.js --project=local-android-chrome --project=local-iphone-webkit --workers=2 --reporter=line --output=preview-results
+      - name: Upload exact Vercel preview evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fx01-vercel-preview-visual
+          path: qa/preview-results/**/fx01-*.png
+          if-no-files-found: error
+          retention-days: 7
       - name: Upload FX-01 QA diagnostic log
         if: always()
         uses: actions/upload-artifact@v4
