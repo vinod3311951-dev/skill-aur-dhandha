@@ -73,20 +73,8 @@ console.log(`FX-01 editable source overlay applied (${editableFiles.length} file
 console.log("FX-01 editable runtime source is authoritative");
 
 const indexPath=path.join(outDir,"index.html");
-let indexHtml=readFileSync(indexPath,"utf8");
-if(indexHtml.split("</main>").length!==2||indexHtml.split("</head>").length!==2)
-  throw new Error("SARHAD early-build footer insertion anchor missing or ambiguous");
-const footer=`<p id="fx-early-build" style="
-  position:relative;
-  margin:0;
-  padding:7px 10px 9px;
-  text-align:center;
-  font:11px system-ui,sans-serif;
-  color:rgba(255,255,255,0.48);
-  background:#08100d;
-  pointer-events:none;
-  ">Early build — not for public release.</p>`;
-indexHtml=indexHtml.replace("</main>","</main>\n"+footer);
-writeFileSync(path.join(outDir,"robots.txt"),"User-agent: *\nDisallow: /\n");
-writeFileSync(indexPath,indexHtml);
+const indexHtml=readFileSync(indexPath,"utf8");
+if(!indexHtml.includes("</main>")||!indexHtml.includes("</head>"))
+  throw new Error("SARHAD output index anchors missing");
+writeFileSync(path.join(outDir,"robots.txt"),"User-agent: *\\nDisallow: /\\n");
 console.log(`Sarhad Sniper static build generated ${count} files from ${files.length} payload chunks`);

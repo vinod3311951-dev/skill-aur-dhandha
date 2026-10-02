@@ -37,4 +37,21 @@
 <g fill="#f4c679" opacity=".2" filter="url(#glow)"><circle cx="556" cy="484" r="18"/><circle cx="848" cy="522" r="18"/><circle cx="1136" cy="453" r="21"/><circle cx="1440" cy="506" r="18"/></g>
 <g fill="#9ed7dc" opacity=".19"><path d="M108 1080L168 865L220 1080Z"/><path d="M1730 1080L1790 886L1842 1080Z"/><path d="M1590 1080L1642 931L1687 1080Z"/></g>
 <rect width="1920" height="1080" fill="none" stroke="#bde3e3" stroke-opacity=".12" stroke-width="8"/>
+
+<g id="fx01-reference-depth-pass" pointer-events="none">
+  <!-- Reference-guided depth pass: original vector geometry, not copied pixels. -->
+  <path d="M0 0H244L202 128L132 194L76 326L0 368Z" fill="#081b23" opacity=".93"/>
+  <path d="M0 0H204L171 104L105 164L47 290L0 316Z" fill="#183844" opacity=".78"/>
+  <path d="M1920 606L1818 570L1729 605L1666 686L1588 708L1514 780L1447 1080H1920Z" fill="#0a212a" opacity=".94"/>
+  <path d="M1878 600L1815 579L1736 615L1677 687L1599 717L1549 774L1609 767L1686 714L1760 688L1831 645L1912 655Z" fill="#d7ecee" opacity=".78"/>
+  <path d="M1372 619L1443 584L1531 602L1580 653L1528 683L1432 673L1362 702Z" fill="#173640" opacity=".95"/>
+  <path d="M1382 616L1445 590L1521 606L1558 640L1514 648L1441 640Z" fill="#e5f4f4" opacity=".78"/>
+  <path d="M1264 1080L1324 861L1388 805L1464 820L1394 1080Z" fill="#153741" opacity=".88"/>
+  <path d="M1268 1080L1308 922L1342 881L1370 1080Z" fill="#9bd7db" opacity=".13"/>
+  <g fill="#e9fbfc" opacity=".11" filter="url(#soft)">
+    <ellipse cx="1044" cy="680" rx="580" ry="74"/>
+    <ellipse cx="1450" cy="760" rx="410" ry="66"/>
+  </g>
+  <path d="M120 926C412 850 698 882 954 836C1194 793 1430 820 1772 754" fill="none" stroke="#d6f4f5" stroke-width="18" opacity=".08"/>
+</g>
 </svg>

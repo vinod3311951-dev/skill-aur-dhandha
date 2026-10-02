@@ -43,17 +43,39 @@ class GlacierReferenceScene extends Phaser.Scene {
     const hazeB = this.add.ellipse(720, 244, 610, 86, 0xd9f5f7, 0.06).setDepth(2);
 
     // Captain Rudraa is decorative presentation only; gameplay truth remains independent.
-    const rudraa = this.add.image(92, 416, 'captain-rudraa')
+    const rudraa = this.add.image(108, 414, 'captain-rudraa')
       .setOrigin(0.5, 0.5)
-      .setDisplaySize(184, 184)
+      .setDisplaySize(214, 214)
       .setDepth(9)
       .setAlpha(0.97);
-    const heroShadow = this.add.ellipse(92, 506, 145, 24, 0x071216, 0.38).setDepth(8);
+    const heroShadow = this.add.ellipse(108, 510, 164, 27, 0x071216, 0.38).setDepth(8);
 
     // Authored integrated relay at exact mission target coordinate x=.68, y=.42.
     const tx = w * 0.68;
     const ty = h * 0.42;
     const relay = this.add.container(tx, ty).setDepth(12);
+
+    // Cliff shelf visually anchors the interactive relay into Glacier Reach.
+    const relayShelf = this.add.graphics().setDepth(6);
+    relayShelf.fillStyle(0x0b242d, 0.94);
+    relayShelf.beginPath();
+    relayShelf.moveTo(tx - 92, ty + 54);
+    relayShelf.lineTo(tx + 100, ty + 46);
+    relayShelf.lineTo(w, h * 0.72);
+    relayShelf.lineTo(w, h);
+    relayShelf.lineTo(tx + 68, h);
+    relayShelf.lineTo(tx + 24, ty + 114);
+    relayShelf.lineTo(tx - 68, ty + 96);
+    relayShelf.closePath();
+    relayShelf.fillPath();
+    relayShelf.fillStyle(0xe7f6f6, 0.22);
+    relayShelf.beginPath();
+    relayShelf.moveTo(tx - 86, ty + 54);
+    relayShelf.lineTo(tx + 94, ty + 47);
+    relayShelf.lineTo(tx + 68, ty + 64);
+    relayShelf.lineTo(tx - 56, ty + 70);
+    relayShelf.closePath();
+    relayShelf.fillPath();
 
     const base = this.add.graphics();
     base.fillStyle(0x10272e, 0.98);
@@ -237,19 +259,36 @@ export function activateGlacierReferenceScene() {
     }
   }
 
-  const beam = activeScene.add.graphics().setDepth(11);
-  beam.lineStyle(5, 0xcdfcff, 0.70);
-  beam.lineBetween(278, 545, 545, 484);
-  beam.lineBetween(545, 484, 846, 524);
-  beam.lineBetween(846, 524, 1134, 456);
-  beam.lineBetween(1134, 456, DESIGN_WIDTH * 0.68, DESIGN_HEIGHT * 0.42 - 113);
+  const tx = DESIGN_WIDTH * 0.68;
+  const ty = DESIGN_HEIGHT * 0.42;
+  const beam = activeScene.add.graphics().setDepth(16);
+  beam.lineStyle(4, 0xcdfcff, 0.82);
+  beam.beginPath();
+  beam.moveTo(118, 420);
+  beam.lineTo(298, 386);
+  beam.lineTo(462, 372);
+  beam.lineTo(568, 332);
+  beam.lineTo(tx, ty + 16);
+  beam.strokePath();
 
-  const successWash = activeScene.add.rectangle(DESIGN_WIDTH * 0.5, DESIGN_HEIGHT * 0.5, DESIGN_WIDTH, DESIGN_HEIGHT, 0xa7f2ed, 0.12).setDepth(10);
+  const nodes = [
+    activeScene.add.circle(118, 420, 5, 0xe9ffff, 0.98).setDepth(17),
+    activeScene.add.circle(298, 386, 5, 0xd7ffff, 0.96).setDepth(17),
+    activeScene.add.circle(462, 372, 5, 0xd7ffff, 0.96).setDepth(17),
+    activeScene.add.circle(568, 332, 5, 0xd7ffff, 0.96).setDepth(17)
+  ];
+  const relayRing = activeScene.add.ellipse(tx, ty, 82, 58, 0xa7f2ed, 0.05)
+    .setStrokeStyle(3, 0xd8ffff, 0.86).setDepth(17);
+  const successWash = activeScene.add.rectangle(DESIGN_WIDTH * 0.5, DESIGN_HEIGHT * 0.5, DESIGN_WIDTH, DESIGN_HEIGHT, 0xa7f2ed, 0.16).setDepth(10);
+
   if (!reducedMotion()) {
-    activeScene.tweens.add({ targets: beam, alpha: 0, duration: 1100, delay: 500, onComplete: () => beam.destroy() });
-    activeScene.tweens.add({ targets: successWash, alpha: 0, duration: 760, delay: 260, onComplete: () => successWash.destroy() });
+    activeScene.tweens.add({ targets: nodes, scale: { from: 0.5, to: 1.8 }, alpha: { from: 0.2, to: 1 }, duration: 360, yoyo: true, stagger: 80, ease: 'Sine.out' });
+    activeScene.tweens.add({ targets: relayRing, scaleX: 1.8, scaleY: 1.8, alpha: 0, duration: 720, ease: 'Sine.out', onComplete: () => relayRing.destroy() });
+    activeScene.tweens.add({ targets: beam, alpha: 0, duration: 1150, delay: 760, onComplete: () => beam.destroy() });
+    activeScene.tweens.add({ targets: nodes, alpha: 0, duration: 900, delay: 780, onComplete: () => nodes.forEach((node) => node.destroy()) });
+    activeScene.tweens.add({ targets: successWash, alpha: 0, duration: 980, delay: 420, onComplete: () => successWash.destroy() });
   } else {
-    window.setTimeout(() => { beam.destroy(); successWash.destroy(); }, 220);
+    window.setTimeout(() => { beam.destroy(); relayRing.destroy(); nodes.forEach((node) => node.destroy()); successWash.destroy(); }, 420);
   }
 }
 

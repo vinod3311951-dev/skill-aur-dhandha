@@ -818,6 +818,8 @@ function initialHint() {
         return 'Disable the carrier device. Do not hit civilians.';
     if (selectedMission.kind === 'disablement')
         return 'Find the small exposed weak point.';
+    if (selectedMission.id === 'w1-m1-relay-core')
+        return 'Find the exposed keyed coupler inside the relay housing.';
     return `Drag the sight onto ${selectedMission.target.label}.`;
 }
 function renderResult(success) {
@@ -2597,8 +2599,18 @@ function goNext() {
     renderBriefing();
 }
 function showEnvironmentActivation() {
-    if (selectedMission.id === 'w1-m1-relay-core')
+    if (selectedMission.id === 'w1-m1-relay-core') {
         activateGlacierReferenceScene();
+        const status = document.querySelector('#missionStatus');
+        if (status)
+            status.textContent = 'SYSTEM ONLINE • OBJECTIVE COMPLETE';
+        const hint = document.querySelector('#hint');
+        if (hint)
+            hint.textContent = 'Relay synchronised • Glacier grid online';
+        const coach = document.querySelector('#firstMinuteCoach');
+        if (coach)
+            coach.remove();
+    }
     const layer = document.querySelector('#impactLayer');
     if (!layer)
         return;
