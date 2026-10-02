@@ -14,6 +14,9 @@ jobs:
   contact-sheets:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: sarhad-evidence-contact-sheets
       - name: Download latest locked evidence artifact
         env:
           GH_TOKEN: ${{ github.token }}
