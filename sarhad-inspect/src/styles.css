@@ -131,6 +131,8 @@ h2 { font-size: clamp(1.7rem, 7vw, 2.5rem); line-height: 1.05; margin-bottom: 12
 .result-score strong { font-size: 2rem; }
 .button-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .button-row .btn { width: 100%; }
+.settings-nav { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:4px; }
+.settings-nav .text-btn { min-width:74px; }
 .setting-list { display: grid; gap: 10px; margin: 18px 0; }
 .setting-row { min-height: 58px; display: flex; align-items: center; justify-content: space-between; border-radius: 15px; border: 1px solid #3b5147; color: #eef3ef; background: #13261f; padding: 0 14px; text-align: left; }
 .setting-row strong { color: #d7b866; }
