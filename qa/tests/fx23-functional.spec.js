@@ -78,6 +78,23 @@ test('Reduced effects setting visibly binds to the document presentation state',
   await expect.poll(() => page.evaluate(() => document.documentElement.dataset.reducedEffects)).toBe('true');
 });
 
+test('Settings always exposes separate Back and Home controls and Back returns to the previous safe screen', async ({ page }) => {
+  await page.goto(BASE, { waitUntil: 'domcontentloaded' });
+  await page.getByRole('button', { name: /Mission Map/i }).click();
+  await expect(page.getByRole('heading', { name: /Choose any route/i })).toBeVisible();
+
+  await page.getByRole('button', { name: /Settings/i }).click();
+  await expect(page.getByRole('button', { name: /^Back$/i })).toBeVisible();
+  await expect(page.getByRole('button', { name: /^Home$/i })).toBeVisible();
+
+  await page.getByRole('button', { name: /^Back$/i }).click();
+  await expect(page.getByRole('heading', { name: /Choose any route/i })).toBeVisible();
+
+  await page.getByRole('button', { name: /Settings/i }).click();
+  await page.getByRole('button', { name: /^Home$/i }).click();
+  await expect(page.getByRole('heading', { name: /Observe\. Decide\. Fire once\./i })).toBeVisible();
+});
+
 test('Pause → Settings preserves the active mission and returns to the same state', async ({ page }) => {
   await page.goto(BASE, { waitUntil: 'domcontentloaded' });
   await page.getByRole('button', { name: /Start Campaign|Continue Campaign/i }).click();
