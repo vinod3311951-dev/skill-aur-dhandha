@@ -49,12 +49,12 @@ const SCOPE_ZOOM = 1.78;
 const CIVILIAN_HIT_PENALTY = 400;
 const WORLD_SCENE_SOURCES = {
     1: '/assets/worlds/glacier-reach.svg',
-    2: '/assets/worlds/dune-outpost.webp',
-    3: '/assets/worlds/frost-ridge.webp',
-    4: '/assets/worlds/jungle-pass.webp',
-    5: '/assets/worlds/coastal-watch.webp',
-    6: '/assets/worlds/canyon-base.webp',
-    7: '/assets/worlds/sky-fortress.webp'
+    2: '/assets/worlds/amber-desert.svg',
+    3: '/assets/worlds/pine-watch.svg',
+    4: '/assets/worlds/monsoon-pass.svg',
+    5: '/assets/worlds/glacier-line.svg',
+    6: '/assets/worlds/red-canyon.svg',
+    7: '/assets/worlds/night-ridge.svg'
 };
 const worldSceneImages = new Map();
 let deferredInstallPrompt = null;
