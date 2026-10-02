@@ -1,0 +1,111 @@
+name: Sarhad Evidence Contact Sheets
+
+on:
+  push:
+    branches: [sarhad-evidence-contact-sheets]
+    paths:
+      - ".github/workflows/sarhad-evidence-contact-sheets.yml"
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  contact-sheets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download latest locked evidence artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          curl -L             -H "Authorization: Bearer $GH_TOKEN"             -H "Accept: application/vnd.github+json"             -H "X-GitHub-Api-Version: 2022-11-28"             "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/11238880554/zip"             -o evidence.zip
+          mkdir evidence
+          unzip -q evidence.zip -d evidence
+          echo "png_count=$(find evidence -type f -name '*.png' | wc -l)" >> "$GITHUB_OUTPUT"
+      - name: Install image contact-sheet dependency
+        run: python -m pip install --disable-pip-version-check pillow
+      - name: Build compact labeled contact sheets
+        run: |
+          python - <<'PY'
+          from PIL import Image, ImageOps, ImageDraw, ImageFont
+          from pathlib import Path
+          import re, math, os
+
+          root=Path("evidence")
+          files=sorted(root.rglob("world-*-mission-*.png"))
+          assert files, "No mission screenshots found"
+
+          def classify(p):
+              s=str(p).lower()
+              project="webkit" if "webkit" in s or "iphone" in s else "android"
+              m=re.search(r"world-(\d+)-mission-(\d+)-(scope|overview)\.png$", p.name)
+              if not m:
+                  m=re.search(r"world-(\d+)-mission-(\d+)\.png$", p.name)
+                  if not m: return None
+                  world,mission=m.group(1),m.group(2)
+                  view="scope"
+              else:
+                  world,mission,view=m.groups()
+              return int(world),int(mission),project,view
+
+          records=[]
+          for p in files:
+              info=classify(p)
+              if info: records.append((p,*info))
+          assert records, "No classifiable screenshots"
+
+          out=Path("contact-sheets")
+          out.mkdir(exist_ok=True)
+
+          thumb_w=220
+          thumb_h=420
+          label_h=34
+          cols=5
+          rows=3
+
+          for world in range(1,8):
+              for project in ("android","webkit"):
+                  for view in ("scope","overview"):
+                      batch=[r for r in records if r[1]==world and r[3]==project and r[4]==view]
+                      batch=sorted(batch,key=lambda r:r[2])
+                      if not batch: continue
+                      pages=math.ceil(len(batch)/(cols*rows))
+                      for page in range(pages):
+                          chunk=batch[page*cols*rows:(page+1)*cols*rows]
+                          sheet=Image.new("RGB",(cols*thumb_w,rows*(thumb_h+label_h)),(24,24,24))
+                          draw=ImageDraw.Draw(sheet)
+                          for idx,(p,w,m,proj,v) in enumerate(chunk):
+                              im=Image.open(p).convert("RGB")
+                              fitted=ImageOps.contain(im,(thumb_w,thumb_h))
+                              cell_x=(idx%cols)*thumb_w
+                              cell_y=(idx//cols)*(thumb_h+label_h)
+                              x=cell_x+(thumb_w-fitted.width)//2
+                              y=cell_y+(thumb_h-fitted.height)//2
+                              sheet.paste(fitted,(x,y))
+                              draw.rectangle((cell_x,cell_y+thumb_h,cell_x+thumb_w,cell_y+thumb_h+label_h),fill=(8,8,8))
+                              draw.text((cell_x+6,cell_y+thumb_h+8),f"W{w} M{m:02d} {proj} {v}",fill=(240,240,240))
+                          name=f"world-{world:02d}-{project}-{view}.jpg"
+                          sheet.save(out/name,"JPEG",quality=82,optimize=True,progressive=True)
+
+          # Summary manifest proves all expected mission/view/project combinations are present.
+          expected={(w,m,p,v) for w in range(1,8) for m in range(1,16) for p in ("android","webkit") for v in ("scope","overview")}
+          actual={(w,m,p,v) for _,w,m,p,v in records}
+          missing=sorted(expected-actual)
+          extra=sorted(actual-expected)
+          with open(out/"manifest.txt","w") as f:
+              f.write(f"records={len(records)}\n")
+              f.write(f"expected={len(expected)}\n")
+              f.write(f"missing={len(missing)}\n")
+              for item in missing: f.write(f"MISSING {item}\n")
+              f.write(f"extra={len(extra)}\n")
+              for item in extra: f.write(f"EXTRA {item}\n")
+          if missing:
+              raise SystemExit(f"Missing {len(missing)} expected screenshots")
+          PY
+      - name: Upload visual-review contact sheets
+        uses: actions/upload-artifact@v4
+        with:
+          name: sarhad-audit1-contact-sheets
+          path: contact-sheets/
+          if-no-files-found: error
+          retention-days: 7
