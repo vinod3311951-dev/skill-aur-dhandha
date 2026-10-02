@@ -53,7 +53,13 @@ const editableFiles=[
   "src/game/storage.js",
   "src/game/types.js",
   "assets/characters/captain-rudraa.svg",
-  "assets/worlds/glacier-reach.svg"
+  "assets/worlds/glacier-reach.svg",
+  "assets/worlds/amber-desert.svg",
+  "assets/worlds/pine-watch.svg",
+  "assets/worlds/monsoon-pass.svg",
+  "assets/worlds/glacier-line.svg",
+  "assets/worlds/red-canyon.svg",
+  "assets/worlds/night-ridge.svg"
 ];
 for(const relative of editableFiles){
   const source=path.join(editableRoot,relative);
