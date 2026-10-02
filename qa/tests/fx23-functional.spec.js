@@ -84,14 +84,18 @@ test('Settings always exposes separate Back and Home controls and Back returns t
   await expect(page.getByRole('heading', { name: /Choose any route/i })).toBeVisible();
 
   await page.getByRole('button', { name: /Settings/i }).click();
-  await expect(page.getByRole('button', { name: /^Back$/i })).toBeVisible();
-  await expect(page.getByRole('button', { name: /^Home$/i })).toBeVisible();
+  const settingsBack = page.locator('[data-action="settingsBack"]');
+  const settingsHome = page.locator('[data-action="settingsHome"]');
+  await expect(settingsBack).toBeVisible();
+  await expect(settingsBack).toContainText(/Back/i);
+  await expect(settingsHome).toBeVisible();
+  await expect(settingsHome).toContainText(/Home/i);
 
-  await page.getByRole('button', { name: /^Back$/i }).click();
+  await settingsBack.click();
   await expect(page.getByRole('heading', { name: /Choose any route/i })).toBeVisible();
 
   await page.getByRole('button', { name: /Settings/i }).click();
-  await page.getByRole('button', { name: /^Home$/i }).click();
+  await page.locator('[data-action="settingsHome"]').click();
   await expect(page.getByRole('heading', { name: /Observe\. Decide\. Fire once\./i })).toBeVisible();
 });
 
