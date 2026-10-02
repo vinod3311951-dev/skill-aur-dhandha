@@ -43,6 +43,7 @@ let combatWaveStartedAt = 0;
 let combatPressureTick = 0;
 let missionStatusCache = '';
 let settingsReturnToMission = false;
+let settingsReturnScreen = 'home';
 let settingsMissionElapsedMs = 0;
 let pendingMissionElapsedRestoreMs = null;
 const SCOPE_ZOOM = 1.78;
@@ -566,6 +567,7 @@ function renderSettings(returnToMission = false) {
         if (!paused)
             pauseMission('settings');
         settingsReturnToMission = true;
+        settingsReturnScreen = 'mission';
         settingsMissionElapsedMs = currentElapsed();
         stopWorldAmbience();
         cancelAnimationFrame(raf);
@@ -573,6 +575,8 @@ function renderSettings(returnToMission = false) {
         canvas = null;
     }
     else if (!returnToMission) {
+        if (screen !== 'settings')
+            settingsReturnScreen = screen;
         settingsReturnToMission = false;
         settingsMissionElapsedMs = 0;
         stopMissionLoop();
@@ -581,7 +585,10 @@ function renderSettings(returnToMission = false) {
     const { audioEnabled, hapticsEnabled, reducedEffects } = save.settings;
     app.innerHTML = shell(`
     <section class="panel settings-panel">
-      <button class="text-btn" data-action="${settingsReturnToMission ? 'returnMission' : 'home'}" aria-label="${settingsReturnToMission ? 'Return to active mission' : 'Back to home'}">← ${settingsReturnToMission ? 'Mission' : 'Home'}</button>
+      <div class="settings-nav" aria-label="Settings navigation">
+        <button class="text-btn" data-action="settingsBack" aria-label="${settingsReturnToMission ? 'Return to active mission' : 'Back to previous screen'}">← Back</button>
+        <button class="text-btn" data-action="settingsHome" aria-label="Go to home">⌂ Home</button>
+      </div>
       <p class="eyebrow">SETTINGS</p>
       <h2>Comfort controls.</h2>
       ${settingsReturnToMission ? '<p class="settings-mission-held" role="status">Active mission held safely while you adjust comfort controls.</p>' : ''}
@@ -613,11 +620,39 @@ function returnToHeldMission() {
     }
     pendingMissionElapsedRestoreMs = settingsMissionElapsedMs;
     settingsReturnToMission = false;
+    settingsReturnScreen = 'home';
     settingsMissionElapsedMs = 0;
     paused = false;
     pauseStartedAt = 0;
     renderMission();
     startWorldAmbience();
+}
+function returnFromSettings() {
+    if (settingsReturnToMission) {
+        returnToHeldMission();
+        return;
+    }
+    const destination = settingsReturnScreen;
+    settingsReturnScreen = 'home';
+    if (destination === 'worldSelect')
+        renderWorldSelect();
+    else if (destination === 'missionSelect')
+        renderMissionSelect();
+    else if (destination === 'briefing')
+        renderBriefing();
+    else if (destination === 'postcards')
+        renderPostcards();
+    else
+        renderHome();
+}
+function leaveSettingsForHome() {
+    settingsReturnToMission = false;
+    settingsReturnScreen = 'home';
+    settingsMissionElapsedMs = 0;
+    pendingMissionElapsedRestoreMs = null;
+    paused = false;
+    pauseStartedAt = 0;
+    renderHome();
 }
 function settingRow(label, key, enabled) {
     return `<button class="setting-row" data-setting="${key}" aria-pressed="${enabled}"><span>${label}</span><strong>${enabled ? 'ON' : 'OFF'}</strong></button>`;
@@ -656,6 +691,7 @@ function confirmReset() {
     viewMode = 'scope';
     resetArmed = false;
     settingsReturnToMission = false;
+    settingsReturnScreen = 'home';
     settingsMissionElapsedMs = 0;
     pendingMissionElapsedRestoreMs = null;
     renderHome();
@@ -2832,6 +2868,10 @@ function bindActions() {
                 renderSettings(true);
             else if (action === 'returnMission')
                 returnToHeldMission();
+            else if (action === 'settingsBack')
+                returnFromSettings();
+            else if (action === 'settingsHome')
+                leaveSettingsForHome();
             else if (action === 'share')
                 void shareAchievement();
             else if (action === 'install')
