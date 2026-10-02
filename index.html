@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en-IN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#31704b" />
+    <meta name="color-scheme" content="light" />
+    <meta name="description" content="Skill Aur Dhandha — Karm karo sharam nahin. Explore skills, business ideas, markets, money planning, learning and official government routes." />
+    <meta name="application-name" content="Skill Aur Dhandha" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Skill Aur Dhandha" />
+    <meta name="format-detection" content="telephone=no" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+    <title>Skill Aur Dhandha — Karm karo sharam nahin</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <noscript>Please enable JavaScript to use Skill Aur Dhandha's guided journeys and calculators.</noscript>
+    <script type="module" src="/src/main.ts"></script>
+    <script type="module" src="/src/voice.ts"></script>
+    <script type="module" src="/src/language-service.ts"></script>
+    <script type="module" src="/src/path-routes.ts"></script>
+    <script type="module" src="/src/guided-filters.ts"></script>
+    <script type="module" src="/src/possibilities.ts"></script>
+    <script type="module" src="/src/manufacturing-machines.ts"></script>
+    <script type="module" src="/src/media-entertainment.ts"></script>
+    <script type="module" src="/src/future-careers.ts"></script>
+    <script type="module" src="/src/export-affiliate-opportunities.ts"></script>
+    <script type="module" src="/src/export-market-bridge.ts"></script>
+    <script type="module" src="/src/market.ts"></script>
+    <script type="module" src="/src/paisa.ts"></script>
+    <script type="module" src="/src/learn.ts"></script>
+    <script type="module" src="/src/ai-learning.ts"></script>
+    <script type="module" src="/src/gov.ts"></script>
+    <script type="module" src="/src/choice-experience.ts"></script>
+    <script type="module" src="/src/history-back.ts"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+      }
+    </script>
+  </body>
+</html>
