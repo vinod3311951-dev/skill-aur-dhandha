@@ -787,3 +787,50 @@ html[data-reduced-effects="true"] .combat-hud i b {
     min-height: min(58vw, 430px);
   }
 }
+
+
+/* FX-01 electric reward language: celebratory, cosmetic, non-strobing. */
+.result-card.success .mastery-badge,
+.result-card.success .reward-unlock,
+.result-card.success .personal-best-card.new-best,
+.result-card.success .achievement-card {
+  position:relative;
+  overflow:hidden;
+  border-color:#71f4ff;
+  box-shadow:
+    0 0 0 1px rgba(113,244,255,.18),
+    0 0 18px rgba(113,244,255,.15),
+    inset 0 0 20px rgba(176,92,255,.07);
+}
+.result-card.success .mastery-badge::after,
+.result-card.success .reward-unlock::after,
+.result-card.success .personal-best-card.new-best::after,
+.result-card.success .achievement-card::after {
+  content:'';
+  position:absolute;
+  inset:-45% -70%;
+  pointer-events:none;
+  background:linear-gradient(105deg,transparent 38%,rgba(113,244,255,.26) 48%,rgba(255,99,222,.20) 52%,transparent 62%);
+  transform:translateX(-30%);
+  animation:electric-reward-sweep 1.8s ease-out 1 both;
+}
+.result-card.success .mastery-badge span,
+.result-card.success .reward-unlock span,
+.result-card.success .personal-best-card.new-best span,
+.result-card.success .achievement-card span {
+  color:#8ef8ff;
+  text-shadow:0 0 10px rgba(113,244,255,.32);
+}
+@keyframes electric-reward-sweep {
+  from { transform:translateX(-35%); opacity:0; }
+  18% { opacity:1; }
+  to { transform:translateX(35%); opacity:0; }
+}
+html[data-reduced-effects="true"] .result-card.success .mastery-badge::after,
+html[data-reduced-effects="true"] .result-card.success .reward-unlock::after,
+html[data-reduced-effects="true"] .result-card.success .personal-best-card.new-best::after,
+html[data-reduced-effects="true"] .result-card.success .achievement-card::after {
+  animation:none !important;
+  opacity:.18;
+  transform:none;
+}
