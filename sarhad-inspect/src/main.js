@@ -1955,29 +1955,72 @@ function drawThreatCarrier(ctx, w, h, target) {
     const x = target.x * w;
     const y = target.y * h;
     const r = target.radius * Math.min(w, h);
-    const scale = Math.max(0.75, Math.min(1.1, r / 18));
+    const scale = Math.max(0.8, Math.min(1.22, r / 17));
+    const pulse = effectsReduced() ? 0 : Math.sin(currentElapsed() / 210) * 1.6 * scale;
     ctx.save();
-    ctx.fillStyle = '#090d0c';
-    ctx.strokeStyle = '#f0d77c';
-    ctx.lineWidth = 2.2;
+
+    // Fictional tracked carrier drone: mechanical, asymmetrical and visibly integrated.
+    ctx.fillStyle = 'rgba(0,0,0,.34)';
     ctx.beginPath();
-    ctx.arc(x, y - 12 * scale, 7 * scale, 0, Math.PI * 2);
+    ctx.ellipse(x, y + 17 * scale, 22 * scale, 5 * scale, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    const chassis = ctx.createLinearGradient(x - 18 * scale, y - 12 * scale, x + 18 * scale, y + 10 * scale);
+    chassis.addColorStop(0, '#46564f');
+    chassis.addColorStop(.48, '#17211d');
+    chassis.addColorStop(1, '#090d0c');
+    ctx.fillStyle = chassis;
+    ctx.strokeStyle = '#8c7b49';
+    ctx.lineWidth = 1.7 * scale;
+    ctx.beginPath();
+    ctx.moveTo(x - 18 * scale, y + 4 * scale);
+    ctx.lineTo(x - 12 * scale, y - 10 * scale);
+    ctx.lineTo(x + 11 * scale, y - 13 * scale);
+    ctx.lineTo(x + 19 * scale, y + 1 * scale);
+    ctx.lineTo(x + 12 * scale, y + 12 * scale);
+    ctx.lineTo(x - 13 * scale, y + 12 * scale);
+    ctx.closePath();
     ctx.fill();
     ctx.stroke();
+
+    // Offset sensor mast and articulated side runners avoid any cardboard/placard read.
+    ctx.strokeStyle = '#52675e';
+    ctx.lineWidth = 3.4 * scale;
     ctx.beginPath();
-    roundedRectPath(ctx, x - 9 * scale, y - 5 * scale, 18 * scale, 25 * scale, 5 * scale);
-    ctx.fill();
+    ctx.moveTo(x + 7 * scale, y - 10 * scale);
+    ctx.lineTo(x + 12 * scale, y - 25 * scale);
     ctx.stroke();
-    ctx.fillStyle = '#6f5d3e';
-    ctx.fillRect(x - 7 * scale, y + 1 * scale, 14 * scale, 9 * scale);
-    ctx.fillStyle = '#f0d77c';
+    ctx.fillStyle = '#d8bd68';
     ctx.beginPath();
-    ctx.arc(x, y + 5 * scale, 2.2 * scale, 0, Math.PI * 2);
+    ctx.arc(x + 12 * scale, y - 27 * scale, 3.1 * scale + pulse * .12, 0, Math.PI * 2);
     ctx.fill();
-    ctx.strokeStyle = '#f5e7a8';
-    ctx.lineWidth = 1.6;
+
+    for (const side of [-1, 1]) {
+        ctx.strokeStyle = '#101713';
+        ctx.lineWidth = 5 * scale;
+        ctx.beginPath();
+        ctx.moveTo(x + side * 9 * scale, y + 9 * scale);
+        ctx.lineTo(x + side * 18 * scale, y + 18 * scale);
+        ctx.stroke();
+        ctx.strokeStyle = '#71847b';
+        ctx.lineWidth = 1.4 * scale;
+        ctx.beginPath();
+        ctx.arc(x + side * 19 * scale, y + 18 * scale, 5 * scale, 0, Math.PI * 2);
+        ctx.stroke();
+    }
+
+    // Exposed coupler is the physical interaction point; no bullseye.
+    ctx.fillStyle = '#c9ad5f';
     ctx.beginPath();
-    ctx.arc(x, y + 5 * scale, Math.max(7 * scale, r * 0.42), 0, Math.PI * 2);
+    ctx.moveTo(x - 6 * scale, y - 3 * scale);
+    ctx.lineTo(x + 2 * scale, y - 7 * scale);
+    ctx.lineTo(x + 7 * scale, y);
+    ctx.lineTo(x + 1 * scale, y + 7 * scale);
+    ctx.lineTo(x - 7 * scale, y + 4 * scale);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = '#f1dc91';
+    ctx.lineWidth = 1.2 * scale;
     ctx.stroke();
     ctx.restore();
 }
@@ -1986,128 +2029,154 @@ function drawTarget(ctx, w, h, target, active, completed, candidateIndex) {
     const ty = target.y * h;
     const tr = target.radius * Math.min(w, h);
     const size = Math.max(14, tr);
+    const marker = target.marker ?? 'core';
+    const world = worldById(selectedMission.worldId);
     ctx.save();
     ctx.globalAlpha = completed ? 0.34 : active ? 1 : 0.58;
-    // Grounded shadow keeps the objective visually attached to the environment.
-    ctx.fillStyle = 'rgba(0,0,0,.30)';
+
+    // Ground contact + world-coloured service cabling integrate objectives into the scene.
+    ctx.fillStyle = 'rgba(0,0,0,.28)';
     ctx.beginPath();
-    ctx.ellipse(tx, ty + size * 1.25, size * 1.18, size * .28, 0, 0, Math.PI * 2);
+    ctx.ellipse(tx, ty + size * 1.28, size * 1.30, size * .27, 0, 0, Math.PI * 2);
     ctx.fill();
+    ctx.strokeStyle = alpha(world.palette[0], .34);
+    ctx.lineWidth = Math.max(1.2, size * .07);
+    ctx.beginPath();
+    ctx.moveTo(tx - size * 1.5, ty + size * 1.15);
+    ctx.quadraticCurveTo(tx - size * .65, ty + size * .72, tx - size * .22, ty + size * .45);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(tx + size * 1.45, ty + size * 1.12);
+    ctx.quadraticCurveTo(tx + size * .72, ty + size * .72, tx + size * .30, ty + size * .43);
+    ctx.stroke();
+
     const metal = ctx.createLinearGradient(tx - size, ty - size, tx + size, ty + size);
-    metal.addColorStop(0, '#66766f');
-    metal.addColorStop(.38, '#26342f');
-    metal.addColorStop(.72, '#111b17');
-    metal.addColorStop(1, '#4b5e56');
+    metal.addColorStop(0, '#73857d');
+    metal.addColorStop(.36, '#314039');
+    metal.addColorStop(.72, '#111a16');
+    metal.addColorStop(1, '#52645c');
     const edge = active ? '#f0d77c' : '#a8b5af';
     ctx.strokeStyle = edge;
-    ctx.lineWidth = active ? 2.2 : 1.3;
-    const marker = target.marker ?? 'core';
+    ctx.lineWidth = active ? 2.1 : 1.3;
+
     if (marker === 'ring') {
-        // Compact hovering sensor/drone: fictional, unbranded mechanical objective.
+        // Compact hovering sensor drone.
         ctx.fillStyle = metal;
         ctx.beginPath();
-        ctx.ellipse(tx, ty, size * 1.08, size * .54, 0, 0, Math.PI * 2);
+        ctx.ellipse(tx, ty, size * 1.12, size * .50, 0, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
         ctx.strokeStyle = 'rgba(210,224,217,.72)';
-        ctx.lineWidth = 1.3;
+        ctx.lineWidth = 1.25;
         for (const side of [-1, 1]) {
             ctx.beginPath();
-            ctx.moveTo(tx + side * size * .72, ty - size * .12);
-            ctx.lineTo(tx + side * size * 1.36, ty - size * .48);
+            ctx.moveTo(tx + side * size * .68, ty - size * .10);
+            ctx.lineTo(tx + side * size * 1.34, ty - size * .44);
             ctx.stroke();
             ctx.beginPath();
-            ctx.ellipse(tx + side * size * 1.48, ty - size * .52, size * .44, size * .12, 0, 0, Math.PI * 2);
+            ctx.ellipse(tx + side * size * 1.48, ty - size * .49, size * .42, size * .11, 0, 0, Math.PI * 2);
             ctx.stroke();
         }
         ctx.fillStyle = '#0c1411';
         ctx.beginPath();
-        roundedRectPath(ctx, tx - size * .48, ty - size * .24, size * .96, size * .55, size * .16);
+        ctx.ellipse(tx, ty + size * .05, size * .48, size * .22, 0, 0, Math.PI * 2);
         ctx.fill();
     }
     else if (marker === 'bar') {
-        // Power junction with protective side rails and exposed center bus.
+        // Open-frame power coupler: cylindrical core, braces and exposed bus — never a flat panel.
+        ctx.strokeStyle = '#52675e';
+        ctx.lineWidth = Math.max(2.4, size * .13);
+        for (const side of [-1, 1]) {
+            ctx.beginPath();
+            ctx.moveTo(tx + side * size * .86, ty + size * .98);
+            ctx.lineTo(tx + side * size * .58, ty - size * .58);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(tx + side * size * .58, ty - size * .58);
+            ctx.lineTo(tx + side * size * .18, ty - size * .98);
+            ctx.stroke();
+        }
         ctx.fillStyle = metal;
         ctx.beginPath();
-        roundedRectPath(ctx, tx - size * .88, ty - size * 1.02, size * 1.76, size * 2.04, size * .16);
+        ctx.ellipse(tx, ty, size * .63, size * .86, 0, 0, Math.PI * 2);
         ctx.fill();
+        ctx.strokeStyle = edge;
         ctx.stroke();
-        ctx.fillStyle = '#111815';
-        ctx.fillRect(tx - size * .58, ty - size * .56, size * 1.16, size * 1.06);
-        ctx.strokeStyle = 'rgba(190,208,198,.42)';
+        ctx.fillStyle = '#101815';
+        ctx.beginPath();
+        ctx.ellipse(tx, ty, size * .36, size * .55, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(205,221,212,.46)';
         ctx.lineWidth = 1;
-        for (let i = -1; i <= 1; i += 1) {
+        for (const offset of [-.42, 0, .42]) {
             ctx.beginPath();
-            ctx.moveTo(tx - size * .48, ty + i * size * .28);
-            ctx.lineTo(tx + size * .48, ty + i * size * .28);
+            ctx.moveTo(tx - size * .45, ty + size * offset);
+            ctx.lineTo(tx + size * .45, ty + size * offset);
             ctx.stroke();
         }
     }
     else if (marker === 'diamond') {
-        // Directional beacon/sensor head on a short mast.
+        // Tripod directional beacon with irregular sensor head.
         ctx.strokeStyle = '#53685f';
-        ctx.lineWidth = Math.max(3, size * .16);
-        ctx.beginPath();
-        ctx.moveTo(tx, ty + size * 1.18);
-        ctx.lineTo(tx, ty + size * .24);
-        ctx.stroke();
+        ctx.lineWidth = Math.max(2.8, size * .15);
+        for (const foot of [-.72, 0, .72]) {
+            ctx.beginPath();
+            ctx.moveTo(tx, ty + size * .24);
+            ctx.lineTo(tx + foot * size, ty + size * 1.15);
+            ctx.stroke();
+        }
         ctx.fillStyle = metal;
         ctx.beginPath();
-        ctx.moveTo(tx, ty - size * 1.04);
-        ctx.lineTo(tx + size * .82, ty);
-        ctx.lineTo(tx, ty + size * .82);
-        ctx.lineTo(tx - size * .82, ty);
+        ctx.moveTo(tx - size * .78, ty - size * .22);
+        ctx.lineTo(tx - size * .18, ty - size * 1.02);
+        ctx.lineTo(tx + size * .72, ty - size * .58);
+        ctx.lineTo(tx + size * .84, ty + size * .22);
+        ctx.lineTo(tx + size * .06, ty + size * .67);
+        ctx.lineTo(tx - size * .72, ty + size * .34);
         ctx.closePath();
         ctx.fill();
         ctx.stroke();
     }
     else {
-        // Relay core: mounted field communications device with antenna and service panel.
+        // Asymmetric relay coupler integrated on a short mechanical pedestal.
         ctx.strokeStyle = '#52675e';
-        ctx.lineWidth = Math.max(3, size * .14);
+        ctx.lineWidth = Math.max(2.8, size * .14);
         ctx.beginPath();
-        ctx.moveTo(tx - size * .45, ty + size * 1.05);
-        ctx.lineTo(tx - size * .28, ty + size * .44);
-        ctx.moveTo(tx + size * .45, ty + size * 1.05);
-        ctx.lineTo(tx + size * .28, ty + size * .44);
+        ctx.moveTo(tx - size * .52, ty + size * 1.12);
+        ctx.lineTo(tx - size * .31, ty + size * .42);
+        ctx.lineTo(tx + size * .26, ty + size * .35);
+        ctx.lineTo(tx + size * .62, ty + size * 1.02);
         ctx.stroke();
-        ctx.strokeStyle = 'rgba(196,213,204,.70)';
-        ctx.lineWidth = Math.max(1.5, size * .07);
-        ctx.beginPath();
-        ctx.moveTo(tx + size * .48, ty - size * .70);
-        ctx.lineTo(tx + size * .72, ty - size * 1.52);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.arc(tx + size * .72, ty - size * 1.58, size * .08, 0, Math.PI * 2);
-        ctx.fillStyle = edge;
-        ctx.fill();
+
         ctx.fillStyle = metal;
         ctx.beginPath();
-        roundedRectPath(ctx, tx - size * .82, ty - size * .84, size * 1.64, size * 1.62, size * .18);
+        ctx.moveTo(tx - size * .78, ty - size * .28);
+        ctx.quadraticCurveTo(tx - size * .58, ty - size * .88, tx - size * .05, ty - size * .93);
+        ctx.lineTo(tx + size * .74, ty - size * .48);
+        ctx.lineTo(tx + size * .62, ty + size * .46);
+        ctx.quadraticCurveTo(tx + size * .12, ty + size * .84, tx - size * .67, ty + size * .55);
+        ctx.closePath();
         ctx.fill();
         ctx.stroke();
-        ctx.fillStyle = '#0b1411';
+
+        ctx.strokeStyle = 'rgba(196,213,204,.70)';
+        ctx.lineWidth = Math.max(1.4, size * .07);
         ctx.beginPath();
-        roundedRectPath(ctx, tx - size * .52, ty - size * .46, size * 1.04, size * .86, size * .11);
-        ctx.fill();
-        ctx.fillStyle = 'rgba(180,204,191,.26)';
-        ctx.fillRect(tx - size * .40, ty - size * .30, size * .8, size * .08);
-        ctx.fillRect(tx - size * .40, ty - size * .08, size * .55, size * .08);
-    }
-    // Small screws/rivets reinforce a physical-device read without relying on colour.
-    ctx.fillStyle = 'rgba(226,235,230,.72)';
-    for (const [ox, oy] of [[-.55, -.55], [.55, -.55], [-.55, .55], [.55, .55]]) {
+        ctx.moveTo(tx + size * .34, ty - size * .68);
+        ctx.lineTo(tx + size * .68, ty - size * 1.42);
+        ctx.stroke();
+        ctx.fillStyle = edge;
         ctx.beginPath();
-        ctx.arc(tx + ox * size, ty + oy * size, Math.max(1.1, size * .055), 0, Math.PI * 2);
+        ctx.arc(tx + size * .70, ty - size * 1.48, Math.max(1.4, size * .08), 0, Math.PI * 2);
         ctx.fill();
     }
-    // The authoritative marker remains centered so art never changes hit truth.
+
+    // Physical keyed coupler remains centered; presentation never changes hit truth.
     drawMarker(ctx, tx, ty, Math.max(size * .34, 5), marker, completed);
     if (active && !completed) {
-        // Small equipment-status glint, never a target halo.
         ctx.fillStyle = 'rgba(240,215,124,.72)';
         ctx.beginPath();
-        ctx.arc(tx + size * .88, ty - size * .72, Math.max(1.5, size * .08), 0, Math.PI * 2);
+        ctx.arc(tx + size * .84, ty - size * .70, Math.max(1.5, size * .08), 0, Math.PI * 2);
         ctx.fill();
     }
     if (candidateIndex !== undefined) {
@@ -2186,19 +2255,52 @@ function drawMarker(ctx, x, y, size, marker, completed) {
 }
 function drawRicochetSurface(ctx, w, h, axis, coordinate) {
     ctx.save();
-    ctx.strokeStyle = 'rgba(240,215,124,.88)';
-    ctx.lineWidth = 5;
-    ctx.setLineDash([10, 8]);
-    ctx.beginPath();
+    const world = worldById(selectedMission.worldId);
+    const edge = alpha(world.palette[0], .70);
+    const metal = ctx.createLinearGradient(0, 0, axis === 'x' ? w : 0, axis === 'y' ? h : 0);
+    metal.addColorStop(0, 'rgba(36,51,45,.58)');
+    metal.addColorStop(.5, 'rgba(133,151,142,.70)');
+    metal.addColorStop(1, 'rgba(25,37,32,.62)');
+    ctx.fillStyle = metal;
+    ctx.strokeStyle = edge;
+    ctx.lineWidth = 1.8;
+
+    // Fictional rebound vane: a real mechanical surface, not a dashed debug line.
     if (axis === 'x') {
-        ctx.moveTo(coordinate * w, h * .12);
-        ctx.lineTo(coordinate * w, h * .86);
+        const x = coordinate * w;
+        const plateW = Math.max(11, w * .024);
+        const top = h * .15;
+        const bottom = h * .84;
+        ctx.beginPath();
+        ctx.moveTo(x - plateW, top);
+        ctx.lineTo(x + plateW * .45, top + h * .025);
+        ctx.lineTo(x + plateW, bottom);
+        ctx.lineTo(x - plateW * .45, bottom - h * .02);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        for (let y = top + 28; y < bottom; y += 52) {
+            ctx.fillStyle = 'rgba(230,240,235,.55)';
+            ctx.beginPath(); ctx.arc(x, y, 1.6, 0, Math.PI * 2); ctx.fill();
+        }
+    } else {
+        const y = coordinate * h;
+        const plateH = Math.max(9, h * .018);
+        const left = w * .10;
+        const right = w * .90;
+        ctx.beginPath();
+        ctx.moveTo(left, y - plateH * .45);
+        ctx.lineTo(right - w * .02, y - plateH);
+        ctx.lineTo(right, y + plateH * .45);
+        ctx.lineTo(left + w * .02, y + plateH);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        for (let x = left + 30; x < right; x += 56) {
+            ctx.fillStyle = 'rgba(230,240,235,.55)';
+            ctx.beginPath(); ctx.arc(x, y, 1.6, 0, Math.PI * 2); ctx.fill();
+        }
     }
-    else {
-        ctx.moveTo(w * .08, coordinate * h);
-        ctx.lineTo(w * .92, coordinate * h);
-    }
-    ctx.stroke();
     ctx.restore();
 }
 function drawProtectionTimer(ctx, w, total, elapsed) {
