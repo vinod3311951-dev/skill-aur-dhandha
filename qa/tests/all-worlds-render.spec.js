@@ -68,8 +68,21 @@ for (let worldId = 1; worldId <= 7; worldId += 1) {
     test(`render audit W${worldId} M${String(order).padStart(2, '0')}`, async ({ page }, testInfo) => {
       await openMission(page, worldId, order);
       await page.waitForTimeout(120);
+
+      // Scope evidence confirms playable precision framing.
       await page.screenshot({
-        path: testInfo.outputPath(`world-${String(worldId).padStart(2, '0')}-mission-${String(order).padStart(2, '0')}.png`),
+        path: testInfo.outputPath(`world-${String(worldId).padStart(2, '0')}-mission-${String(order).padStart(2, '0')}-scope.png`),
+        fullPage: true
+      });
+
+      // Overview evidence is mandatory for founder visual QA: it exposes the full environment,
+      // mechanical objective integration and any placeholder/cardboard regression hidden by scope framing.
+      const toggle = page.locator('[data-action="viewToggle"]');
+      await toggle.click();
+      await expect(page.locator('#playfield')).toHaveAttribute('data-view', 'overview');
+      await page.waitForTimeout(80);
+      await page.screenshot({
+        path: testInfo.outputPath(`world-${String(worldId).padStart(2, '0')}-mission-${String(order).padStart(2, '0')}-overview.png`),
         fullPage: true
       });
     });
