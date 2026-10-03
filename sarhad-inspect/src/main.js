@@ -49,13 +49,13 @@ let pendingMissionElapsedRestoreMs = null;
 const SCOPE_ZOOM = 1.78;
 const CIVILIAN_HIT_PENALTY = 400;
 const WORLD_SCENE_SOURCES = {
-    1: '/assets/worlds/glacier-reach.svg',
-    2: '/assets/worlds/amber-desert.svg',
-    3: '/assets/worlds/pine-watch.svg',
-    4: '/assets/worlds/monsoon-pass.svg',
-    5: '/assets/worlds/glacier-line.svg',
-    6: '/assets/worlds/red-canyon.svg',
-    7: '/assets/worlds/night-ridge.svg'
+    1: '/assets/worlds/ludo/glacier-reach.webp',
+    2: '/assets/worlds/ludo/amber-desert.webp',
+    3: '/assets/worlds/ludo/pine-watch.webp',
+    4: '/assets/worlds/ludo/monsoon-pass.webp',
+    5: '/assets/worlds/ludo/glacier-line.webp',
+    6: '/assets/worlds/ludo/red-canyon.webp',
+    7: '/assets/worlds/ludo/night-ridge.webp'
 };
 const worldSceneImages = new Map();
 let deferredInstallPrompt = null;
