@@ -75,6 +75,12 @@ mkdirSync(path.dirname(phaserTarget),{recursive:true});
 copyFileSync(phaserSource,phaserTarget);
 console.log("Phaser 3.90.0 vendored into public/vendor for offline PWA use");
 
+const proofSource=path.join(root,"factoryx-proofs","sarhad-level2-real-2min","index.html");
+if(existsSync(proofSource)){
+  const proofTarget=path.join(outDir,"factoryx-proofs","sarhad-level2-real-2min","index.html");
+  mkdirSync(path.dirname(proofTarget),{recursive:true});
+  copyFileSync(proofSource,proofTarget);
+}
 console.log(`FX-01 editable source overlay applied (${editableFiles.length} files)`);
 console.log("FX-01 editable runtime source is authoritative");
 
